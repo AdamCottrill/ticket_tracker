@@ -1,0 +1,6 @@
+This diectory contains a django project that was developed following
+the screen cast that can be found here:
+[[http://net.tutsplus.com/tutorials/python-tutorials/diving-into-django/]]
+
+Adam Cottrill
+January 27, 2013.

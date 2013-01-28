@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>Sample theme</title>
+    <link rel="stylesheet" href="style.css" type="text/css" media="screen" />
+  </head>
+  <body>
+    <div id="hd">
+      <h1>Simple<span>Ticket</span></h1>
+      <p>Bug tracking made simple.</p>
+    </div>
+    <div id="mn">
+      <ul>
+        <li><a href="" class="sel">View Tickets</a></li>
+        <li><a href="">New Ticket</a></li>
+      </ul>
+    </div>
+    <div id="bd">
+      <!-- form -->
+      <form action="" method="post">
+        <fieldset>
+          <legend>Report a New Ticket</legend>
+          <p><textarea name="description"></textarea></p>
+          <p><input type="submit" value="Create Ticket" /></p>
+        </fieldset>
+      </form>
+      <!-- list -->
+      <fieldset>
+        <legend>Filter</legend>
+        <p>
+          Status
+          <input type="checkbox" id="cbNew" name="new" value="1" />
+          <label for="cbNew">new</label>
+        </p>
+      </fieldset>
+      <table cellspacing="0" class="list">
+        <tr>
+          <th>Ticket</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Priority</th>
+        </tr>
+        <tr>
+          <td><a href="">1</a></td>
+          <td><a href="">Blah blah</a></td>
+          <td>New</td>
+          <td>High</td>
+        </tr>
+      </table>
+      <!-- detail -->
+      <h2>Ticket #{{ ticket.id }} <span>{{ ticket.status }}</span></h2>
+      <div class="ticket">
+        <h2>Information</h2>
+        <div class="date">
+          <p class="cr">Opened {{ ticket.created_on }} ago</p>
+          <p class="up">Last modified {{ ticket.updated_on }} ago</p>
+        </div>
+        <div class="clear">&nbsp;</div>
+        <div class="block w49 left">
+          <p class="pri title">Priority</p>
+          <p class="pri">{{ ticket.priority }}</p>
+        </div>
+        <div class="block w49 right">
+          <p class="ass title">Assigned to</p>
+          <p class="ass">Nobody {{ ticket.assigned_to }}</p>
+        </div>
+        <div class="clear">&nbsp;</div>
+        <div class="block">
+          <p class="des title">Description</p>
+          <p class="des">{{ ticket.description }}</p>
+        </div>
+      </div>
+      <div class="ticket">
+        <h2>Change History</h2>
+        <div class="clear">&nbsp;</div>
+        <div class="item">
+          <div class="date">
+            <p class="cr">{{ ticket.created_on }} ago</p>
+            <p class="ur">by {{ ticket.user }}</p>
+          </div>
+          <p class="title">Changed Status</p>
+          <p>Blah</p>
+        </div>
+        <div class="item">
+          <div class="date">
+            <p class="cr">{{ ticket.created_on }} ago</p>
+            <p class="ur">by {{ ticket.user }}</p>
+          </div>
+          <p class="title">Changed World</p>
+          <p>Hehe</p>
+        </div>
+      </div>
+      <form action="" method="post">
+        <fieldset>
+          <legend>Your two cents</legend>
+          <div class="block">
+            <p><label for="email">Username or Email:</label></p>
+            <p><input id="email" type="text" name="email" value="" /></p>
+          </div>
+          <div class="block">
+            <p><label for="comment">Message:</label></p>
+            <p><textarea id="comment"></textarea></p>
+            <p><input type="submit" value="Comment" /></p>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+    <div id="ft">
+      <p>&copy;2009 Jeff Hui</p>
+    </div>
+  </body>
+</html>

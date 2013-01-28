@@ -1,0 +1,30 @@
+{% extends "tickets/base.html" %}
+
+{% block title %} Ticket #{{ object.id }} {% endblock %}
+
+{% block content %}
+ 
+      <h2>Ticket #{{ object.id }} <span>{{ object.status }}</span></h2>
+      <div class="ticket">
+        <h2>Information</h2>
+        <div class="date">
+          <p class="cr">Opened {{ object.created_on }} ago</p>
+          <p class="up">Last modified {{ object.updated_on }} ago</p>
+        </div>
+        <div class="clear">&nbsp;</div>
+        <div class="block w49 left">
+          <p class="pri title">Priority</p>
+          <p class="pri">{{ object.priority }}</p>
+        </div>
+        <div class="block w49 right">
+          <p class="ass title">Assigned to</p>
+          <p class="ass">Nobody {{ object.assigned_to }}</p>
+        </div>
+        <div class="clear">&nbsp;</div>
+        <div class="block">
+          <p class="des title">Description</p>
+          <p class="des">{{ object.description }}</p>
+        </div>
+      </div>
+
+{% endblock %}

@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>{% block title %}{% endblock %}Simple Ticket</title>
+    <link rel="stylesheet" href="{{ STATIC_URL }}style.css" type="text/css" media="screen" />
+  </head>
+  <body>
+    <div id="hd">
+      <h1>Simple<span>Ticket</span></h1>
+      <p>Bug tracking made simple.</p>
+    </div>
+    <div id="mn">
+      <ul>
+        <li><a href="{% url ticket_list %}" class="sel">View Tickets</a></li>
+        <li><a href="">New Ticket</a></li>
+        <li><a href="/admin/">Admin</a></li>
+      </ul>
+    </div>
+ 
+    <div id="ft">
+    {% block content %}
+    {% endblock%}
+    </div>
+
+    <div id="ft">
+      <p>&copy;2013 Adam Cottrill</p>
+    </div>
+
+  </body>
+</html>
