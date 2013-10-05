@@ -1,27 +1,31 @@
 # Django settings for tickettracker project.
 
 import os
-here = lambda * x: os.path.join(os.path.abspath(os.path.dirname(__file__)), *x)
+#here = lambda * x: os.path.join(os.path.abspath(os.path.dirname(__file__)), *x)
 
-PROJECT_ROOT = here("..")
+
+
+PROJECT_ROOT =  os.path.abspath(os.path.join(
+    os.path.dirname(__file__), '../..'))
+#PROJECT_ROOT = here("..")
 root = lambda * x: os.path.join(os.path.abspath(PROJECT_ROOT), *x)
-
+here = lambda * x: os.path.join(os.path.abspath(os.path.dirname(__file__)), *x)
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
+    ('Adam Cottrill', 'racottrill@bmts.com'),
 )
 
 MANAGERS = ADMINS
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '%s/db/tickettracker.db' % PROJECT_ROOT,
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': '%s/db/tickettracker.db' % PROJECT_ROOT,
+#     }
+# }
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -95,7 +99,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -103,9 +107,10 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
-INTERNAL_IPS = ('127.0.0.1',)
+#INTERNAL_IPS = ('127.0.0.1',)
 
 ROOT_URLCONF = 'tickettracker.urls'
 
@@ -119,7 +124,7 @@ TEMPLATE_DIRS = (
     root('templates'),
 )
 
-INSTALLED_APPS = (
+DJANGO_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -127,10 +132,16 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    'tickets',
-    'debug_toolbar',
 )
 
+THIRDPARTY_APPS = (
+    #'crispy_forms',
+    #'taggit',
+)
+
+MY_APPS = ('tickets',)
+
+INSTALLED_APPS = DJANGO_APPS + THIRDPARTY_APPS + MY_APPS           
 
 # DEBUG_TOOLBAR_CONFIG = {
 #     'INTERCEPT_REDIRECTS': False,

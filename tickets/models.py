@@ -44,16 +44,35 @@ class Ticket(models.Model):
     priority = models.IntegerField(choices=TICKET_PRIORITY_CHOICES)
     created_on = models.DateTimeField('date created', auto_now_add=True)
     updated_on = models.DateTimeField('date updated', auto_now=True)
+    votes = models.IntegerField(default=0)
+    parent = models.ForeignKey('self',
+                                   blank=True,
+                                   null=True)
 
+    
     def name(self):
         return self.description.split("\n", 1)[0]
 
     def get_absolute_url(self):
         return str(self.id)
 
+    def up_vote(self):
+        self.votes +=1
+        self.save()
+
+    def down_vote(self):
+        if self.votes > 0:
+            self.votes -= 1
+            self.save()
+        
+        
 class FollowUp(models.Model):
     ''' '''
     ticket = models.ForeignKey(Ticket)
+    parent = models.ForeignKey('self',
+                                   blank=True,
+                                   null=True)
+
     submitted_by = models.ForeignKey(User, null=True, blank=True)    
     created_on = models.DateTimeField('date created', auto_now_add=True)
     comment = models.TextField()
