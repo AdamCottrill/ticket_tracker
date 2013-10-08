@@ -7,6 +7,9 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^ticket/', include('tickets.urls')),
+    url(r'^accounts/', include('auth.urls')),                       
+    
+                       
 )
 
 #note - this doesn't work as it should, but we're moving on for now.

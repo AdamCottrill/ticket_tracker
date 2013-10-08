@@ -112,10 +112,10 @@ MIDDLEWARE_CLASSES = (
 
 #INTERNAL_IPS = ('127.0.0.1',)
 
-ROOT_URLCONF = 'tickettracker.urls'
+ROOT_URLCONF = 'main.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'tickettracker.wsgi.application'
+WSGI_APPLICATION = 'main.wsgi.application'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -135,6 +135,7 @@ DJANGO_APPS = (
 )
 
 THIRDPARTY_APPS = (
+    'passwords',
     #'crispy_forms',
     #'taggit',
 )
@@ -178,3 +179,7 @@ LOGGING = {
         },
     }
 }
+
+#password criteria
+#PASSWORD_MIN_LENGTH = 8
+#PASSWORD_COMPLEXITY = { "UPPER":  1, "LOWER":  1, "DIGITS": 1 }

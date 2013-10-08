@@ -3,28 +3,34 @@
 {% block title %} Ticket #{{ object.id }} {% endblock %}
 
 {% block content %}
- 
-      <h2>Ticket #{{ object.id }} <span>{{ object.status }}</span></h2>
-      <div class="ticket">
-        <h2>Information</h2>
-        <div class="date">
-          <p class="cr">Opened {{ object.created_on }} ago</p>
-          <p class="up">Last modified {{ object.updated_on }} ago</p>
-        </div>
-        <div class="clear">&nbsp;</div>
-        <div class="block w49 left">
-          <p class="pri title">Priority</p>
-          <p class="pri">{{ object.priority }}</p>
-        </div>
-        <div class="block w49 right">
-          <p class="ass title">Assigned to</p>
-          <p class="ass">Nobody {{ object.assigned_to }}</p>
-        </div>
-        <div class="clear">&nbsp;</div>
-        <div class="block">
-          <p class="des title">Description</p>
-          <p class="des">{{ object.description }}</p>
-        </div>
-      </div>
+
+<div class="container">
+
+<h2>Ticket #{{ object.id }} <span> ({{ object.status }})</span></h2>
+
+<h2>Information</h2>
+
+<p><b>Opened: </b> {{ object.created_on }} </p>
+<p><b>Last modified: </b>{{ object.updated_on }} </p>
+
+<p><b>Priority: </b>{{ object.priority }}</p>
+<p><b>Votes: </b>{{ object.votes }}
+  <a href="{% url 'upvote_ticket' object.id %}">
+    <button type="button" class="btn btn-info">Up-Vote</button></a>
+  <p><b>Sumbitted by: </b> {{ object.submitted_by }}</p>
+  <p><b>Assigned to: </b>{{ object.assigned_to }}</p>
+  <p><b>Description: </b>{{ object.description }}</p>
+
+
+  <button type="button" class="btn btn-info">Update</button></p>
+<button type="button" class="btn btn-info">Comment</button>
+
+<p><b>Parent Ticket:</b></p>
+
+<p><b>Child Ticket(s):</b></p>
+
+<h4>Comments:</h4>
+
+</div>
 
 {% endblock %}

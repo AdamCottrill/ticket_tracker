@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib import admin
 from django.contrib.auth.models import User
-
+from django.core.urlresolvers import reverse
 
 class Ticket(models.Model):
     '''
@@ -18,7 +18,7 @@ class Ticket(models.Model):
 
     TICKET_TYPE_CHOICES = {
         ('feature', 'Feature Request'),
-        ('but', 'Bug Report'),
+        ('bug', 'Bug Report'),
         
     }
 
@@ -54,7 +54,8 @@ class Ticket(models.Model):
         return self.description.split("\n", 1)[0]
 
     def get_absolute_url(self):
-        return str(self.id)
+        url = reverse('ticket_detail', kwargs={'pk':self.id})        
+        return url
 
     def up_vote(self):
         self.votes +=1
@@ -65,7 +66,16 @@ class Ticket(models.Model):
             self.votes -= 1
             self.save()
         
-        
+
+
+class UserVoteLog(models.Model):
+    '''A table to keep track of which tickets a user has voted for.
+    Each user can only upvote a ticket once.
+    '''
+    user = models.ForeignKey(User)
+    ticket = models.ForeignKey(Ticket)
+    
+            
 class FollowUp(models.Model):
     ''' '''
     ticket = models.ForeignKey(Ticket)

@@ -1,11 +1,16 @@
 # Create your views here.
 from django import forms
+from django.contrib.auth.decorators import login_required
 from django.forms.formsets import formset_factory
-from django.shortcuts import render_to_response
+from django.http import HttpResponseRedirect
+from django.shortcuts import render_to_response, get_object_or_404
+#from django.template import RequestContext
+from django.utils.decorators import method_decorator
 from django.views.generic.list import ListView
 from django.views.generic import CreateView, UpdateView, DetailView
 
-from .models import Ticket
+
+from .models import Ticket, UserVoteLog
 
 TICKET_STATUS_CHOICES = {
     ('new', 'New'),
@@ -52,11 +57,34 @@ def manage_tickets(request):
     return render_to_response('tickets/manage_tickets.html',
                               {'formset': formset})
 
-    
+
 class TicketCreateView(CreateView):
     model = Ticket
 
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(TicketCreateView, self).dispatch(*args, **kwargs)
     
+
 class TicketUpdateView(UpdateView):
     model = Ticket
+
+    
+@login_required
+def upvote_ticket(request,pk):
+    #ticket = Ticket.object.get(pk=pk)
+    user = request.user
+    ticket = get_object_or_404(Ticket, pk=pk)                    
+
+    has_voted = UserVoteLog.objects.get_or_create(ticket=ticket,
+                                                  user=user)
+    if ticket and not has_voted:        
+        ticket.up_vote()
+    return HttpResponseRedirect(ticket.get_absolute_url())    
+    #return render_to_response('tickets/ticket_detail.html',
+    #                          {'object':ticket},
+    #                          context_instance = RequestContext(request))
+    
+    
+    
     

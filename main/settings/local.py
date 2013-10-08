@@ -1,4 +1,4 @@
-from tickettracker.settings.base import *
+from main.settings.base import *
 
 DATABASES = {
     'default': {

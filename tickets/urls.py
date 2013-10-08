@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
 from .views import (TicketListView, TicketDetailView, manage_tickets,
-                    TicketCreateView, TicketUpdateView)
+                    TicketCreateView, TicketUpdateView, upvote_ticket)
 # from .models import Ticket
 
 #info = {
@@ -35,5 +35,10 @@ urlpatterns = patterns('',
                     view = TicketUpdateView.as_view(),
                     name = "update_ticket"),
 
+                url(r'^upvote/(?P<pk>\d+)/$',
+                    view = upvote_ticket,
+                    name = 'upvote_ticket'),
+
+                       
                        
 )

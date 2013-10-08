@@ -1,0 +1,66 @@
+{% extends "tickets/base.html" %}
+
+{% block title %}New User{% endblock %}
+
+{% block content %}
+
+
+<div id="Register">
+  <div class="row">
+    <!-- Alignment -->
+    <div class="col-sm-offset-4 col-sm-3">
+
+      <!-- Form itself -->
+      <form method="POST" action="" class="well">
+	{% csrf_token %}
+	<legend>New User Registration</legend>
+
+	{% if form.errors %}
+	<div class="alert alert-danger">
+    	  <button type="button" class="close" data-dismiss="alert">×</button>
+	  <ul>
+	    {% for error in form.errors.values %}
+    	    <li>{{ error|striptags }}</li>
+	    {% endfor %}
+	  </ul>
+
+	</div>
+	{% endif %}
+
+	<!-- Full Name -->
+	<div class="control-group">
+          <div class="controls">
+	    <input type="text" class="form-control" name="username"
+		   placeholder="User Name" id="username" required
+		   data-validation-required-message="Please enter your user name" />
+	    <p class="help-block"></p>
+	  </div>
+	</div>
+
+        <!-- Password1 -->
+	<div class="control-group">
+          <div class="controls">
+	    <input type="password" class="form-control" placeholder="password"
+		   name="password1" id="password1" required />
+          </div>
+	</div>
+
+        <!-- Password2 -->
+	<div class="control-group">
+          <div class="controls">
+	    <input type="password" class="form-control" placeholder="password (again)"
+		   name="password2" id="password2" required />
+          </div>
+	</div>
+        <div class="row">
+	  <p>Already registered? <a href="{% url 'login' %}" tabindex="-1">login here</a>
+	  <button type="submit" class="btn btn-primary pull-right">Register</button><br /></p>
+	</div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

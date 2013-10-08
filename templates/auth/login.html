@@ -1,0 +1,35 @@
+{% extends "tickets/base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+
+
+    <div class="row">
+    <div class="span4 offset4">
+    <div class="well">
+    <legend>Please sign in:</legend>
+    {% if form.errors %}
+    	<div class="alert alert-error">
+    		<button type="button" class="close" data-dismiss="alert">×</button>
+		  <p class="error">"Sorry, that's not a valid username or password"</p>
+    	</div>
+    {% endif %}
+    <form method="POST" action="{% url 'login' %}" accept-charset="UTF-8">
+      {% csrf_token %}
+    <input class="span3" placeholder="Username" type="text" name="username">
+    <input class="span3" placeholder="Password" type="password" name="password">
+    <label class="checkbox">
+    <input type="checkbox" name="remember" value="1"> Remember Me
+    </label>
+    <input type="hidden" name="next" value="{{ next|escape }}" />
+    <button class="btn-info btn" type="submit">Login</button>
+    </form>
+    </div>
+    </div>
+    </div>
+
+
+<p><a href="{% url 'register' %}">Create an account</a> </p>
+
+{% endblock %}

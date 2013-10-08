@@ -3,7 +3,7 @@
 """Settings to be used for running tests."""
 import os
 
-from tickettracker.settings.base import *
+from main.settings.base import *
 
 USE_TZ = False
 
@@ -25,7 +25,7 @@ PASSWORD_HASHERS = (
 #EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 SOUTH_TESTS_MIGRATE = False
 
-TEST_RUNNER = 'tickettracker.testrunner.NoseCoverageTestRunner'
+TEST_RUNNER = 'main.testrunner.NoseCoverageTestRunner'
 
 COVERAGE_MODULE_EXCLUDES = [
     'tests$', 'settings$', 'urls$', 'locale$',

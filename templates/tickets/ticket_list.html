@@ -3,21 +3,32 @@
 {% block title %} View Tickets - {% endblock %}
 
 {% block content %}
+<div class="container">
 
-      <table cellspacing="0" class="list">
-        <tr>
-          <th>Ticket</th>
-          <th>Description</th>
-          <th>Status</th>
-          <th>Assigned to</th>
-        </tr>
-	{% for object in object_list %}
-        <tr>
-            <td><a href="{{ object.get_absolute_url }}">{{object.id}}</a></td>
-            <td><a href="{{ object.get_absolute_url }}">{{object.description}}</a></td>
-            <td>{{object.status}}</td>
-            <td>{{object.assigned_to}}</td>
-        </tr>
-	{% endfor %}
-      </table>
+  <table cellspacing="0" class="table">
+    <tr>
+      <th>Ticket</th>
+      <th>Description</th>
+      <th>Submitted By</th>
+      <th>Ticket Type</th>
+      <th>Status</th>
+      <th>Priority</th>
+      <th>Votes</th>
+      <th>Assigned to</th>
+    </tr>
+    {% for object in object_list %}
+    <tr>
+      <td><a href="{{ object.get_absolute_url }}">{{object.id}}</a></td>
+      <td><a href="{{ object.get_absolute_url }}">{{  object.name }}</a></td>
+      <td>{{object.submitted_by}}</td>
+      <td>{{object.get_ticket_type_display}}</td>
+      <td>{{object.status}}</td>
+      <td>{{object.priority}}</td>
+      <td>{{object.votes}}</td>
+      <td>{{object.assigned_to}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
 {% endblock %}
