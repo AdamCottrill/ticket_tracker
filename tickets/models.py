@@ -51,7 +51,9 @@ class Ticket(models.Model):
 
     
     def name(self):
-        return self.description.split("\n", 1)[0]
+        name = self.description.split("\n", 1)[0]
+        name = name[:60]
+        return name
 
     def get_absolute_url(self):
         url = reverse('ticket_detail', kwargs={'pk':self.id})        

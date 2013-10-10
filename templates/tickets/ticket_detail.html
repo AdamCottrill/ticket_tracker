@@ -83,8 +83,18 @@
     <table class="table table-hover">
       <tr>
 	<td>
+	  {% if comment.closed  %}
+
+	  <div class="alert alert-danger">
+	    <p>On {{ comment.created_on }} this ticket was <button class="btn btn-danger btn-xs" type="submit">closed</button> by {{ comment.submitted_by }}</p>
+	    {{ comment.comment }}
+	  </div>
+
+	  {% else %}
+
 	  <p>On {{ comment.created_on }} {{ comment.submitted_by }} wrote:</p>
 	  {{ comment.comment }}
+	  {% endif %}
         </td>
     </table>
     <br />

@@ -138,9 +138,11 @@ def upvote_ticket(request,pk):
     user = request.user
     #ticket = get_object_or_404(Ticket, pk=pk)                    
 
-    has_voted = UserVoteLog.objects.get_or_create(ticket=ticket,
+    p, created = UserVoteLog.objects.get_or_create(ticket=ticket,
                                                   user=user)
-    if ticket and not has_voted:        
+
+    #import pdb; pdb.set_trace()
+    if ticket and created:        
         ticket.up_vote()
     return HttpResponseRedirect(ticket.get_absolute_url())    
     #return render_to_response('tickets/ticket_detail.html',
