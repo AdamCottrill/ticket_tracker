@@ -1,32 +1,34 @@
-from django.shortcuts import render_to_response
+from django.shortcuts import render, render_to_response
 from django.http import HttpResponseRedirect
-from django.contrib import auth
-from django import forms
-from django.contrib.auth import authenticate
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.decorators import login_required
-from django.core.context_processors import csrf
-from django.core.urlresolvers import reverse
-from django.shortcuts import render
-from django.contrib.auth.models import User
 
+#from django import forms
+from django.contrib import auth
+from django.contrib.auth import authenticate
+#from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib.auth.views import logout
+#from django.core.context_processors import csrf
+from django.core.urlresolvers import reverse
+
+from django.template import RequestContext
 from forms import UserForm, ChangePasswordForm
 
 
-def login(request):
-    logout(request)
-    username = ""
-    password = ""
-    if request.method =="POST":
-        username = form.cleaned_data['username']
-        password = form.cleaned_data['password']
-        user = authenticate(username, password)
-        if user is not None:
-            if user.is_active:
-                auth.login(request, user)
-                return HttpResponseRedirect(reverse("ticket_list"))
-    return render_to_response(reverse('login'),
-                            context_instance = RequestContext(request))
+#def login(request):
+#    logout(request)
+#    username = ""
+#    password = ""
+#    if request.method =="POST":
+#        username = form.cleaned_data['username']
+#        password = form.cleaned_data['password']
+#        user = authenticate(username, password)
+#        if user is not None:
+#            if user.is_active:
+#                auth.login(request, user)
+#                return HttpResponseRedirect(reverse("ticket_list"))
+#    return render_to_response('auth/login.html',
+#                            context_instance = RequestContext(request))
 
 @login_required
 def logout_view(request):

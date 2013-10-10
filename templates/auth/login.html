@@ -5,31 +5,55 @@
 {% block content %}
 
 
-    <div class="row">
-    <div class="span4 offset4">
-    <div class="well">
-    <legend>Please sign in:</legend>
-    {% if form.errors %}
-    	<div class="alert alert-error">
-    		<button type="button" class="close" data-dismiss="alert">×</button>
-		  <p class="error">"Sorry, that's not a valid username or password"</p>
-    	</div>
-    {% endif %}
-    <form method="POST" action="{% url 'login' %}" accept-charset="UTF-8">
-      {% csrf_token %}
-    <input class="span3" placeholder="Username" type="text" name="username">
-    <input class="span3" placeholder="Password" type="password" name="password">
-    <label class="checkbox">
-    <input type="checkbox" name="remember" value="1"> Remember Me
-    </label>
-    <input type="hidden" name="next" value="{{ next|escape }}" />
-    <button class="btn-info btn" type="submit">Login</button>
-    </form>
+<div id="Login">
+  <div class="row">
+    <!-- Alignment -->
+    <div class="col-sm-offset-4 col-sm-3">
+
+      <!-- Form itself -->
+      <form method="POST" action="" class="well">
+	{% csrf_token %}
+	<legend>Login</legend>
+
+	{% if form.errors %}
+	<div class="alert alert-danger">
+    	  <button type="button" class="close" data-dismiss="alert">×</button>
+	  <ul>
+	    {% for error in form.errors.values %}
+    	    <li>{{ error|striptags }}</li>
+	    {% endfor %}
+	  </ul>
+	</div>
+	{% endif %}
+
+	<!-- Full Name -->
+	<div class="control-group">
+          <div class="controls">
+	    <input type="text" class="form-control" name="username"
+		   placeholder="User Name" id="username" required
+		   data-validation-required-message="Please enter your user name" />
+	    <p class="help-block"></p>
+	  </div>
+	</div>
+
+        <!-- Password -->
+	<div class="control-group">
+          <div class="controls">
+	    <input type="password" class="form-control" placeholder="password"
+		   name="password" id="password" required />
+          </div>
+	</div>
+
+        <div class="row">
+	  <p>Not registered? <a href="{% url 'register' %}" tabindex="-1">Create an account here.</a>
+	    <button type="submit" class="btn btn-primary pull-right">Login</button><br /></p>
+	</div>
+
+      </form>
     </div>
-    </div>
-    </div>
+  </div>
+</div>
 
 
-<p><a href="{% url 'register' %}">Create an account</a> </p>
 
 {% endblock %}

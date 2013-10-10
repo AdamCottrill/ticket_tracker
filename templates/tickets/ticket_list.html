@@ -25,7 +25,11 @@
       <td>{{object.status}}</td>
       <td>{{object.priority}}</td>
       <td>{{object.votes}}</td>
-      <td>{{object.assigned_to}}</td>
+	{% if object.assigned_to %} 
+      <td>{{ object.assigned_to }} </td>
+      {% else %} <td>Nobody (yet)</td> {% endif %}
+
+
     </tr>
     {% endfor %}
   </table>

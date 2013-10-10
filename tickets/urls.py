@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
 from .views import (TicketListView, TicketDetailView, manage_tickets,
-                    TicketCreateView, TicketUpdateView, upvote_ticket)
+                     TicketUpdateView, upvote_ticket, TicketFollowUpView,)
 # from .models import Ticket
 
 #info = {
@@ -28,17 +28,27 @@ urlpatterns = patterns('',
                 url(r"^all/$", manage_tickets),
 
                 url(regex = r"^new/$",
-                    view = TicketCreateView.as_view(),
+                    #view = TicketCreateView.as_view(),
+                    #view = TicketCreateView,
+                    view = TicketUpdateView,                    
                     name="new_ticket"),
                        
-                url(r'^(?P<pk>\d+)/$',
-                    view = TicketUpdateView.as_view(),
+                url(r'^update/(?P<pk>\d+)/$',
+                    #view = TicketUpdateView.as_view(),
+                    view = TicketUpdateView,
                     name = "update_ticket"),
 
                 url(r'^upvote/(?P<pk>\d+)/$',
                     view = upvote_ticket,
                     name = 'upvote_ticket'),
 
+                url(r'^close/(?P<pk>\d+)/$',
+                    view = TicketFollowUpView, kwargs={'close':True}, 
+                    name = 'close_ticket'), 
+                       
+                url(r'^comment/(?P<pk>\d+)/$',
+                    view = TicketFollowUpView, kwargs= {'close':False},
+                    name = 'comment_ticket')
                        
                        
 )

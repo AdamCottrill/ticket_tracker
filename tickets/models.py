@@ -86,6 +86,7 @@ class FollowUp(models.Model):
     submitted_by = models.ForeignKey(User, null=True, blank=True)    
     created_on = models.DateTimeField('date created', auto_now_add=True)
     comment = models.TextField()
+    closed = models.BooleanField(default=False)
     
 class TicketAdmin(admin.ModelAdmin):
     date_heirarchy = "created_on"

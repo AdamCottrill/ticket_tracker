@@ -5,32 +5,96 @@
 {% block content %}
 
 <div class="container">
+  <div class="col-md-6">
+    <h2>Ticket #{{ object.id }} <span> ({{ object.status }})</span></h2>
 
-<h2>Ticket #{{ object.id }} <span> ({{ object.status }})</span></h2>
-
-<h2>Information</h2>
-
-<p><b>Opened: </b> {{ object.created_on }} </p>
-<p><b>Last modified: </b>{{ object.updated_on }} </p>
-
-<p><b>Priority: </b>{{ object.priority }}</p>
-<p><b>Votes: </b>{{ object.votes }}
-  <a href="{% url 'upvote_ticket' object.id %}">
-    <button type="button" class="btn btn-info">Up-Vote</button></a>
-  <p><b>Sumbitted by: </b> {{ object.submitted_by }}</p>
-  <p><b>Assigned to: </b>{{ object.assigned_to }}</p>
-  <p><b>Description: </b>{{ object.description }}</p>
+    <hr />
+    <h3>Information</h3>
+    <div class="row">
+      <div class="col-md-6">
+	<b>Opened: </b> {{ object.created_on }}
+      </div>
+      <div class="col-md-6">
+	<b>Last modified: </b>{{ object.updated_on }}
+      </div>
+    </div>
 
 
-  <button type="button" class="btn btn-info">Update</button></p>
-<button type="button" class="btn btn-info">Comment</button>
+    <div class="row">
+      <div class="col-md-6">
+	<b>Priority: </b>{{ object.priority }}
+      </div>
+      <div class="col-md-6">
+	<b>Votes: </b>{{ object.votes }}
+	<a href="{% url 'upvote_ticket' object.id %}">
+	  <button type="button" class="btn btn-default btn-xs">
+	    <span class="glyphicon glyphicon-thumbs-up"></span></button></a>
+      </div>
+    </div>
 
-<p><b>Parent Ticket:</b></p>
 
-<p><b>Child Ticket(s):</b></p>
+    <div class="row">
+      <div class="col-md-6">
+	<b>Sumbitted by: </b> {{ object.submitted_by }}
+      </div>
+      <div class="col-md-6">
+	<b>Assigned to: </b>
+	{% if object.assigned_to %}
+	{{ object.assigned_to }}
+	{% else %} Nobody (yet) {% endif %}
+      </div>
+    </div>
+    <hr />
 
-<h4>Comments:</h4>
+    <b>Description: </b>
+    <div class="row well">
+      <br /> {{ object.description }}
+    </div>
 
+    <div class="row">
+      <div class="pull-right">
+	{%  if object.status != 'Closed' %}
+	<a href="{% url 'update_ticket' object.id %}">
+	  <button type="button" class="btn btn-info btn-sm">Update</button></a>
+	{% else %}
+	<button type="button" class="btn btn-info btn-sm" disabled="disabled">Update</button>
+	{% endif %}
+	<a href="{% url 'comment_ticket' object.id %}">
+	  <button type="button" class="btn btn-info btn-sm">Comment</button></a>
+	{%  if object.status != 'Closed' %}
+	<a href="{% url 'close_ticket' object.id %}">
+	  <button type="button" class="btn btn-danger btn-sm">Close</button></a>
+	{% endif %}
+      </div>
+    </div>
+
+    <hr />
+
+    <br />
+    <p><b>Parent Ticket:</b></p>
+
+    <p><b>Child Ticket(s):</b></p>
+
+    <h3>Comments:</h3>
+    {% if comments %}
+
+    {% for comment in comments %}
+
+    <table class="table table-hover">
+      <tr>
+	<td>
+	  <p>On {{ comment.created_on }} {{ comment.submitted_by }} wrote:</p>
+	  {{ comment.comment }}
+        </td>
+    </table>
+    <br />
+    {% endfor %}
+    {% else %}
+    <em>No comments on this ticket yet.</em>
+    {% endif %}
+  </div>
 </div>
 
+<br />
+<br />
 {% endblock %}

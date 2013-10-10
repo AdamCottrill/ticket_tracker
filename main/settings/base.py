@@ -136,7 +136,7 @@ DJANGO_APPS = (
 
 THIRDPARTY_APPS = (
     'passwords',
-    #'crispy_forms',
+    'crispy_forms',
     #'taggit',
 )
 
@@ -183,3 +183,5 @@ LOGGING = {
 #password criteria
 #PASSWORD_MIN_LENGTH = 8
 #PASSWORD_COMPLEXITY = { "UPPER":  1, "LOWER":  1, "DIGITS": 1 }
+LOGIN_REDIRECT_URL = "/ticket/"
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
