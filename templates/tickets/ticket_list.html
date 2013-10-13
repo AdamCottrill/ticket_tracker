@@ -1,5 +1,7 @@
 {% extends "tickets/base.html" %}
 
+{% load ticket_extras %}
+
 {% block title %} View Tickets - {% endblock %}
 
 {% block content %}
@@ -21,9 +23,9 @@
       <td><a href="{{ object.get_absolute_url }}">{{object.id}}</a></td>
       <td><a href="{{ object.get_absolute_url }}">{{  object.name }}</a></td>
       <td>{{object.submitted_by}}</td>
-      <td>{{object.get_ticket_type_display}}</td>
-      <td>{{object.status}}</td>
-      <td>{{object.priority}}</td>
+      <td>{{object.ticket_type | ticket_type_btn }}</td>
+      <td>{{object.status | status_btn }}</td>
+      <td>{{object.priority | priority_btn }}</td>
       <td>{{object.votes}}</td>
 	{% if object.assigned_to %} 
       <td>{{ object.assigned_to }} </td>

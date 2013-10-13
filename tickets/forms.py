@@ -1,8 +1,9 @@
-from django.forms import ModelForm, CharField, Textarea
+from django.forms import ModelForm, CharField, Textarea, BooleanField
 #from django.contrib.auth.models import User
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
+from crispy_forms.layout import (Submit, Layout, ButtonHolder, Div,
+                                 Fieldset, MultiField, Field)
 
 
 from .models import Ticket, FollowUp
@@ -53,12 +54,41 @@ class CommentForm(ModelForm):
         self.helper.form_class = 'blueForms'
         self.helper.form_method = 'post'
         if self.close:
-            self.helper.add_input(Submit('submit', 'Close Ticket',
+            self.fields['duplicate'] = BooleanField()
+            self.fields['same_as_ticket'] = CharField(required=False, label="")
+            #self.helper.add_input(Submit('submit', 'Close Ticket',
+            #                     css_class = 'btn btn-danger pull-right'))
+            self.helper.layout = Layout(
+
+                Div(
+                    'comment',
+                    Div(
+                    Field('duplicate',css_class='col-md-3'),
+                    Field('same_as_ticket',css_class='col-md-6',
+                          placeholder='Same as ticket #'),
+                        css_class='form-group form-inline'), 
+                    css_class='row'),               
+                ButtonHolder(Submit('submit', 'Close Ticket',
                                  css_class = 'btn btn-danger pull-right'))
+
+                )
+                
+                            
+            
         else:
-            self.helper.add_input(Submit('submit', 'Post Comment',
-                                 css_class = 'btn btn-default pull-right'))            
-        
+            #self.helper.add_input(Submit('submit', 'Post Comment',
+            #                     css_class = 'btn btn-default pull-right'))
+            self.helper.layout = Layout(
+                'comment',
+                ButtonHolder(Submit('submit', 'Post Comment',
+                                 css_class = 'btn btn-default pull-right')))
+                
+            
+
+            
+            
+            
+            
     class Meta:
         model = FollowUp
         fields = ['comment']

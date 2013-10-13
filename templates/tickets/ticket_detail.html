@@ -2,48 +2,50 @@
 
 {% block title %} Ticket #{{ object.id }} {% endblock %}
 
+{% load ticket_extras %}
+
 {% block content %}
 
 <div class="container">
   <div class="col-md-6">
-    <h2>Ticket #{{ object.id }} <span> ({{ object.status }})</span></h2>
+    <h2>Ticket #{{ object.id }} <span> {{ object.status | status_btn:"lg" }}</span></h2>
 
     <hr />
     <h3>Information</h3>
-    <div class="row">
-      <div class="col-md-6">
-	<b>Opened: </b> {{ object.created_on }}
-      </div>
-      <div class="col-md-6">
-	<b>Last modified: </b>{{ object.updated_on }}
-      </div>
-    </div>
 
 
-    <div class="row">
-      <div class="col-md-6">
-	<b>Priority: </b>{{ object.priority }}
-      </div>
-      <div class="col-md-6">
-	<b>Votes: </b>{{ object.votes }}
-	<a href="{% url 'upvote_ticket' object.id %}">
-	  <button type="button" class="btn btn-default btn-xs">
-	    <span class="glyphicon glyphicon-thumbs-up"></span></button></a>
-      </div>
-    </div>
+    <table cellspacing="0" class="table">
+      <tr>
+	<td><b>Ticket Type: </b> {{ object.ticket_type | ticket_type_btn }}</td>
+	<td></td>
+      </tr>
 
 
-    <div class="row">
-      <div class="col-md-6">
-	<b>Sumbitted by: </b> {{ object.submitted_by }}
-      </div>
-      <div class="col-md-6">
-	<b>Assigned to: </b>
-	{% if object.assigned_to %}
-	{{ object.assigned_to }}
-	{% else %} Nobody (yet) {% endif %}
-      </div>
-    </div>
+      <tr>
+	<td><b>Opened: </b> {{ object.created_on }}</td>
+	<td><b>Last modified: </b>{{ object.updated_on }}</td>
+      </tr>
+
+      <tr>
+	<td><b>Priority: </b>{{ object.priority | priority_btn }}</td>
+	<td><b>Votes: </b>{{ object.votes }}
+	  <a href="{% url 'upvote_ticket' object.id %}">
+	    <button type="button" class="btn btn-default btn-xs">
+	      <span class="glyphicon glyphicon-thumbs-up"></span></button></a></td>
+      </tr>
+
+
+      <tr>
+	<td><b>Sumbitted by: </b> {{ object.submitted_by }}</td>
+	<td>	<b>Assigned to: </b>
+	  {% if object.assigned_to %}
+	  {{ object.assigned_to }}
+	  {% else %} Nobody (yet) {% endif %}</td>
+      </tr>
+
+    </table>
+
+
     <hr />
 
     <b>Description: </b>
