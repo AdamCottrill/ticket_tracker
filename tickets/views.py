@@ -11,8 +11,8 @@ from django.views.generic import CreateView, UpdateView, DetailView
 
 
 
-from .models import Ticket, UserVoteLog, FollowUp
-from .forms import TicketForm, CommentForm
+from .models import Ticket, UserVoteLog, FollowUp, TicketDuplicate
+from .forms import TicketForm, CommentForm 
 
 TICKET_STATUS_CHOICES = {
     ('new', 'New'),
@@ -98,32 +98,42 @@ def TicketUpdateView(request, pk=None,
 
 
 @login_required
-def TicketFollowUpView(request, pk, close=False,
+def TicketFollowUpView(request, pk, action='no_action',
                      template_name='tickets/comment_form.html'):
 
     ticket = Ticket.objects.get(pk=pk)
     #ticket = get_object_or_404(Ticket,pk)
     #form = CommentForm(ticket=ticket, submitted_by=request.user)    
+    #import pdb; pdb.set_trace()
     
     if request.POST:
-        form = CommentForm(request.POST, close=close)
+        form = CommentForm(request.POST, action=action)
         if form.is_valid():
             new_comment=form.save(commit=False)
             new_comment.submitted_by=request.user
             new_comment.ticket = ticket
-            new_comment.closed = close
+            new_comment.action = action
             new_comment.save()
 
-            if close:
-                ticket.status="Closed"
+            if action == 'closed' or action == 'reopened':
+                ticket.status=action
                 ticket.save()
+            if form.cleaned_data.get('duplicate'):
+                original_pk=form.cleaned_data['same_as_ticket']
+                original = Ticket.objects.get(pk=original_pk)
+                dup_ticket = TicketDuplicate(ticket=ticket, original=original)
+                dup_ticket.save()
+
+                ticket.status= 'duplicate'
+                ticket.save()
+                
             return HttpResponseRedirect(ticket.get_absolute_url())
         else:
             render_to_response(template_name,
                               {'form': form, 'ticket':ticket},
                               context_instance=RequestContext(request))
     else:
-        form = CommentForm(close=close)
+        form = CommentForm(action=action)
             
     return render_to_response(template_name,
                               {'form': form, 'ticket':ticket},

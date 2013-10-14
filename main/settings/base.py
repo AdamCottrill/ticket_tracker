@@ -137,6 +137,7 @@ DJANGO_APPS = (
 THIRDPARTY_APPS = (
     'passwords',
     'crispy_forms',
+    'south',
     #'taggit',
 )
 

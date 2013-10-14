@@ -43,11 +43,14 @@ urlpatterns = patterns('',
                     name = 'upvote_ticket'),
 
                 url(r'^close/(?P<pk>\d+)/$',
-                    view = TicketFollowUpView, kwargs={'close':True}, 
+                    view = TicketFollowUpView, kwargs={'action':'closed'}, 
                     name = 'close_ticket'), 
+                url(r'^reopen/(?P<pk>\d+)/$',
+                    view = TicketFollowUpView, kwargs={'action':'reopened'}, 
+                    name = 'reopen_ticket'), 
                        
                 url(r'^comment/(?P<pk>\d+)/$',
-                    view = TicketFollowUpView, kwargs= {'close':False},
+                    view = TicketFollowUpView, kwargs= {'action':'no_action'},
                     name = 'comment_ticket')
                        
                        

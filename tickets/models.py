@@ -18,8 +18,7 @@ class Ticket(models.Model):
 
     TICKET_TYPE_CHOICES = {
         ('feature', 'Feature Request'),
-        ('bug', 'Bug Report'),
-        
+        ('bug', 'Bug Report'),        
     }
 
     TICKET_PRIORITY_CHOICES = {
@@ -49,6 +48,12 @@ class Ticket(models.Model):
                                    blank=True,
                                    null=True)
 
+
+    def __unicode__(self):
+        name = self.description.split("\n", 1)[0]
+        name = name[:30]
+        return name
+
     
     def name(self):
         name = self.description.split("\n", 1)[0]
@@ -67,8 +72,43 @@ class Ticket(models.Model):
         if self.votes > 0:
             self.votes -= 1
             self.save()
+
+    def duplicate_of(self, original_pk):
+        '''a method to flag this ticket as a duplicate of another.'''
+        original = Ticket.objects.get(pk=original_pk)
+        duplicate = TicketDuplicate(ticket=self, original=original)
+        duplicate.save()
+
+    def get_duplicates(self):
+        '''a method to retreive all of the ticket objects that have
+        been flagged as duplicates of this ticket.
+        '''
+        duplicates = TicketDuplicate.objects.filter(original=self)
+        return duplicates
+
+
+    def get_originals(self):
+        '''a method to retreive the ticket object that this ticket duplicates.
+        '''
+        originals = TicketDuplicate.objects.filter(ticket=self)
+        return originals
+
         
 
+class TicketDuplicate(models.Model):
+    '''A simple table to keep track of which tickets are duplicates of
+    which ticket.
+
+    '''
+    ticket = models.ForeignKey(Ticket,related_name="duplicate")
+    original = models.ForeignKey(Ticket,related_name="original")
+
+    def __unicode__(self):
+        string = "Ticket {0} is a duplicate of ticket {1}"
+        string = string.format(self.ticket.id, self.original.id)
+        return string
+
+            
 
 class UserVoteLog(models.Model):
     '''A table to keep track of which tickets a user has voted for.
@@ -80,6 +120,13 @@ class UserVoteLog(models.Model):
             
 class FollowUp(models.Model):
     ''' '''
+
+    ACTION_CHOICES = {
+        ('no_action', 'No Action'),
+        ('closed', 'Closed'),
+        ('reopened', 'Re-Opened')
+    }
+    
     ticket = models.ForeignKey(Ticket)
     parent = models.ForeignKey('self',
                                    blank=True,
@@ -88,7 +135,11 @@ class FollowUp(models.Model):
     submitted_by = models.ForeignKey(User, null=True, blank=True)    
     created_on = models.DateTimeField('date created', auto_now_add=True)
     comment = models.TextField()
-    closed = models.BooleanField(default=False)
+    #closed = models.BooleanField(default=False)
+    action = models.CharField(max_length=20, 
+                              choices=ACTION_CHOICES, default="no_action")
+
+
     
 class TicketAdmin(admin.ModelAdmin):
     date_heirarchy = "created_on"

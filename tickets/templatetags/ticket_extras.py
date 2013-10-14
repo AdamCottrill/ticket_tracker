@@ -1,3 +1,4 @@
+# from django import template
 from django import template
 from django.template.defaultfilters import stringfilter
 #from django.contrib.auth import user
@@ -51,8 +52,8 @@ def status_btn(status, btn_size='xs'):
 
     #import pdb; pdb.set_trace()    
     
-    if btn_size == 'lg' and (status.lower() == 'closed'
-                             or status.lower() == 'duplicate'):
+    if btn_size == 'lg' and (status == 'closed'
+                             or status== 'duplicate'):
         btn_attr[0]='danger'
 
     btn = '<button type="button" class="btn btn-{0} btn-{1}">{2}</button>'

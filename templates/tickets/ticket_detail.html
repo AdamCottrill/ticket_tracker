@@ -55,15 +55,17 @@
 
     <div class="row">
       <div class="pull-right">
-	{%  if object.status != 'Closed' %}
+	{%  if object.status == 'closed' %}
+	<button type="button" class="btn btn-info btn-sm" disabled="disabled">Update</button>
+	<a href="{% url 'reopen_ticket' object.id %}">
+	  <button type="button" class="btn btn-info btn-sm">Re-Open</button></a>
+	{% else %}
 	<a href="{% url 'update_ticket' object.id %}">
 	  <button type="button" class="btn btn-info btn-sm">Update</button></a>
-	{% else %}
-	<button type="button" class="btn btn-info btn-sm" disabled="disabled">Update</button>
 	{% endif %}
 	<a href="{% url 'comment_ticket' object.id %}">
 	  <button type="button" class="btn btn-info btn-sm">Comment</button></a>
-	{%  if object.status != 'Closed' %}
+	{%  if object.status != 'closed' %}
 	<a href="{% url 'close_ticket' object.id %}">
 	  <button type="button" class="btn btn-danger btn-sm">Close</button></a>
 	{% endif %}
@@ -71,6 +73,29 @@
     </div>
 
     <hr />
+
+
+    {% if object.get_originals %}
+    This ticket duplicates ticket(s):
+    <ul>
+      {% for object in object.get_originals %}
+      <li>      <a href="{% url 'ticket_detail' object.original.id  %}">
+	{{ object.original }} (ticket #{{ object.original.id }})</a></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+
+    {% if object.get_duplicates %}
+    This ticket has been duplicated by the following ticket(s):
+    <ul>
+      {% for object in object.get_duplicates %}
+      <li><a href="{% url 'ticket_detail' object.ticket.id  %}">
+	{{ object.ticket }} (ticket #{{ object.original.id }})</a></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
 
     <br />
     <p><b>Parent Ticket:</b></p>
@@ -85,10 +110,17 @@
     <table class="table table-hover">
       <tr>
 	<td>
-	  {% if comment.closed  %}
+	  {% if comment.action == 'closed'  %}
 
 	  <div class="alert alert-danger">
 	    <p>On {{ comment.created_on }} this ticket was <button class="btn btn-danger btn-xs" type="submit">closed</button> by {{ comment.submitted_by }}</p>
+	    {{ comment.comment }}
+	  </div>
+
+	  {% elif comment.action == 'reopened'  %}	  
+
+	  <div class="alert alert-success">
+	    <p>On {{ comment.created_on }} this ticket was <button class="btn btn-success btn-xs" type="submit">re-opened</button> by {{ comment.submitted_by }}</p>
 	    {{ comment.comment }}
 	  </div>
 

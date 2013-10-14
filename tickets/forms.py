@@ -1,4 +1,5 @@
 from django.forms import ModelForm, CharField, Textarea, BooleanField
+from django.shortcuts import get_object_or_404
 #from django.contrib.auth.models import User
 
 from crispy_forms.helper import FormHelper
@@ -44,22 +45,20 @@ class CommentForm(ModelForm):
     )
 
     def __init__(self, *args, **kwargs):
-        self.close = kwargs.pop('close', False)
+        self.action = kwargs.pop('action', 'no_action')
         super(CommentForm, self).__init__(*args, **kwargs)
 
-        #import pdb; pdb.set_trace()
-        
         self.helper = FormHelper()
         self.helper.form_id = 'comment'
         self.helper.form_class = 'blueForms'
         self.helper.form_method = 'post'
-        if self.close:
-            self.fields['duplicate'] = BooleanField()
-            self.fields['same_as_ticket'] = CharField(required=False, label="")
-            #self.helper.add_input(Submit('submit', 'Close Ticket',
-            #                     css_class = 'btn btn-danger pull-right'))
-            self.helper.layout = Layout(
 
+        #TODO - refactor this layout - all three options have comment
+        # and button (with different labels)        
+        if self.action == 'closed':
+            self.fields['duplicate'] = BooleanField(required=False)
+            self.fields['same_as_ticket'] = CharField(required=False, label="")
+            self.helper.layout = Layout(
                 Div(
                     'comment',
                     Div(
@@ -70,23 +69,31 @@ class CommentForm(ModelForm):
                     css_class='row'),               
                 ButtonHolder(Submit('submit', 'Close Ticket',
                                  css_class = 'btn btn-danger pull-right'))
-
                 )
-                
-                            
-            
+        elif self.action=='reopened':
+            self.helper.layout = Layout(
+                'comment',
+                ButtonHolder(Submit('submit', 'Re-open Ticket',
+                                 css_class = 'btn btn-default pull-right')))
         else:
-            #self.helper.add_input(Submit('submit', 'Post Comment',
-            #                     css_class = 'btn btn-default pull-right'))
             self.helper.layout = Layout(
                 'comment',
                 ButtonHolder(Submit('submit', 'Post Comment',
                                  css_class = 'btn btn-default pull-right')))
                 
             
+    def clean(self):
+        '''if duplicate is True, we need to make sure that
+        "same_as_ticket" is populated with a legitimate ticket number.
+        '''
 
-            
-            
+        if self.cleaned_data.get('duplicate'):
+            original_pk = self.cleaned_data['same_as_ticket']
+            original = get_object_or_404(Ticket, id=original_pk)
+            if not original:
+                 raise forms.ValidationError("Invalid ticket number.")
+        
+        return self.cleaned_data
             
             
     class Meta:
