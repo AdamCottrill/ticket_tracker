@@ -1,10 +1,13 @@
-from django.forms import ModelForm, CharField, Textarea, BooleanField
+from django.forms import (Form, ModelForm, CharField, Textarea, BooleanField,
+                          ValidationError, ModelChoiceField)
 from django.shortcuts import get_object_or_404
+from django.forms.widgets import Select
+from django.contrib.auth.models import User
 #from django.contrib.auth.models import User
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import (Submit, Layout, ButtonHolder, Div,
-                                 Fieldset, MultiField, Field)
+                                 Field)
 
 
 from .models import Ticket, FollowUp
@@ -37,6 +40,69 @@ class TicketForm(ModelForm):
         fields = ['status', 'ticket_type', 'priority', 'description',
                   'assigned_to']
 
+
+
+class SplitTicketForm(Form):
+
+    status1 = CharField(max_length=20,
+                              widget=Select(choices=
+                                Ticket.TICKET_STATUS_CHOICES))
+    
+    ticket_type1 = CharField(max_length=20,
+                              widget=Select(choices=
+                                Ticket.TICKET_TYPE_CHOICES))
+    
+    priority1 = CharField(max_length=20,
+                              widget=Select(choices=
+                                Ticket.TICKET_PRIORITY_CHOICES))
+
+    assigned_to1 = ModelChoiceField(queryset=User.objects.all())
+    
+    description1 = CharField( widget=Textarea(
+            attrs={'class': 'input-xxlarge',}))
+        
+    status2 = CharField(max_length=20,
+                              widget=Select(choices=
+                                Ticket.TICKET_STATUS_CHOICES))
+    
+    ticket_type2 = CharField(max_length=20,
+                              widget=Select(choices=
+                                Ticket.TICKET_TYPE_CHOICES))
+        
+    priority2 = CharField(max_length=20,
+                              widget=Select(choices=
+                                Ticket.TICKET_PRIORITY_CHOICES))
+    
+    assigned_to2 = ModelChoiceField(queryset=User.objects.all())
+ 
+    description2 = CharField(widget=Textarea(
+            attrs={'class': 'input-xxlarge',}))
+    
+    
+    def __init__(self, *args, **kwargs):
+        super(SplitTicketForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_id = 'splitticket'
+        self.helper.form_class = 'blueForms'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            'status1',
+            'ticket_type1',
+            'priority1',
+            'assigned_to1',
+            'description1',
+            'status2',
+            'ticket_type2',
+            'priority2',
+            'assigned_to2',
+            'description2',
+            ButtonHolder(Submit('submit', 'Split Ticket',
+                                 css_class = 'btn btn-danger pull-right'))
+        )
+
+        
 class CommentForm(ModelForm):
 
     comment = CharField(
@@ -91,8 +157,7 @@ class CommentForm(ModelForm):
             original_pk = self.cleaned_data['same_as_ticket']
             original = get_object_or_404(Ticket, id=original_pk)
             if not original:
-                 raise forms.ValidationError("Invalid ticket number.")
-        
+                 raise ValidationError("Invalid ticket number.")
         return self.cleaned_data
             
             

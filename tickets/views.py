@@ -1,33 +1,17 @@
-# Create your views here.
-from django import forms
 from django.contrib.auth.decorators import login_required
 from django.forms.formsets import formset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from django.utils.decorators import method_decorator
 from django.views.generic.list import ListView
-from django.views.generic import CreateView, UpdateView, DetailView
-
-
+from django.views.generic import DetailView
 
 from .models import Ticket, UserVoteLog, FollowUp, TicketDuplicate
-from .forms import TicketForm, CommentForm 
-
-TICKET_STATUS_CHOICES = {
-    ('new', 'New'),
-    ('accepted', 'Accepted'),
-    ('assigned', 'Assigned'),
-    ('reopened', 'Reopened'),
-    ('closed', 'Closed'),    
-}
-
-
+from .forms import TicketForm, CommentForm, SplitTicketForm 
 
 
 class TicketDetailView(DetailView):
     model = Ticket
-
 
     def get_context_data(self, **kwargs):
         context = super(TicketDetailView, self).get_context_data(**kwargs)
@@ -37,20 +21,11 @@ class TicketDetailView(DetailView):
            ).order_by('-created_on')
         context['comments'] = comments
         return context
-
     
 class TicketListView(ListView):
     model = Ticket
 
     
-#class TicketForm(forms.Form):
-#    #    status = forms.CharField()
-#    active = forms.BooleanField()
-#    status = forms.ChoiceField(choices = TICKET_STATUS_CHOICES)    
-#    description = forms.CharField()    
-#
-#    #TicketFormSet = formset_factory(TicketForm)
-
 def manage_tickets(request):
     TicketFormSet = formset_factory(TicketForm)
     if request.method == 'POST':
@@ -96,6 +71,40 @@ def TicketUpdateView(request, pk=None,
                               {'form': form,},
                               context_instance=RequestContext(request))
 
+@login_required
+def SplitTicketView(request, pk=None,
+                     template_name='tickets/split_ticket_form.html'):
+
+    ticket = get_object_or_404(Ticket, pk=pk)
+    form = SplitTicketForm(initial={
+            'status1':ticket.status,
+            'ticket_type1':ticket.ticket_type,
+            'priority1':ticket.priority,
+            'assigned_to1':ticket.assigned_to,
+            'description1':ticket.description,
+            'status2':ticket.status,
+            'ticket_type2':ticket.ticket_type,
+            'priority2':ticket.priority,
+            'assigned_to2':ticket.assigned_to,
+            'description2':ticket.description
+         })
+    
+    if request.POST:
+        if form.is_valid():
+            new_ticket = form.save()
+            # If the save was successful, redirect to another page
+            #redirect_url = reverse(ticket_save_success)
+            #return HttpResponseRedirect(redirect_url)
+            return HttpResponseRedirect(new_ticket.get_absolute_url())
+        else:
+            pass
+
+    return render_to_response(template_name,
+                              {'form': form,},
+                              context_instance=RequestContext(request))
+
+
+    
 
 @login_required
 def TicketFollowUpView(request, pk, action='no_action',

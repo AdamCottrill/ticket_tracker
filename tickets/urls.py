@@ -1,19 +1,8 @@
 from django.conf.urls import patterns, url
 
 from .views import (TicketListView, TicketDetailView, manage_tickets,
-                     TicketUpdateView, upvote_ticket, TicketFollowUpView,)
-# from .models import Ticket
-
-#info = {
-#    'queryset':Ticket.objects.all(),
-#}
-
-#urlpatterns = patterns('django.views.generic.list_detail',
-#    url(r'^$', 'object_list', info, name = "ticket_list"),
-#    url(r'^(?P<object_id>\d+)/$', 'object_detail',
-#        info, name = "ticket_detail"),   
-#)
-#
+                    TicketUpdateView, upvote_ticket, TicketFollowUpView,
+                    SplitTicketView)
 
 
 urlpatterns = patterns('',
@@ -51,7 +40,11 @@ urlpatterns = patterns('',
                        
                 url(r'^comment/(?P<pk>\d+)/$',
                     view = TicketFollowUpView, kwargs= {'action':'no_action'},
-                    name = 'comment_ticket')
+                    name = 'comment_ticket'),
+
+                url(r'^split/(?P<pk>\d+)/$',
+                    view = SplitTicketView,
+                    name = "split_ticket"),
                        
                        
 )
