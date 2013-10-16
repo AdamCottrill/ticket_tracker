@@ -55,7 +55,7 @@
 
     <div class="row">
       <div class="pull-right">
-	{%  if object.status == 'closed' %}
+	{%  if object.is_closed %}
 	<button type="button" class="btn btn-info btn-sm" disabled="disabled">Update</button>
 	<a href="{% url 'reopen_ticket' object.id %}">
 	  <button type="button" class="btn btn-info btn-sm">Re-Open</button></a>
@@ -65,7 +65,9 @@
 	{% endif %}
 	<a href="{% url 'comment_ticket' object.id %}">
 	  <button type="button" class="btn btn-info btn-sm">Comment</button></a>
-	{%  if object.status != 'closed' %}
+	{%  if object.is_closed == False %}
+	<a href="{% url 'split_ticket' object.id %}">
+	  <button type="button" class="btn btn-warning btn-sm">Split</button></a>
 	<a href="{% url 'close_ticket' object.id %}">
 	  <button type="button" class="btn btn-danger btn-sm">Close</button></a>
 	{% endif %}
@@ -91,16 +93,31 @@
     <ul>
       {% for object in object.get_duplicates %}
       <li><a href="{% url 'ticket_detail' object.ticket.id  %}">
-	{{ object.ticket }} (ticket #{{ object.original.id }})</a></li>
+	{{ object.ticket }} (ticket #{{ object.ticket.id }})</a></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    <br />
+
+    {% if object.get_parent %}
+    <p><b>Parent Ticket:</b></p>
+    This ticket was split from a parent ticket:
+      <a href="{% url 'ticket_detail' object.id  %}">{{ object }}... (ticket #{{ object.id }})</a>
+    {% endif %}
+
+    {% if object.get_children %}
+    <p><b>Child Ticket(s):</b></p>
+    This ticket has been split into the  following ticket(s):
+    <ul>
+      {% for object in object.get_children %}
+      <li><a href="{% url 'ticket_detail' object.id  %}">
+	{{ object }} (ticket #{{ object.id }})</a></li>
       {% endfor %}
     </ul>
     {% endif %}
 
 
-    <br />
-    <p><b>Parent Ticket:</b></p>
-
-    <p><b>Child Ticket(s):</b></p>
 
     <h3>Comments:</h3>
     {% if comments %}

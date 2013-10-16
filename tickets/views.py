@@ -76,29 +76,30 @@ def SplitTicketView(request, pk=None,
                      template_name='tickets/split_ticket_form.html'):
 
     ticket = get_object_or_404(Ticket, pk=pk)
-    form = SplitTicketForm(initial={
-            'status1':ticket.status,
+    #start with the same data in both tickets as the original.
+    initial = {
+            'status1':'new',
             'ticket_type1':ticket.ticket_type,
             'priority1':ticket.priority,
             'assigned_to1':ticket.assigned_to,
             'description1':ticket.description,
-            'status2':ticket.status,
+            'status2':'new',
             'ticket_type2':ticket.ticket_type,
             'priority2':ticket.priority,
             'assigned_to2':ticket.assigned_to,
-            'description2':ticket.description
-         })
-    
-    if request.POST:
-        if form.is_valid():
-            new_ticket = form.save()
-            # If the save was successful, redirect to another page
-            #redirect_url = reverse(ticket_save_success)
-            #return HttpResponseRedirect(redirect_url)
-            return HttpResponseRedirect(new_ticket.get_absolute_url())
-        else:
-            pass
+            'description2':ticket.description}
 
+    #import pdb; pdb.set_trace()
+    
+    if request.method == 'POST':
+        form = SplitTicketForm(data=request.POST, user = request.user,
+                               original_ticket = ticket)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(ticket.get_absolute_url())
+    else:
+        form = SplitTicketForm(initial=initial,
+                               user = request.user, original_ticket = ticket)
     return render_to_response(template_name,
                               {'form': form,},
                               context_instance=RequestContext(request))

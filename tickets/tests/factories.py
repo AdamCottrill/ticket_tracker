@@ -36,7 +36,7 @@ class TicketFactory(factory.DjangoModelFactory):
     description = 'There is something wrong.'
     priority = 3
     created_on = datetime.now()
-
+    parent = None
 
 class FollowUpFactory(factory.DjangoModelFactory):
     FACTORY_FOR = FollowUp

@@ -13,7 +13,8 @@ class Ticket(models.Model):
         ('assigned', 'Assigned'),
         ('reopened', 'Reopened'),
         ('closed', 'Closed'),
-        ('duplicate', 'Closed - Duplicate'),    
+        ('duplicate', 'Closed - Duplicate'),
+        ('split', 'Closed - Split'),            
     }
 
     TICKET_TYPE_CHOICES = {
@@ -74,7 +75,10 @@ class Ticket(models.Model):
             self.save()
 
     def duplicate_of(self, original_pk):
-        '''a method to flag this ticket as a duplicate of another.'''
+        '''a method to flag this ticket as a duplicate of another.
+        Automatically created an appropriate record in TicketDuplicate
+        table.
+        '''
         original = Ticket.objects.get(pk=original_pk)
         duplicate = TicketDuplicate(ticket=self, original=original)
         duplicate.save()
@@ -84,14 +88,52 @@ class Ticket(models.Model):
         been flagged as duplicates of this ticket.
         '''
         duplicates = TicketDuplicate.objects.filter(original=self)
+        if not duplicates:
+            duplicates = None
         return duplicates
 
 
     def get_originals(self):
-        '''a method to retreive the ticket object that this ticket duplicates.
+        '''a method to retreive the ticket object that this ticket
+        duplicates.
         '''
         originals = TicketDuplicate.objects.filter(ticket=self)
+        if not originals:
+            originals = None
         return originals
+
+    def get_parent(self):
+        '''a method to return the ticket that this ticket was split
+        out of
+        '''
+        if self.parent:
+            try:
+                parent = Ticket.objects.get(id=self.parent.id)
+            except Ticket.DoesNotExist:
+                parent = None
+        else:
+            parent = None
+        return parent
+        
+    def get_children(self):
+        '''return any tickets that were create by splitting this
+        ticket
+        '''
+        children = Ticket.objects.filter(parent=self.id)
+        if not children:
+            children = None
+        return children
+        
+    def is_closed(self):
+        '''a boolena method to indicate if this ticket is open or
+        closed.  Makes templating much simpler.
+        '''
+        if self.status in ('closed', 'duplicate', 'split'):
+            return True
+        else:
+            return False
+        
+
 
         
 
@@ -124,7 +166,8 @@ class FollowUp(models.Model):
     ACTION_CHOICES = {
         ('no_action', 'No Action'),
         ('closed', 'Closed'),
-        ('reopened', 'Re-Opened')
+        ('reopened', 'Re-Opened'),
+        ('split', 'Split')        
     }
     
     ticket = models.ForeignKey(Ticket)

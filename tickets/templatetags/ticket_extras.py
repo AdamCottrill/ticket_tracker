@@ -45,15 +45,13 @@ def status_btn(status, btn_size='xs'):
         'assigned':['primary', 'Assigned'],
         'reopened':['warning', 'Reopened'],
         'closed':['default', 'Closed'],
-        'duplicate':['default', 'Closed - Duplicate'],           
+        'duplicate':['default', 'Closed - Duplicate'],
+        'split':['default', 'Closed - Split'],                   
     }
 
     btn_attr = btn_map.get(status.lower(), ['default', status])
-
-    #import pdb; pdb.set_trace()    
     
-    if btn_size == 'lg' and (status == 'closed'
-                             or status== 'duplicate'):
+    if btn_size == 'lg' and status in ('closed', 'duplicate', 'split'):
         btn_attr[0]='danger'
 
     btn = '<button type="button" class="btn btn-{0} btn-{1}">{2}</button>'

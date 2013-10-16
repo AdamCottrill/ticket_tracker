@@ -9,13 +9,7 @@ class TestTicket(TestCase):
        expected'''
     def setUp(self):
 
-        self.name1 = '''this is short name.'''
-        self.name2 = '''this is a long, one line name that should cropped.'''
-        self.name3 = '''this is a long, two line name that should cropped.
-        Here is the second line.'''
-
-        
-        
+                
         self.ticket1 = TicketFactory()
         self.ticket2 = TicketFactory()
 
@@ -25,16 +19,7 @@ class TestTicket(TestCase):
         '''
         self.assertEqual(self.ticket1.get_absolute_url(),'/ticket/1/')
         self.assertEqual(self.ticket2.get_absolute_url(),'/ticket/2/')
-
-
-
-    def test_ticket_name(self):
-        '''the name of the ticket should be the first line of the
-        description, upto a maximum of 40 characters.
-        '''
-
-        
-        
+                
 
     def test_ticket_vote(self):
         '''verify that up_vote and down_vote method increment and
@@ -105,3 +90,136 @@ class TestTicketName(TestCase):
     def tearDown(self):
         #self.ticket.delete()
         pass
+
+
+
+class TestTicketParentChildren(TestCase):
+    '''Verify that the ticket methods to retrieve parent and child
+    tickets work as expected.
+
+    '''
+    def setUp(self):
+        '''Create 4 tickets - the first will be the parent of 2 and 3.
+        the fourth is unrealte and should not be returned by either
+        get_parent or get_children
+        '''
+        self.ticket1 = TicketFactory()
+        self.ticket2 = TicketFactory(parent=self.ticket1)
+        self.ticket3 = TicketFactory(parent=self.ticket1)
+        self.ticket4 = TicketFactory()
+        
+    def test_ticket_get_parent(self):
+        '''verify that only ticket 2 and 3 have a parent and that it
+        is ticket 1.  Ticket 4 is not a parent and has no parent.
+        '''
+        
+        self.assertEqual(None, self.ticket1.get_parent())
+        self.assertEqual(self.ticket1, self.ticket2.get_parent())
+        self.assertEqual(self.ticket1, self.ticket3.get_parent())
+        self.assertEqual(None, self.ticket4.get_parent())
+
+
+    def test_ticket_get_children(self):
+        '''Only ticket 1 has children - they should be ticket 2 and ticket 3.'''
+        children = self.ticket1.get_children()
+
+        shouldbe = [self.ticket2.id,self.ticket3.id]
+
+        self.assertQuerysetEqual(
+            children, shouldbe,
+            lambda a:a.id
+            )
+
+        self.assertEqual(self.ticket2.get_children(), None)
+        self.assertEqual(self.ticket3.get_children(), None)
+        self.assertEqual(self.ticket4.get_children(), None)
+        
+        
+    def tearDown(self):
+        #self.ticket.delete()
+        pass
+
+
+class TestTicketIsClose(TestCase):
+    '''Verify that the ticket.is_closed method work as expected
+    (returns true for closed, split, and duplicate, but false
+    otherwise).
+
+    '''
+    def setUp(self):
+        '''Create a for each status'''
+        
+        self.ticket1 = TicketFactory(status='new')
+        self.ticket2 = TicketFactory(status='accepted')
+        self.ticket3 = TicketFactory(status='assigned')
+        self.ticket4 = TicketFactory(status='reopened')
+        self.ticket5 = TicketFactory(status='closed')        
+        self.ticket6 = TicketFactory(status='duplicate')
+        self.ticket7 = TicketFactory(status='split')        
+
+    def test_ticket_is_closed(self):
+        '''verify that ticket.is_closed() is true tickets with status
+        of closed, duplicate and split, false otherwise.
+        '''
+
+        #these should all be false
+        self.assertFalse(self.ticket1.is_closed())
+        self.assertFalse(self.ticket2.is_closed())
+        self.assertFalse(self.ticket3.is_closed())
+        self.assertFalse(self.ticket4.is_closed())
+        #these should all be true
+        self.assertTrue(self.ticket5.is_closed())
+        self.assertTrue(self.ticket6.is_closed())
+        self.assertTrue(self.ticket7.is_closed())
+
+    def tearDown(self):
+        #self.ticket.delete()
+        pass
+
+
+
+class TestTicketDuplicates(TestCase):
+    '''Verify that we can create and retrieve duplicate tickets
+    '''
+    def setUp(self):
+        '''We'll need three tickets - ticket 2 will be a duplicate of
+        ticket 1.  Ticket 3 is indepent of either and should not
+        appear in any of our return values.
+        '''
+        
+        self.ticket1 = TicketFactory()
+        self.ticket2 = TicketFactory()
+        self.ticket3 = TicketFactory()
+
+    def test_ticket_duplicate_of(self):
+        '''verify that the ticket.duplicate_of() method creates a
+        record in the TicketDuplicate table and that the ticket is the
+        duplcate ticket, orginial is the parent ticket.
+
+        '''
+
+        self.ticket2.duplicate_of(self.ticket1.id)
+        duplicates = TicketDuplicate.objects.all()
+        
+        self.assertEqual(duplicates[0].ticket, self.ticket2)
+        self.assertEqual(duplicates[0].original, self.ticket1)
+
+
+    def test_get_duplicate_and_original_tickets(self):
+
+        #identify ticket 2 as a duplicate of ticket1
+        self.ticket2.duplicate_of(self.ticket1.id)
+
+        self.assertEqual(self.ticket2.get_originals()[0].original.id,
+                         self.ticket1.id)
+        self.assertEqual(self.ticket1.get_duplicates()[0].ticket.id,
+                         self.ticket2.id)
+
+        self.assertEqual(self.ticket3.get_originals(), None)
+        self.assertEqual(self.ticket3.get_duplicates(), None)
+        
+        
+    def tearDown(self):
+        #self.ticket.delete()
+        pass
+        
