@@ -4,21 +4,42 @@
 
 {% block title %} View Tickets - {% endblock %}
 
-{% block content %}
-<div class="container">
 
-  <table cellspacing="0" class="table">
-    <tr>
-      <th>Ticket</th>
-      <th>Description</th>
-      <th>Submitted By</th>
-      <th>Submitted On</th>
-      <th>Ticket Type</th>
-      <th>Status</th>
-      <th>Priority</th>
-      <th>Votes</th>
-      <th>Assigned to</th>
-    </tr>
+{% block extra_head %}
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+<!-- bootstrap widget theme -->
+<link rel="stylesheet" href="{{ STATIC_URL }}css/theme.bootstrap.css">
+<!-- tablesorter plugin -->
+<script src="{{ STATIC_URL }}js/jquery.tablesorter.js"></script>
+<!-- tablesorter widget file - loaded after the plugin -->
+<script src="{{ STATIC_URL }}js/jquery.tablesorter.widgets.js"></script>
+
+
+  {% endblock %}
+
+
+  {% block content %}
+
+  <div class="container">
+
+
+    <table cellspacing="0" class="tablesorter">
+      <thead>
+	<tr>
+	  <th>Ticket</th>
+	  <th>Description</th>
+	  <th>Submitted By</th>
+	  <th>Submitted On</th>
+	  <th>Ticket Type</th>
+	  <th>Status</th>
+	  <th>Priority</th>
+	  <th>Votes</th>
+	  <th>Assigned to</th>
+	</tr>
+      </thead>
+    </tbody>
     {% for object in object_list %}
     <tr>
       <td><a href="{{ object.get_absolute_url }}">{{object.id}}</a></td>
@@ -29,14 +50,37 @@
       <td>{{object.status | status_btn }}</td>
       <td>{{object.priority | priority_btn }}</td>
       <td>{{object.votes}}</td>
-	{% if object.assigned_to %} 
+      {% if object.assigned_to %}
       <td>{{ object.assigned_to }} </td>
       {% else %} <td>Nobody (yet)</td> {% endif %}
 
 
     </tr>
     {% endfor %}
-  </table>
-</div>
+    </tbody>
+    </table>
+  </div>
 
-{% endblock %}
+
+
+  <script type="text/javascript">
+
+   $(".tablesorter").tablesorter({
+     theme: 'bootstrap',
+     widthFixed: true,
+     showProcessing: true,
+     headerTemplate: '{content} {icon}',
+     widgets: ['zebra', 'uitheme', 'scroller'],
+     widgetOptions: {
+       scroller_height: 300,
+       scroller_barWidth: 17,
+       scroller_jumpToHeader: true,
+       scroller_idPrefix: 's_'
+     }
+   });
+
+  </script>
+
+
+
+  {% endblock %}
