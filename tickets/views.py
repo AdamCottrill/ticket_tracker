@@ -25,6 +25,18 @@ class TicketDetailView(DetailView):
 class TicketListView(ListView):
     model = Ticket
 
+    def get_queryset(self):
+        # Fetch the queryset from the parent's get_queryset
+        # Get the q GET parameter
+        q = self.request.GET.get("q")
+        if q:
+            # return a filtered queryset
+            return Ticket.objects.filter(
+                description__icontains=q).order_by("-created_on")
+        else:
+            # No q is specified so we return queryset
+            return Ticket.objects.all().order_by("-created_on")
+    
     
 def manage_tickets(request):
     TicketFormSet = formset_factory(TicketForm)

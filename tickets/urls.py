@@ -45,6 +45,6 @@ urlpatterns = patterns('',
                 url(r'^split/(?P<pk>\d+)/$',
                     view = SplitTicketView,
                     name = "split_ticket"),
-                       
+
                        
 )

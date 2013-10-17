@@ -61,9 +61,9 @@
 	    <li><a href="/admin/">Admin</a></li>
 	  </li>
 	</ul>
-	<form class="navbar-form navbar-left" role="search">
+	<form class="navbar-form navbar-left" role="search" action={% url 'ticket_list' %}>
 	  <div class="form-group">
-            <input type="text" class="form-control" placeholder="Search Tickets">
+            <input type="text" class="form-control" name="q" placeholder="Search Tickets">
 	  </div>
 	  <button type="submit" class="btn btn-default">Submit</button>
 	</form>
