@@ -7,11 +7,11 @@ from django.contrib.auth import authenticate
 #from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.contrib.auth.views import logout
+#from django.contrib.auth.views import logout
 #from django.core.context_processors import csrf
 from django.core.urlresolvers import reverse
 
-from django.template import RequestContext
+#from django.template import RequestContext
 from forms import UserForm, ChangePasswordForm
 
 
@@ -35,7 +35,7 @@ def logout_view(request):
     """
     """
     auth.logout(request)
-    return render(request, 'logged_out.html')
+    return render_to_response(request, 'auth/logged_out.html')
 
 @login_required
 def change_password(request):
