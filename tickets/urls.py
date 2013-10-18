@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from .views import (TicketListView, TicketDetailView, manage_tickets,
+from .views import (TicketListView, TicketDetailView, 
                     TicketUpdateView, upvote_ticket, TicketFollowUpView,
                     SplitTicketView)
 
@@ -14,16 +14,11 @@ urlpatterns = patterns('',
                     view = TicketDetailView.as_view(),
                     name = "ticket_detail"),
                        
-                url(r"^all/$", manage_tickets),
-
                 url(regex = r"^new/$",
-                    #view = TicketCreateView.as_view(),
-                    #view = TicketCreateView,
                     view = TicketUpdateView,                    
                     name="new_ticket"),
                        
                 url(r'^update/(?P<pk>\d+)/$',
-                    #view = TicketUpdateView.as_view(),
                     view = TicketUpdateView,
                     name = "update_ticket"),
 
@@ -46,5 +41,27 @@ urlpatterns = patterns('',
                     view = SplitTicketView,
                     name = "split_ticket"),
 
+                url(regex = r"^mytickets/(?P<userid>\d+|\-99)/$",
+                    view = TicketListView.as_view(),
+                    name="my_ticket_list"),
+
+
+                url(regex = r"^active/$", kwargs={'ticket_type':'active'}, 
+                    view = TicketListView.as_view(),
+                    name="active_tickets"),
+
+                url(regex = r"^closed/$", kwargs={'ticket_type':'closed'}, 
+                    view = TicketListView.as_view(),
+                    name="closed_tickets"),
+
+                url(regex = r"^bugreports/$", kwargs={'ticket_type':'bugs'}, 
+                    view = TicketListView.as_view(),
+                    name="bug_reports"),
+
+                url(regex = r"^featurerequests/$",
+                    kwargs={'ticket_type':'features'}, 
+                    view = TicketListView.as_view(),
+                    name="feature_requests"),
                        
+                                              
 )

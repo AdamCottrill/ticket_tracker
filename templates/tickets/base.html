@@ -37,13 +37,15 @@
             <ul class="dropdown-menu">
 
               <li><a href="#">All Tickets</a></li>
-	      <li><a href="#">My Tickets</a></li>
+	      {% if user.id %}
+	      <li><a href="{% url 'my_ticket_list' user.id|default:-99 %}">My Tickets</a></li>
+	      {% endif %}
 	      <li class="divider"></li>
-              <li><a href="#">Active Tickets</a></li>
-              <li><a href="#">Closed Tickets</a></li>
+              <li><a href="{% url 'active_tickets' %}">Active Tickets</a></li>
+              <li><a href="{% url 'closed_tickets' %}">Closed Tickets</a></li>
 	      <li class="divider"></li>
-              <li><a href="#">Bug Reports</a></li>
-              <li><a href="#">Feature Requests</a></li>
+              <li><a href="{% url 'bug_reports' %}">Bug Reports</a></li>
+              <li><a href="{% url 'feature_requests' %}">Feature Requests</a></li>
 
 	      <li>
 		<div class="radio">
@@ -61,8 +63,10 @@
 		  </label>
 		</div>
 	      </li>
-            </ul> 
+            </ul>
+	    {% if user.is_staff %}
 	    <li><a href="/admin/">Admin</a></li>
+	    {% endif %}
 	  </li>
 	</ul>
 	<form class="navbar-form navbar-left" role="search" action={% url 'ticket_list' %}>
@@ -71,6 +75,7 @@
 	  </div>
 	  <button type="submit" class="btn btn-default">Submit</button>
 	</form>
+      <p class="navbar-text">Welcome {{ user }}! </p>      
       </div><!-- /.navbar-collapse -->
     </nav>
 

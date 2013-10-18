@@ -17,28 +17,27 @@
 <script src="{{ STATIC_URL }}js/jquery.tablesorter.widgets.js"></script>
 
 
-  {% endblock %}
+{% endblock %}
 
 
-  {% block content %}
+{% block content %}
 
-  <div class="container">
+<div class="container">
 
-
-    <table cellspacing="0" class="tablesorter">
-      <thead>
-	<tr>
-	  <th>Ticket</th>
-	  <th>Description</th>
-	  <th>Submitted By</th>
-	  <th>Submitted On</th>
-	  <th>Ticket Type</th>
-	  <th>Status</th>
-	  <th>Priority</th>
-	  <th>Votes</th>
-	  <th>Assigned to</th>
-	</tr>
-      </thead>
+  <table cellspacing="0" class="tablesorter">
+    <thead>
+      <tr>
+	<th>Ticket</th>
+	<th>Description</th>
+	<th>Submitted By</th>
+	<th>Submitted On</th>
+	<th>Ticket Type</th>
+	<th>Status</th>
+	<th>Priority</th>
+	<th>Votes</th>
+	<th>Assigned to</th>
+      </tr>
+    </thead>
     </tbody>
     {% for object in object_list %}
     <tr>
@@ -58,29 +57,29 @@
     </tr>
     {% endfor %}
     </tbody>
-    </table>
-  </div>
+  </table>
+</div>
 
 
 
-  <script type="text/javascript">
+<script type="text/javascript">
 
-   $(".tablesorter").tablesorter({
-     theme: 'bootstrap',
-     widthFixed: true,
-     showProcessing: true,
-     headerTemplate: '{content} {icon}',
-     widgets: ['zebra', 'uitheme', 'scroller'],
-     widgetOptions: {
-       scroller_height: 300,
-       scroller_barWidth: 17,
-       scroller_jumpToHeader: true,
-       scroller_idPrefix: 's_'
-     }
-   });
+ $(".tablesorter").tablesorter({
+   theme: 'bootstrap',
+   widthFixed: true,
+   showProcessing: true,
+   headerTemplate: '{content} {icon}',
+   widgets: ['zebra', 'uitheme', 'scroller'],
+   widgetOptions: {
+     scroller_height: 300,
+     scroller_barWidth: 17,
+     scroller_jumpToHeader: true,
+     scroller_idPrefix: 's_'
+   }
+ });
 
-  </script>
+</script>
 
 
 
-  {% endblock %}
+{% endblock %}

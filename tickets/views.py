@@ -1,10 +1,13 @@
+from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.forms.formsets import formset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.generic.list import ListView
 from django.views.generic import DetailView
+
 
 from .models import Ticket, UserVoteLog, FollowUp, TicketDuplicate
 from .forms import TicketForm, CommentForm, SplitTicketForm 
@@ -21,49 +24,67 @@ class TicketDetailView(DetailView):
            ).order_by('-created_on')
         context['comments'] = comments
         return context
-    
+
+
 class TicketListView(ListView):
     model = Ticket
 
     def get_queryset(self):
+        q = self.request.GET.get("q")
+        ticket_type = self.kwargs.pop('ticket_type', None)
+
+        userid = self.kwargs.pop('userid', None)
+        
+        try:
+            user = User.objects.get(id=userid)
+        except User.DoesNotExist:
+            user = None
+
         # Fetch the queryset from the parent's get_queryset
         # Get the q GET parameter
-        q = self.request.GET.get("q")
-        if q:
+        if user and q:
+            return Ticket.objects.filter(
+                submitted_by=user,
+                description__icontains=q).order_by("-created_on")            
+        elif q:
             # return a filtered queryset
             return Ticket.objects.filter(
                 description__icontains=q).order_by("-created_on")
+            
+        elif ticket_type == 'active':
+            active_codes = ['new','accepted', 'assigned','reopened']
+            return Ticket.objects.filter(
+                status__in=active_codes).order_by("-created_on")
+            
+        elif ticket_type == 'closed':
+            inactive_codes = ['closed', 'split','duplicate']
+            return Ticket.objects.filter(
+                status__in=inactive_codes).order_by("-created_on")
+
+        elif ticket_type == 'bugs':
+            return Ticket.objects.filter(
+                ticket_type='bug').order_by("-created_on")
+
+        elif ticket_type == 'features':
+            return Ticket.objects.filter(
+                ticket_type='feature').order_by("-created_on")
+            
+        elif user:        
+            return Ticket.objects.filter(
+                submitted_by=user).order_by("-created_on")
         else:
             # No q is specified so we return queryset
             return Ticket.objects.all().order_by("-created_on")
     
     
-def manage_tickets(request):
-    TicketFormSet = formset_factory(TicketForm)
-    if request.method == 'POST':
-        formset = TicketFormSet(request.POST, request.FILES)
-        if formset.is_valid():
-            # do something with the formset.cleaned_data
-            pass
-    else:
-        tickets = Ticket.objects.all()
-        initial_data =[]
-        for ticket in tickets:
-            ticket_dict ={'status':ticket.status,
-                          'description':ticket.description}
-            initial_data.append(ticket_dict)
-
-        formset = TicketFormSet(initial = initial_data)
-    return render_to_response('tickets/manage_tickets.html',
-                              {'formset': formset})
-
 @login_required
 def TicketUpdateView(request, pk=None,
                      template_name='tickets/ticket_form.html'):
     if pk:
         ticket = get_object_or_404(Ticket, pk=pk)
-        #if ticket.author != request.user:
-        #    return HttpResponseForbidden()
+        if (request.user != ticket.submitted_by or
+            request.user.is_staff() == False):
+            return HttpResponseRedirect(ticket.get_absolute_url())
     else:
         ticket = Ticket(submitted_by=request.user, status='new')
 
@@ -71,9 +92,6 @@ def TicketUpdateView(request, pk=None,
         form = TicketForm(request.POST, instance=ticket)
         if form.is_valid():
             new_ticket = form.save()
-            # If the save was successful, redirect to another page
-            #redirect_url = reverse(ticket_save_success)
-            #return HttpResponseRedirect(redirect_url)
             return HttpResponseRedirect(new_ticket.get_absolute_url())
             
     else:
@@ -88,6 +106,13 @@ def SplitTicketView(request, pk=None,
                      template_name='tickets/split_ticket_form.html'):
 
     ticket = get_object_or_404(Ticket, pk=pk)
+
+    try:
+        ticket = Ticket.objects.get(id=pk)
+    except User.DoesNotExist:
+        url = reverse('ticket_list')
+        return HttpResponseRedirect(url)
+    
     #start with the same data in both tickets as the original.
     initial = {
             'status1':'new',
@@ -100,8 +125,6 @@ def SplitTicketView(request, pk=None,
             'priority2':ticket.priority,
             'assigned_to2':ticket.assigned_to,
             'description2':ticket.description}
-
-    #import pdb; pdb.set_trace()
     
     if request.method == 'POST':
         form = SplitTicketForm(data=request.POST, user = request.user,
@@ -123,10 +146,13 @@ def SplitTicketView(request, pk=None,
 def TicketFollowUpView(request, pk, action='no_action',
                      template_name='tickets/comment_form.html'):
 
-    ticket = Ticket.objects.get(pk=pk)
-    #ticket = get_object_or_404(Ticket,pk)
-    #form = CommentForm(ticket=ticket, submitted_by=request.user)    
-    #import pdb; pdb.set_trace()
+    try:
+        ticket = Ticket.objects.get(pk=pk)
+    except Ticket.DoesNotExist:
+        url = reverse('ticket_list')
+        return HttpResponseRedirect(url)
+        
+
     
     if request.POST:
         form = CommentForm(request.POST, action=action)
@@ -167,19 +193,18 @@ def TicketFollowUpView(request, pk, action='no_action',
 @login_required
 def upvote_ticket(request,pk):
     ticket = Ticket.objects.get(pk=pk)
-    user = request.user
-    #ticket = get_object_or_404(Ticket, pk=pk)                    
 
-    p, created = UserVoteLog.objects.get_or_create(ticket=ticket,
+    try:
+        user = User.objects.get(id=request.user.id)
+    except User.DoesNotExist:
+        user = None
+
+    if user:
+        p, created = UserVoteLog.objects.get_or_create(ticket=ticket,
                                                   user=user)
-
-    #import pdb; pdb.set_trace()
-    if ticket and created:        
-        ticket.up_vote()
+        if ticket and created:        
+            ticket.up_vote()
     return HttpResponseRedirect(ticket.get_absolute_url())    
-    #return render_to_response('tickets/ticket_detail.html',
-    #                          {'object':ticket},
-    #                          context_instance = RequestContext(request))
     
     
     
