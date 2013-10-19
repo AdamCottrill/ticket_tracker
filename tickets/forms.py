@@ -1,13 +1,12 @@
-from django.forms import (Form, ModelForm, CharField, Textarea, BooleanField,
-                          ValidationError, ModelChoiceField)
-from django.shortcuts import get_object_or_404
-from django.forms.widgets import Select
 from django.contrib.auth.models import User
-#from django.contrib.auth.models import User
+from django.forms import (Form, ModelForm, CharField, Textarea, BooleanField,
+                          ValidationError, ModelChoiceField, IntegerField)
+from django.forms.widgets import Select
+from django.shortcuts import get_object_or_404
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import (Submit, Layout, ButtonHolder, Div, Fieldset,
-                                 Field, HTML)
+                                 Field)
 
 
 from .models import Ticket, FollowUp
@@ -21,8 +20,6 @@ class TicketForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(TicketForm, self).__init__(*args, **kwargs)
-
-        #import pdb; pdb.set_trace()
         
         self.helper = FormHelper()
         self.helper.form_id = 'ticket'
@@ -33,15 +30,13 @@ class TicketForm(ModelForm):
         priorities = sorted(self.base_fields['priority'].choices,
                             key=lambda x:x[0], reverse=True)
         self.fields['priority'].choices = priorities
-
         
     class Meta:
         model = Ticket
         fields = ['status', 'ticket_type', 'priority', 'description',
                   'assigned_to']
 
-
-
+        
 class SplitTicketForm(Form):
 
     status1 = CharField(max_length=20,label="Ticket Status",
@@ -86,7 +81,6 @@ class SplitTicketForm(Form):
 
     
     def __init__(self, user, original_ticket, *args, **kwargs):
-        #self.original_ticket = kwargs.pop('original_ticket', None)
         self.original_ticket = original_ticket        
         self.user = user
         super(SplitTicketForm, self).__init__(*args, **kwargs)
@@ -95,7 +89,6 @@ class SplitTicketForm(Form):
         self.helper.form_id = 'splitticket'
         self.helper.form_class = 'blueForms'
         self.helper.form_method = 'post'
-
         
         self.helper.layout = Layout(
             Div(
@@ -152,10 +145,7 @@ class SplitTicketForm(Form):
         original.status = 'split'
         original.save()
         
-        
-        
-        
-        
+                
 class CommentForm(ModelForm):
 
     comment = CharField(
@@ -176,7 +166,8 @@ class CommentForm(ModelForm):
         # and button (with different labels)        
         if self.action == 'closed':
             self.fields['duplicate'] = BooleanField(required=False)
-            self.fields['same_as_ticket'] = CharField(required=False, label="")
+            self.fields['same_as_ticket'] = IntegerField(required=False,
+                                                         label="")
             self.helper.layout = Layout(
                 Div(
                     'comment',
@@ -199,20 +190,41 @@ class CommentForm(ModelForm):
                 'comment',
                 ButtonHolder(Submit('submit', 'Post Comment',
                                  css_class = 'btn btn-default pull-right')))
-                
-            
+                            
     def clean(self):
         '''if duplicate is True, we need to make sure that
         "same_as_ticket" is populated with a legitimate ticket number.
+        Return validation errors if duplicate is checke but ticket
+        number is blank, a ticket is provided but duplicat is
+        unchecked, or if a ticket is provided but does not appear to
+        be associated with an existing ticket..
         '''
 
-        if self.cleaned_data.get('duplicate'):
-            original_pk = self.cleaned_data['same_as_ticket']
-            original = get_object_or_404(Ticket, id=original_pk)
+        if (self.cleaned_data.get('same_as_ticket') and not
+            self.cleaned_data.get('duplicate')):
+            
+            raise ValidationError("Duplicate false, ticket number provided.")
+            
+        elif (self.cleaned_data.get('duplicate') and not
+              self.cleaned_data.get('same_as_ticket')):
+            raise ValidationError("Duplicate true, no ticket number provided.")
+        else:        
+            original_pk = self.cleaned_data.get('same_as_ticket')
+            if original_pk:
+                try:
+                    original_pk = int(original_pk)
+                except ValueError:
+                    original_pk = None
+        
+        if self.cleaned_data.get('duplicate') and original_pk:
+            try:
+                original = Ticket.objects.get(id=original_pk)
+            except Ticket.DoesNotExist:
+                original = None
             if not original:
                  raise ValidationError("Invalid ticket number.")
-        return self.cleaned_data
             
+        return self.cleaned_data            
             
     class Meta:
         model = FollowUp

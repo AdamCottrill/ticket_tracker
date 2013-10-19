@@ -119,6 +119,18 @@ class TestTicketParentChildren(TestCase):
         self.assertEqual(None, self.ticket4.get_parent())
 
 
+
+    def test_ticket_get_parent_orphan(self):
+        '''Just incase a ticket has a parent that does not, or no
+        longer exists, get parent should gracefully return None
+
+        '''
+        
+        self.ticket1.delete()
+        self.assertEqual(None, self.ticket2.get_parent())
+        self.assertEqual(None, self.ticket3.get_parent())
+        
+
     def test_ticket_get_children(self):
         '''Only ticket 1 has children - they should be ticket 2 and ticket 3.'''
         children = self.ticket1.get_children()
