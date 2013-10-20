@@ -43,7 +43,7 @@
 	      <li><a href="{% url 'my_ticket_list' user.id|default:-99 %}">My Tickets</a></li>
 	      {% endif %}
 	      <li class="divider"></li>
-              <li><a href="{% url 'active_tickets' %}">Active Tickets</a></li>
+              <li><a href="{% url 'open_tickets' %}">Open Tickets</a></li>
               <li><a href="{% url 'closed_tickets' %}">Closed Tickets</a></li>
 	      <li class="divider"></li>
               <li><a href="{% url 'bug_reports' %}">Bug Reports</a></li>

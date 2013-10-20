@@ -27,18 +27,20 @@ class TicketDetailView(DetailView):
         return context
 
 
-class TicketListView(ListView):
-    '''A view to render a list of tickets.'''
-
-    #TODO - refactor this view into several subclasses with different
-    #  querysets
-    
+class TicketListViewBase(ListView):
+    '''A base class for all ticket listviews.'''    
     model = Ticket
+
+
+class TicketListView(TicketListViewBase):
+    '''A view to render a list of tickets. if a query string and/or a
+    user is provided, they will be used to filter the queryset,
+    otherwise all tickets are returned in reverse chronological
+    order.
+    '''
 
     def get_queryset(self):
         q = self.request.GET.get("q")
-        ticket_type = self.kwargs.pop('ticket_type', None)
-
         userid = self.kwargs.pop('userid', None)
         
         try:
@@ -49,6 +51,8 @@ class TicketListView(ListView):
         # Fetch the queryset from the parent's get_queryset
         # Get the q GET parameter
         if user and q:
+            #NOTE - there is currenly no way to get here from our
+            # existing templates.
             return Ticket.objects.filter(
                 submitted_by=user,
                 description__icontains=q).order_by("-created_on")            
@@ -56,32 +60,52 @@ class TicketListView(ListView):
             # return a filtered queryset
             return Ticket.objects.filter(
                 description__icontains=q).order_by("-created_on")
-            
-        elif ticket_type == 'active':
-            active_codes = ['new','accepted', 'assigned','reopened']
-            return Ticket.objects.filter(
-                status__in=active_codes).order_by("-created_on")
-            
-        elif ticket_type == 'closed':
-            inactive_codes = ['closed', 'split','duplicate']
-            return Ticket.objects.filter(
-                status__in=inactive_codes).order_by("-created_on")
-
-        elif ticket_type == 'bugs':
-            return Ticket.objects.filter(
-                ticket_type='bug').order_by("-created_on")
-
-        elif ticket_type == 'features':
-            return Ticket.objects.filter(
-                ticket_type='feature').order_by("-created_on")
-            
+                        
         elif user:        
             return Ticket.objects.filter(
                 submitted_by=user).order_by("-created_on")
         else:
-            # No q is specified so we return queryset
+            # No q or user is specified so we return the full queryset
             return Ticket.objects.all().order_by("-created_on")
+
+
     
+class ClosedTicketListView(TicketListViewBase):
+    '''A list of only closed tickets.'''    
+    
+    def get_queryset(self):
+        inactive_codes = ['closed', 'split','duplicate']
+        return Ticket.objects.filter(
+                status__in=inactive_codes).order_by("-created_on")
+
+class OpenTicketListView(TicketListViewBase):
+    '''A list of only open tickets.'''    
+    
+    def get_queryset(self):
+        open_codes = ['new','accepted', 'assigned','reopened']
+        return Ticket.objects.filter(
+                status__in=open_codes).order_by("-created_on")
+
+
+class BugTicketListView(TicketListViewBase):
+    '''A list of only bug reports tickets.'''    
+    
+    def get_queryset(self):
+        return Ticket.objects.filter(
+                ticket_type='bug').order_by("-created_on")
+
+
+class FeatureTicketListView(TicketListViewBase):
+    '''A list of only feature request tickets.'''    
+    
+    def get_queryset(self):
+        return Ticket.objects.filter(
+                ticket_type='feature').order_by("-created_on")
+        
+    
+
+
+            
     
 @login_required
 def TicketUpdateView(request, pk=None,

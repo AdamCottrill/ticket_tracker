@@ -1,14 +1,12 @@
 from django.conf.urls import patterns, url
 
-from .views import (TicketListView, TicketDetailView, 
-                    TicketUpdateView, upvote_ticket, TicketFollowUpView,
-                    SplitTicketView)
+#from .views import (TicketListView, TicketDetailView, 
+#                    TicketUpdateView, upvote_ticket, TicketFollowUpView,
+#                    SplitTicketView)
 
+from .views import *
 
 urlpatterns = patterns('',
-                url(regex = r"^$",
-                    view = TicketListView.as_view(),
-                    name="ticket_list"),
                        
                 url(r'^(?P<pk>\d+)/$',
                     view = TicketDetailView.as_view(),
@@ -41,27 +39,32 @@ urlpatterns = patterns('',
                     view = SplitTicketView,
                     name = "split_ticket"),
 
+                #===========
+                #Ticket Lists
+                url(regex = r"^$",
+                    view = TicketListView.as_view(),
+                    name="ticket_list"),
+                       
                 url(regex = r"^mytickets/(?P<userid>\d+|\-99)/$",
                     view = TicketListView.as_view(),
                     name="my_ticket_list"),
 
+                url(regex = r"^active/$", 
+                    view = OpenTicketListView.as_view(),
+                    name="open_tickets"),
 
-                url(regex = r"^active/$", kwargs={'ticket_type':'active'}, 
-                    view = TicketListView.as_view(),
-                    name="active_tickets"),
+                url(regex = r"^closed/$",
+                    view = ClosedTicketListView.as_view(),
+                    name="closed_tickets"),                       
 
-                url(regex = r"^closed/$", kwargs={'ticket_type':'closed'}, 
-                    view = TicketListView.as_view(),
-                    name="closed_tickets"),
-
-                url(regex = r"^bugreports/$", kwargs={'ticket_type':'bugs'}, 
-                    view = TicketListView.as_view(),
+                url(regex = r"^bugreports/$", 
+                    view = BugTicketListView.as_view(),
                     name="bug_reports"),
 
                 url(regex = r"^featurerequests/$",
-                    kwargs={'ticket_type':'features'}, 
-                    view = TicketListView.as_view(),
+                    view = FeatureTicketListView.as_view(),
                     name="feature_requests"),
+                       
                        
                                               
 )
