@@ -3,35 +3,18 @@ from datetime import datetime
 
 from django.test import TestCase
 
-#there aren't many forms in this project, but they should be tested
-
-#forms to test:
-# TicketForm
-#  - new ticket
-#  - update ticket
-#     - admin and owner only
-# SplitTicketForm **
-
-
-# CommentForm *
-# user
-# close
-# close duplicate
-# re-open
-
-#  * - login required
-
 
 from tickets.models import *
-from tickets.forms import TicketForm, CommentForm
+from tickets.forms import TicketForm, CommentForm, SplitTicketForm 
 from tickets.tests.factories import *
 
 
 class TestTicketForm(TestCase):
-
+    '''Test the basic functionality of the ticket form'''
+    
     def setUp(self):
+        '''one ticket and one user that will be used in these tests'''
         self.user1 = UserFactory()
-        self.user2 = UserFactory()        
         self.ticket = TicketFactory()
         
     def test_good_data(self):
@@ -61,7 +44,6 @@ class TestTicketForm(TestCase):
         '''Description is a required field - the form should not be valid
         if description is omitted.
         '''
-
 
         initial = {
             'assigned_to':1,
@@ -93,7 +75,6 @@ class TestTicketForm(TestCase):
     def test_missing_ticket_type(self):
         '''Ticket type is a required field - the form should not be valid
         if ticket type is omitted.
-
         '''
 
         initial = {
@@ -129,7 +110,6 @@ class TestTicketForm(TestCase):
         self.assertEqual(form.cleaned_data['ticket_type'], 'bug')
         self.assertEqual(form.cleaned_data['description'], 'this is a test') 
         self.assertEqual(form.cleaned_data['priority'], 3)
-
         
     def tearDown(self):
         pass
@@ -159,7 +139,6 @@ class TestCommentForm(TestCase):
         '''
 
         initial = { 'comment':None}
-        
         form = CommentForm(data=initial, instance=self.comment)
         self.assertFalse(form.is_valid())
 
@@ -168,7 +147,6 @@ class TestCommentForm(TestCase):
         '''verify that the same data comes out as went in'''
 
         initial = { 'comment':"A valid comment"}
-        
         form = CommentForm(data=initial, instance=self.comment,
                            action='closed')
         self.assertTrue(form.is_valid())
@@ -177,7 +155,9 @@ class TestCommentForm(TestCase):
                          'A valid comment')
 
     def test_duplicate_good_ticket(self):
-        '''verify that the same data comes out as went in'''
+        '''verify that the same data comes out as went in - duplicate
+        is checked and a valid ticket number
+        '''
 
         initial = { 'comment':"A valid comment", 'duplicate':True,
                     'same_as_ticket':1}
@@ -204,8 +184,8 @@ class TestCommentForm(TestCase):
 
         
     def test_duplicate_missing_ticket(self):
-        '''comment is a required field, verify that the form will not
-        validate without it.
+        '''form is not valid if duplicate is checked but no ticket
+        number is provided.
         '''
 
         initial = { 'comment':'This is a valid comment',
@@ -217,8 +197,7 @@ class TestCommentForm(TestCase):
         self.assertFalse(form.is_valid())
         
     def test_duplicate_bad_ticket(self):
-        '''comment is a required field, verify that the form will not
-        validate without it.
+        '''form is not valid if ticket number is for a ticket that doesn't exist
         '''
         
         initial = { 'comment':'This is a valid comment',
@@ -229,8 +208,7 @@ class TestCommentForm(TestCase):
 
 
     def test_duplicate_non_numeric_ticket(self):
-        '''comment is a required field, verify that the form will not
-        validate without it.
+        '''form is not valid if ticket number is not an integer
         '''
         
         initial = { 'comment':'This is a valid comment',
@@ -242,8 +220,8 @@ class TestCommentForm(TestCase):
 
         
     def test_duplicate_missing_check(self):
-        '''comment is a required field, verify that the form will not
-        validate without it.
+        '''throw an error if a ticket number is provided but the
+        duplicate check box if left blank.
         '''
 
         initial = { 'comment':'This is a valid comment', 'duplicate':False,
@@ -257,4 +235,148 @@ class TestCommentForm(TestCase):
 
     def tearDown(self):
         pass
+
+
+class TestSplitForm(TestCase):
+
+    def setUp(self):
+
+        self.user = UserFactory()
+        self.ticket = TicketFactory()
+        
+    def test_good_data(self):
+        '''verify that the same data comes out as went in'''
+
+        initial = {
+            'status1':'new',
+            'ticket_type1':self.ticket.ticket_type,
+            'priority1':self.ticket.priority,
+            'assigned_to1':self.ticket.assigned_to,
+            'description1':self.ticket.description,
+            'status2':'new',
+            'ticket_type2':self.ticket.ticket_type,
+            'priority2':self.ticket.priority,
+            'assigned_to2':self.ticket.assigned_to,
+            'description2':self.ticket.description,
+            'comment':'This is a test',
+        } 
+
+        form = SplitTicketForm(data=initial, user=self.user,
+                               original_ticket=self.ticket)
+        self.assertTrue(form.is_valid())
+        #check the data
+        self.assertEqual(form.cleaned_data['status1'],'new')
+        self.assertEqual(form.cleaned_data['ticket_type1'],
+                                           str(self.ticket.ticket_type))        
+        self.assertEqual(form.cleaned_data['priority1'],
+                         str(self.ticket.priority))
+        self.assertEqual(form.cleaned_data['assigned_to1'],
+                         self.ticket.assigned_to)
+        self.assertEqual(form.cleaned_data['description1'],
+                         self.ticket.description)
+        self.assertEqual(form.cleaned_data['status2'],'new')
+        self.assertEqual(form.cleaned_data['ticket_type2'],
+                         str(self.ticket.ticket_type))
+        self.assertEqual(form.cleaned_data['priority2'],
+                         str(self.ticket.priority))
+        self.assertEqual(form.cleaned_data['assigned_to2'],
+                         self.ticket.assigned_to)
+        self.assertEqual(form.cleaned_data['description2'],
+                         self.ticket.description)
+
+
+    def test_no_comment(self):
+        '''form is not valid without a comment'''
+
+        initial = {
+            'status1':'new',
+            'ticket_type1':self.ticket.ticket_type,
+            'priority1':self.ticket.priority,
+            'assigned_to1':self.ticket.assigned_to,
+            'description1':self.ticket.description,
+            'status2':'new',
+            'ticket_type2':self.ticket.ticket_type,
+            'priority2':self.ticket.priority,
+            'assigned_to2':self.ticket.assigned_to,
+            'description2':self.ticket.description,
+            #'comment':'This is a test',
+        } 
+
+        form = SplitTicketForm(data=initial, user=self.user,
+                               original_ticket=self.ticket)
+        self.assertFalse(form.is_valid())
+
+    def test_no_description1(self):
+        '''form is not valid without description for the first
+        ticket
+        '''
+
+        initial = {
+            'status1':'new',
+            'ticket_type1':self.ticket.ticket_type,
+            'priority1':self.ticket.priority,
+            'assigned_to1':self.ticket.assigned_to,
+            #'description1':self.ticket.description,
+            'status2':'new',
+            'ticket_type2':self.ticket.ticket_type,
+            'priority2':self.ticket.priority,
+            'assigned_to2':self.ticket.assigned_to,
+            'description2':self.ticket.description,
+            'comment':'This is a test',
+        } 
+
+        form = SplitTicketForm(data=initial, user=self.user,
+                               original_ticket=self.ticket)
+        self.assertFalse(form.is_valid())
+
+
+    def test_no_description2(self):
+        '''form is not valid without description for the second
+        ticket
+        '''
+
+        initial = {
+            'status1':'new',
+            'ticket_type1':self.ticket.ticket_type,
+            'priority1':self.ticket.priority,
+            'assigned_to1':self.ticket.assigned_to,
+            'description1':self.ticket.description,
+            'status2':'new',
+            'ticket_type2':self.ticket.ticket_type,
+            'priority2':self.ticket.priority,
+            'assigned_to2':self.ticket.assigned_to,
+            #'description2':self.ticket.description,
+            'comment':'This is a test',
+        } 
+
+        form = SplitTicketForm(data=initial, user=self.user,
+                               original_ticket=self.ticket)
+        self.assertFalse(form.is_valid())
+        
+
+    def test_assigned_to_option(self):
+        '''form is valid without assigned_to
+        '''
+
+        initial = {
+            'status1':'new',
+            'ticket_type1':self.ticket.ticket_type,
+            'priority1':self.ticket.priority,
+            #'assigned_to1':self.ticket.assigned_to,
+            'description1':self.ticket.description,
+            'status2':'new',
+            'ticket_type2':self.ticket.ticket_type,
+            'priority2':self.ticket.priority,
+            #'assigned_to2':self.ticket.assigned_to,
+            'description2':self.ticket.description,
+            'comment':'This is a test',
+        } 
+
+        form = SplitTicketForm(data=initial, user=self.user,
+                               original_ticket=self.ticket)
+        self.assertTrue(form.is_valid())
+        
+
+        
+        
         

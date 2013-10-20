@@ -14,6 +14,7 @@ from .forms import TicketForm, CommentForm, SplitTicketForm
 
 
 class TicketDetailView(DetailView):
+    '''A view to render details of a single ticket.'''
     model = Ticket
 
     def get_context_data(self, **kwargs):
@@ -27,6 +28,11 @@ class TicketDetailView(DetailView):
 
 
 class TicketListView(ListView):
+    '''A view to render a list of tickets.'''
+
+    #TODO - refactor this view into several subclasses with different
+    #  querysets
+    
     model = Ticket
 
     def get_queryset(self):
@@ -80,6 +86,11 @@ class TicketListView(ListView):
 @login_required
 def TicketUpdateView(request, pk=None,
                      template_name='tickets/ticket_form.html'):
+    '''A view to allow users to update existing tickets.  Only
+    administrators or the tags original submitter can make changes to
+    a ticket
+    '''
+    
     if pk:
         ticket = get_object_or_404(Ticket, pk=pk)
         if (request.user != ticket.submitted_by or
@@ -104,7 +115,13 @@ def TicketUpdateView(request, pk=None,
 @login_required
 def SplitTicketView(request, pk=None,
                      template_name='tickets/split_ticket_form.html'):
-
+    '''If a ticket is too complex to handle in a single ticket, this
+    view allows administrators to split the ticket into two child
+    tickets.  The orginial ticket is closed, but is referenced by the
+    children.  By default, all of the fields in the child ticket are
+    set to the values for the same field in the parent.
+    '''
+        
     ticket = get_object_or_404(Ticket, pk=pk)
 
     try:
@@ -139,20 +156,20 @@ def SplitTicketView(request, pk=None,
                               {'form': form,},
                               context_instance=RequestContext(request))
 
-
     
-
 @login_required
 def TicketFollowUpView(request, pk, action='no_action',
                      template_name='tickets/comment_form.html'):
-
+    
+    '''Add a comment to a ticket.  If the user is an administrator,
+    this view is also used to close and re-open tickets.
+    '''
+    
     try:
         ticket = Ticket.objects.get(pk=pk)
     except Ticket.DoesNotExist:
         url = reverse('ticket_list')
         return HttpResponseRedirect(url)
-        
-
     
     if request.POST:
         form = CommentForm(request.POST, action=action)
@@ -186,14 +203,14 @@ def TicketFollowUpView(request, pk, action='no_action',
     return render_to_response(template_name,
                               {'form': form, 'ticket':ticket},
                               context_instance=RequestContext(request))
-
-
-    
     
 @login_required
 def upvote_ticket(request,pk):
+    '''A view to increment the vote count for a ticket.  Only allow
+    votes if user has logged in and then only if they have not voted
+    for this ticket yet.'
+    '''
     ticket = Ticket.objects.get(pk=pk)
-
     try:
         user = User.objects.get(id=request.user.id)
     except User.DoesNotExist:
