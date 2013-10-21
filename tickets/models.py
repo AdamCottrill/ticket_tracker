@@ -134,9 +134,6 @@ class Ticket(models.Model):
             return False
         
 
-
-        
-
 class TicketDuplicate(models.Model):
     '''A simple table to keep track of which tickets are duplicates of
     which ticket.
@@ -149,7 +146,6 @@ class TicketDuplicate(models.Model):
         string = "Ticket {0} is a duplicate of ticket {1}"
         string = string.format(self.ticket.id, self.original.id)
         return string
-
             
 
 class UserVoteLog(models.Model):

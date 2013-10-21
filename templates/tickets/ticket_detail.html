@@ -36,7 +36,7 @@
 
 
       <tr>
-	<td><b>Sumbitted by: </b> {{ object.submitted_by }}</td>
+	<td><b>Submitted by: </b> {{ object.submitted_by }}</td>
 	<td>	<b>Assigned to: </b>
 	  {% if object.assigned_to %}
 	  {{ object.assigned_to }}
@@ -107,16 +107,16 @@
     {% if object.get_parent %}
     <p><b>Parent Ticket:</b></p>
     This ticket was split from a parent ticket:
-    <a href="{% url 'ticket_detail' object.id  %}">{{ object }}... (ticket #{{ object.id }})</a>
+    <a href="{% url 'ticket_detail' object.get_parent.id  %}">{{ object.get_parent }}... (ticket #{{ object.get_parent.id }})</a>
     {% endif %}
 
     {% if object.get_children %}
     <p><b>Child Ticket(s):</b></p>
     This ticket has been split into the  following ticket(s):
     <ul>
-      {% for object in object.get_children %}
-      <li><a href="{% url 'ticket_detail' object.id  %}">
-	{{ object }} (ticket #{{ object.id }})</a></li>
+      {% for child in object.get_children %}
+      <li><a href="{% url 'ticket_detail' child.id  %}">
+	{{ child }} (ticket #{{ child.id }})</a></li>
       {% endfor %}
     </ul>
     {% endif %}

@@ -118,7 +118,7 @@ class SplitTicketForm(Form):
 
         original = self.original_ticket 
         
-        ticket1 = Ticket(status = self.cleaned_data.get('status1'),
+        ticket1 = Ticket(status = self.cleaned_data['status1'],
                          assigned_to = self.cleaned_data.get('assigned_to1'),
                          priority = self.cleaned_data.get('priority1'),
                          ticket_type = self.cleaned_data.get('ticket_type1'),

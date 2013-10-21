@@ -11,61 +11,137 @@ from tickets.tests.factories import *
 
 
 class TicketTestCase(TestCase):
-    ''' '''
+    '''Verify that the ticket detail view renders all of the required
+    information inlcuding links to parent and child tickets as well as
+    any duplicates/original.
+    '''
 
     def setUp(self):        
 
         self.user = UserFactory()
-        self.ticket = TicketFactory()
+        desc = 'This is the first ticket'
+        self.ticket = TicketFactory(submitted_by=self.user,
+                                    description=desc)
+        
+        desc = 'This is a duplicate of ticket1'
+        self.ticket2 = TicketFactory(description=desc)
+        
+        desc = 'This will be the 1st child of ticket1'
+        self.ticket3 = TicketFactory(submitted_by=self.user,
+                                     description=desc,
+                                     parent=self.ticket)
+        
+        #flag ticket 2 as a duplicate of the first
+        self.ticket2.duplicate_of(self.ticket.id)
+
         
     def test_ticket_detail(self):        
+        '''make sure that all of the relevant details appear on the
+        basic detail page
+        '''
+        
+        url = reverse('ticket_detail', kwargs={'pk':self.ticket.id})
+        response = self.client.get(url,follow=True) 
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "tickets/ticket_detail.html")
+        self.assertContains(response, self.ticket.description)
+        self.assertContains(response, self.ticket.priority)
+        self.assertContains(response, self.ticket.votes)
+        self.assertContains(response, self.user.username)
 
-        pass
-        ##login = self.client.login(username=self.user.username, password='abc')
-        ##self.assertTrue(login)
-        ##response = self.client.get(reverse('MyProjects'),follow=True) 
-        ##self.assertEqual(response.status_code, 200)
-        ##self.assertTemplateUsed(response, "my_projects.html")
-        ##self.assertContains(response, 'Bookmarks')
+        self.assertContains(response, 'Priority:')
+        self.assertContains(response, 'Opened:')
+        self.assertContains(response, 'Last modified:')                        
+        self.assertContains(response, 'Submitted by:')
+        self.assertContains(response, 'Assigned to:')
+        self.assertContains(response, 'Comments:')                        
+
+        self.assertNotContains(response, 'Parent Ticket:')
         
 
-    def test_ticket_update_not_logged_in(self):        
-        '''user's who aren't logged in should not be able to edit
-        tickets.
+    def test_ticket_detail_includes_parent_id(self):        
+        '''if a ticket has a parent, make sure that the view includes
+        a link back to its parent
         '''
-        pass
-        ## login = self.client.login(username=self.user.username,
-        ##                          password='abc')
-        ## self.assertTrue(login)
-        ## response = self.client.get(reverse('MyProjects'),follow=True) 
-        ## self.assertEqual(response.status_code, 200)
-        ## self.assertTemplateUsed(response, "my_projects.html")
-        ## self.assertContains(response, 'Bookmarks')
+
+        #ticket ticket is the parent of ticket 1
+        url = reverse('ticket_detail', kwargs={'pk':self.ticket3.id})
+        response = self.client.get(url,follow=True) 
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "tickets/ticket_detail.html")
+
+        self.assertContains(response, 'Parent Ticket')
+        #there should be a link to the parent ticket in the response
+        url = reverse('ticket_detail', kwargs={'pk':self.ticket.id})
+        linktext ='<a href="{0}">{1}... (ticket #{2})</a>'
+        linktext = linktext.format(url, self.ticket, self.ticket.id)
+
+        self.assertContains(response, linktext, html=True)
+
+    def test_ticket_detail_includes_child_info(self):        
+        '''if a ticket has a child, make sure that the view includes
+        a link back to its the child
+        '''
+        #ticket ticket is the parent of ticket 1
+        url = reverse('ticket_detail', kwargs={'pk':self.ticket.id})
+        response = self.client.get(url,follow=True) 
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "tickets/ticket_detail.html")
+
+        self.assertContains(response, 'Child Ticket(s)')
+        #there should be a link to the child ticket in the response
+        url = reverse('ticket_detail', kwargs={'pk':self.ticket3.id})
+        linktext ='<a href="{0}">{1} (ticket #{2})</a>'
+        linktext = linktext.format(url, self.ticket3, self.ticket3.id)
+        self.assertContains(response, linktext, html=True)
         
 
-    def test_ticket_update_not_owner(self):        
-        '''user's who aren't the ticket owner or administrator should
-        not be able to edit the tickets.
+    def test_ticket_detail_duplicate_id(self):        
+        '''if a ticket has duplicates associated with it, make sure
+        that the view includes a linke back to them.
         '''
-        pass
+        
+        # ticket had has a duplicate 
+        url = reverse('ticket_detail', kwargs={'pk':self.ticket.id})
+        response = self.client.get(url,follow=True) 
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "tickets/ticket_detail.html")
 
-    def test_ticket_update_owner(self):        
-        '''the ticket's owner should be able to edit the ticket.
-        '''
-        pass
+        self.assertContains(response,
+                            'This ticket has been duplicated by')
+
+        #there should be a link to the duplicate ticket in the response
+        url = reverse('ticket_detail', kwargs={'pk':self.ticket2.id})
+        linktext ='<a href="{0}">{1} (ticket #{2})</a>'
+        linktext = linktext.format(url, self.ticket2, self.ticket2.id)
+        self.assertContains(response, linktext, html=True)
         
-    def test_ticket_update_admin(self):        
-        '''user's who aren't logged in should not be able to edit
-        tickets.
+
+
+    def test_ticket_detail_original_id(self):        
+        '''if a ticket has been flagged as a duplicate, make sure that
+        the view includes a link back to the orginal ticket
         '''
-        pass
-        
+        #this ticket has been flagged as a duplicate
+        url = reverse('ticket_detail', kwargs={'pk':self.ticket2.id})
+        response = self.client.get(url,follow=True) 
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "tickets/ticket_detail.html")
+
+        self.assertContains(response,
+                            'This ticket duplicates ticket(s):')
+
+        #there should be a link to the child ticket in the response
+        url = reverse('ticket_detail', kwargs={'pk':self.ticket.id})
+        linktext ='<a href="{0}">{1} (ticket #{2})</a>'
+        linktext = linktext.format(url, self.ticket, self.ticket.id)
+        self.assertContains(response, linktext, html=True)
+
         
 class TicketListTestCase(TestCase):
     '''There are a number of views that present various subsets of
     ticket in list form - verify that those lists contain the
     appropriate tickets
-
     '''
 
     def setUp(self):        
@@ -202,17 +278,12 @@ class TicketListTestCase(TestCase):
         self.assertContains(response, self.ticket5.name())
         self.assertContains(response, self.ticket6.name())
         self.assertContains(response, self.ticket7.name())        
-
-        
-        
+                
     def test_open_ticket_list(self):        
         '''this view should return only those tickets that are currenly open.
         It should not include any tickets that are closed, duplicate or split
         '''
 
-        #TODO - this url will need be change to 'open_tickets'
-        # once an 'active' field is added to ticket model.
-        
         url = (reverse('open_tickets'))
         response = self.client.get(url, follow=True) 
         self.assertEqual(response.status_code, 200)
@@ -286,7 +357,6 @@ class TicketListTestCase(TestCase):
         self.assertNotContains(response, self.ticket6.name())
         self.assertNotContains(response, self.ticket7.name())        
 
-
         
 class TicketUpdateTestCase(TestCase):
     '''
@@ -323,8 +393,7 @@ class TicketUpdateTestCase(TestCase):
         '''
         pass
 
-
-
+        
 
 class SplitTicketTestCase(TestCase):
     '''
@@ -434,9 +503,6 @@ class TicketFollowupTestCase(TestCase):
         pass
 
 
-
-        
-        
         
 class VotingTestCase(TestCase):
     '''
@@ -444,7 +510,8 @@ class VotingTestCase(TestCase):
 
     def setUp(self):        
 
-        self.user = UserFactory()
+        self.user = UserFactory(username = 'hsimpson',
+                                password='abc')
         self.ticket = TicketFactory()
 
         
@@ -452,16 +519,57 @@ class VotingTestCase(TestCase):
         '''if you're not logged in you shouldn't be able to vote for a
         ticket
         '''
-        pass
+
+        self.assertEqual(self.ticket.votes, 0)
+        url = (reverse('upvote_ticket', kwargs={'pk':self.ticket.id}))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(self.ticket.votes, 0)
         
     def test_vote_logged_in(self):
         '''if you're  logged in you should be able to vote for a
         ticket once 
         '''
-        pass
+
+        login = self.client.login(username=self.user.username,
+                                  password='abc')
+        self.assertTrue(login)
+
+        ticket = Ticket.objects.get(id=self.ticket.id)
+        self.assertEqual(ticket.votes, 0)        
+
+        url = (reverse('upvote_ticket', kwargs={'pk':self.ticket.id}))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        ticket = Ticket.objects.get(id=self.ticket.id)
+        self.assertEqual(ticket.votes, 1)
         
     def test_vote_twice_logged_in(self):
         '''you can only vote for ticket once.
         '''
-        pass
+
+        login = self.client.login(username=self.user.username,
+                                  password='abc')
+        self.assertTrue(login)
+
+        ticket = Ticket.objects.get(id=self.ticket.id)
+        self.assertEqual(ticket.votes, 0)        
+
+        url = (reverse('upvote_ticket', kwargs={'pk':self.ticket.id}))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        ticket = Ticket.objects.get(id=self.ticket.id)
+        self.assertEqual(ticket.votes, 1)
+
+        #homer tries to vote a second time for the same ticket
+        url = (reverse('upvote_ticket', kwargs={'pk':self.ticket.id}))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        ticket = Ticket.objects.get(id=self.ticket.id)
+        self.assertEqual(ticket.votes, 1)
+
+        
         

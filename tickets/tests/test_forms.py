@@ -263,6 +263,7 @@ class TestSplitForm(TestCase):
 
         form = SplitTicketForm(data=initial, user=self.user,
                                original_ticket=self.ticket)
+
         self.assertTrue(form.is_valid())
         #check the data
         self.assertEqual(form.cleaned_data['status1'],'new')
@@ -284,6 +285,14 @@ class TestSplitForm(TestCase):
         self.assertEqual(form.cleaned_data['description2'],
                          self.ticket.description)
 
+        #save the form and verify the effects
+        form.save()
+        ticket = Ticket.objects.get(id=self.ticket.id)
+        print "ticket.get_children() = %s" % ticket.get_children()        
+        self.assertEqual(ticket.status,'split')
+        
+
+        
 
     def test_no_comment(self):
         '''form is not valid without a comment'''
