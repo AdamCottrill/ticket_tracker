@@ -12,8 +12,7 @@ class TicketUpdateTestCase(WebTest):
 
         self.user = UserFactory()
         self.user2 = UserFactory(is_staff=True)
-        self.user3 = UserFactory(username='hsimpson',
-                                 is_staff=False)
+        self.user3 = UserFactory(username='hsimpson')
         
         self.status = 'new'
         self.ticket_type = 'bug'
@@ -96,7 +95,7 @@ class TicketUpdateTestCase(WebTest):
         url = reverse('update_ticket', 
                       kwargs=({'pk':self.ticket.id}))
         response = self.app.get(url, user=self.user)
-        print "response = %s" % response
+
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tickets/ticket_form.html')
@@ -165,7 +164,11 @@ class TicketFollowupTestCase(WebTest):
     def setUp(self):        
 
         self.user = UserFactory()
+        self.user2 = UserFactory(is_staff=True)
+        self.user3 = UserFactory(username='hsimpson')
+
         self.ticket = TicketFactory()
+        self.ticket2 = TicketFactory(description='This is a duplicate')
         
     def test_comment_not_logged_in(self):
         '''if you're not logged in you shouldn't be able to comment on
@@ -186,30 +189,98 @@ class TicketFollowupTestCase(WebTest):
         '''you don't have to be an admin to comment on a ticket - just
         logged in
         '''
-        pass
+        login = self.client.login(username=self.user.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+        
+        url = reverse('comment_ticket', 
+                      kwargs=({'pk':self.ticket.id}))
+        response = self.app.get(url, user=self.user)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        
+        form = response.forms['comment']
+
+        form['comment'] = 'What a great idea'
+
+        response = form.submit().follow()
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+
+        self.assertContains(response,'What a great idea')
 
     def test_close_ticket_admin(self):
         '''if you're an administator, you should be able to close a
         ticket
-        '''
-        # verify that a comment was created and that the status of the
-        # original ticket has been updated accordingly
-        pass
+        '''        
 
+        login = self.client.login(username=self.user2.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+        
+        url = reverse('close_ticket', 
+                      kwargs=({'pk':self.ticket.id}))
+        response = self.app.get(url, user=self.user2)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        
+        form = response.forms['comment']
+
+        form['comment'] = 'This feature has been implemented'
+        response = form.submit().follow()
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+
+        self.assertContains(response,'This feature has been implemented')
+
+        ticket = Ticket.objects.get(id=self.ticket.id)
+        self.assertEqual(ticket.status,'closed')
+
+        
     def test_close_ticket_non_admin(self):
         '''if you're an not administator, you should NOT be able to close a
         ticket
         '''
         pass
-
+        
     def test_reopen_ticket_admin(self):
         '''if you're an administator, you should be able to reopen a
         ticket
         '''
-        # verify that a comment was created and that the status of the
-        # original ticket has been updated accordingly        
-        pass
 
+        #make sure that the ticket is closed before we do anything
+        self.ticket = Ticket.objects.get(id=self.ticket.id)
+        self.ticket.status = 'closed'
+        self.ticket.save()
+        self.assertEqual(self.ticket.status,'closed')
+
+        login = self.client.login(username=self.user2.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+        
+        url = reverse('reopen_ticket', 
+                      kwargs=({'pk':self.ticket.id}))
+        response = self.app.get(url, user=self.user2)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        
+        form = response.forms['comment']
+
+        msg = 'This ticket needs to be reopened'
+        form['comment'] = msg
+        response = form.submit().follow()
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+
+        self.assertContains(response,msg)
+
+        ticket = Ticket.objects.get(id=self.ticket.id)
+        self.assertEqual(ticket.status,'reopened')
+
+        
     def test_reopen_ticket_non_admin(self):
         '''if you're an not administator, you should NOT be able to reopen a
         ticket
@@ -223,8 +294,150 @@ class TicketFollowupTestCase(WebTest):
         # verify that a comment was created and that the status of the
         # original ticket has been updated accordingly
 
+        login = self.client.login(username=self.user2.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+        
+        url = reverse('close_ticket', 
+                      kwargs=({'pk':self.ticket2.id}))
+        response = self.app.get(url, user=self.user2)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        
+        form = response.forms['comment']
+
+        msg = 'This ticket is a duplicate of an earlier ticket'
+        form['comment'] = msg
+        form['duplicate'].checked = True
+        form['same_as_ticket'] = 1
+        
+        response = form.submit().follow()
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+
+        #verify that the message appears in the response:
+        self.assertContains(response,msg)
+        self.assertContains(response,'This ticket duplicates ticket(s):')
+        #check that the status of ticket 2 has been updated
+        ticket = Ticket.objects.get(id=self.ticket2.id)
+        self.assertEqual(ticket.status,'duplicate')
+
+        #get the original ticket for ticket 2 and verify that it is ticket 1
+        original = ticket.get_originals()
+        self.assertEqual(self.ticket, original[0].original)
+
+
+        
+    def test_close_ticket_as_duplicate_to_self(self):
+        '''If the ticket number entered in same_as_ticket is the same
+        as the current ticket, the form should throw an error
+
+        '''
+        login = self.client.login(username=self.user2.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+        
+        url = reverse('close_ticket', 
+                      kwargs=({'pk':self.ticket2.id}))
+        response = self.app.get(url, user=self.user2)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        
+        form = response.forms['comment']
+
+        msg = 'This ticket is a duplicate of an earlier ticket'
+        form['comment'] = msg
+        form['duplicate'].checked = True
+        form['same_as_ticket']=2 #WRONG
+        
+        response = form.submit()
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        errmsg = "Invalid ticket number. A ticket cannot duplicate itself."
+        self.assertContains(response,msg)
+        self.assertContains(response,errmsg)
+        
+        ticket = Ticket.objects.get(id=self.ticket2.id)
+        self.assertEqual(ticket.status,'new')
+
+
+        
+    def test_close_ticket_as_duplicate_missing_ticket(self):
+        '''If you forget to provide a duplicate ticket, the form
+        should throw an error
+
+        '''
+
+        login = self.client.login(username=self.user2.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+        
+        url = reverse('close_ticket', 
+                      kwargs=({'pk':self.ticket2.id}))
+        response = self.app.get(url, user=self.user2)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        
+        form = response.forms['comment']
+
+        msg = 'This ticket is a duplicate of an earlier ticket'
+        form['comment'] = msg
+        form['duplicate'].checked = True
+        
+        response = form.submit()
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        errmsg = "Duplicate true, no ticket number provided."
+        self.assertContains(response,msg)
+        self.assertContains(response,errmsg)
+        
+        ticket = Ticket.objects.get(id=self.ticket2.id)
+        self.assertEqual(ticket.status,'new')
+
+
+        
+    def test_close_ticket_as_duplicate_missing_check(self):
+        '''If you forget to check the duplicate box but provide a
+        number, the form should throw an error
+
+        '''
+        # verify that a comment was created and that the status of the
+        # original ticket has been updated accordingly
+
         pass
 
+        login = self.client.login(username=self.user2.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+        
+        url = reverse('close_ticket', 
+                      kwargs=({'pk':self.ticket2.id}))
+        response = self.app.get(url, user=self.user2)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        
+        form = response.forms['comment']
+
+        msg = 'This ticket is a duplicate of an earlier ticket'
+        form['comment'] = msg
+        form['same_as_ticket']=1
+        
+        response = form.submit()
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        errmsg = "Duplicate false, ticket number provided."
+        self.assertContains(response,msg)
+        self.assertContains(response,errmsg)
+
+        #verify that the status of ticket2 has not been changed.
+        ticket = Ticket.objects.get(id=self.ticket2.id)
+        self.assertEqual(ticket.status,'new')
+        
+        
     def test_close_ticket_as_duplicate_non_admin(self):
         '''if you're an not administator, you should NOT be able to close a
         ticket as a duplicate
