@@ -117,8 +117,8 @@ def TicketUpdateView(request, pk=None,
     
     if pk:
         ticket = get_object_or_404(Ticket, pk=pk)
-        if (request.user != ticket.submitted_by or
-            request.user.is_staff() == False):
+        if not (request.user == ticket.submitted_by or
+                request.user.is_staff):        
             return HttpResponseRedirect(ticket.get_absolute_url())
     else:
         ticket = Ticket(submitted_by=request.user, status='new')
