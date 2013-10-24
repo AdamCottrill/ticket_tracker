@@ -119,6 +119,8 @@ class TestCommentForm(TestCase):
 
     def setUp(self):
 
+
+        self.user = UserFactory()
         self.comment = FollowUpFactory()
         self.ticket = TicketFactory()
         
@@ -127,7 +129,8 @@ class TestCommentForm(TestCase):
 
         initial = { 'comment':"A valid comment"}
         
-        form = CommentForm(data=initial, instance=self.comment)
+        form = CommentForm(data=initial, instance=self.comment,
+                           ticket=self.ticket, user=self.user)
         self.assertTrue(form.is_valid())
         #check the data
         self.assertEqual(form.cleaned_data['comment'],
@@ -139,7 +142,8 @@ class TestCommentForm(TestCase):
         '''
 
         initial = { 'comment':None}
-        form = CommentForm(data=initial, instance=self.comment)
+        form = CommentForm(data=initial, instance=self.comment,
+                                   ticket=self.ticket, user=self.user)
         self.assertFalse(form.is_valid())
 
 
@@ -148,7 +152,7 @@ class TestCommentForm(TestCase):
 
         initial = { 'comment':"A valid comment"}
         form = CommentForm(data=initial, instance=self.comment,
-                           action='closed')
+                           action='closed', ticket=self.ticket, user=self.user)
         self.assertTrue(form.is_valid())
         #check the data
         self.assertEqual(form.cleaned_data['comment'],
@@ -163,7 +167,7 @@ class TestCommentForm(TestCase):
                     'same_as_ticket':1}
         
         form = CommentForm(data=initial, instance=self.comment,
-                           action='closed')
+                           action='closed', ticket=self.ticket, user=self.user)
         self.assertTrue(form.is_valid())
         #check the data
         self.assertEqual(form.cleaned_data['comment'],
@@ -179,6 +183,7 @@ class TestCommentForm(TestCase):
 
         initial = { 'comment':None}
         form = CommentForm(data=initial, instance=self.comment,
+                           ticket=self.ticket, user=self.user,
                            action='closed')
         self.assertFalse(form.is_valid())
 
@@ -191,6 +196,7 @@ class TestCommentForm(TestCase):
         initial = { 'comment':'This is a valid comment',
                     'duplicate':True}        
         form = CommentForm(data=initial, instance=self.comment,
+                           ticket=self.ticket, user=self.user,
                            action='closed')
         print "form.is_valid() = %s" % form.is_valid()
 
@@ -203,6 +209,7 @@ class TestCommentForm(TestCase):
         initial = { 'comment':'This is a valid comment',
                     'duplicate':True, 'same_as_ticket':99}
         form = CommentForm(data=initial, instance=self.comment,
+                           ticket=self.ticket, user=self.user,
                            action='closed')
         self.assertFalse(form.is_valid())
 
@@ -214,6 +221,7 @@ class TestCommentForm(TestCase):
         initial = { 'comment':'This is a valid comment',
                     'duplicate':True, 'same_as_ticket':'abc'}
         form = CommentForm(data=initial, instance=self.comment,
+                           ticket=self.ticket, user=self.user,
                            action='closed')
         self.assertFalse(form.is_valid())
 
@@ -228,11 +236,11 @@ class TestCommentForm(TestCase):
                     'same_as_ticket':1}
         
         form = CommentForm(data=initial, instance=self.comment,
+                           ticket=self.ticket, user=self.user,
                            action='closed')
         self.assertFalse(form.is_valid())
 
-        
-
+                        
     def tearDown(self):
         pass
 

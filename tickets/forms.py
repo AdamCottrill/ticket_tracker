@@ -9,7 +9,7 @@ from crispy_forms.layout import (Submit, Layout, ButtonHolder, Div, Fieldset,
                                  Field)
 
 
-from .models import Ticket, FollowUp
+from .models import Ticket, FollowUp, TicketDuplicate
 
 class TicketForm(ModelForm):
 
@@ -30,6 +30,12 @@ class TicketForm(ModelForm):
         priorities = sorted(self.base_fields['priority'].choices,
                             key=lambda x:x[0], reverse=True)
         self.fields['priority'].choices = priorities
+
+        # filter the choice available in the form to only those that do
+        # not start with 'Closed'
+        status_choices = self.base_fields['status'].choices
+        status_choices = [x for x in status_choices if x[1][:6]!='Closed']
+        self.fields['status'].choices = status_choices
         
     class Meta:
         model = Ticket
@@ -155,7 +161,9 @@ class CommentForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.action = kwargs.pop('action', 'no_action')
-        super(CommentForm, self).__init__(*args, **kwargs)
+        self.ticket = kwargs.pop('ticket')
+        self.user = kwargs.pop('user')                
+        super(CommentForm, self).__init__(*args, **kwargs)        
 
         self.helper = FormHelper()
         self.helper.form_id = 'comment'
@@ -191,10 +199,20 @@ class CommentForm(ModelForm):
                 ButtonHolder(Submit('submit', 'Post Comment',
                                  css_class = 'btn btn-default pull-right')))
                             
+    def clean_same_as_ticket(self):
+        '''make sure that we're not duplicating ourselves'''
+
+        same_as_ticket = self.cleaned_data.get('same_as_ticket')
+        if same_as_ticket == self.ticket.id:
+            errmsg = "Invalid ticket number. A ticket cannot duplicate itself."
+            raise ValidationError(errmsg)           
+        else:
+            return same_as_ticket
+
     def clean(self):
         '''if duplicate is True, we need to make sure that
         "same_as_ticket" is populated with a legitimate ticket number.
-        Return validation errors if duplicate is checke but ticket
+        Return validation errors if duplicate is checked but ticket
         number is blank, a ticket is provided but duplicat is
         unchecked, or if a ticket is provided but does not appear to
         be associated with an existing ticket..
@@ -225,7 +243,37 @@ class CommentForm(ModelForm):
                  raise ValidationError("Invalid ticket number.")
             
         return self.cleaned_data            
-            
+
+    def save(self, *args, **kwargs):
+        followUp = FollowUp(
+            ticket = self.ticket,
+            submitted_by = self.user,
+            comment = self.cleaned_data['comment']
+        )
+
+        ticket = Ticket.objects.get(id=self.ticket.id)
+        
+        if self.action == 'closed' or self.action == 'reopened':
+            ticket.status=self.action
+            followUp.action = self.action
+
+        if self.cleaned_data.get('duplicate'):
+            original_pk=self.cleaned_data['same_as_ticket']
+            original = Ticket.objects.get(pk=original_pk)
+            dup_ticket = TicketDuplicate(ticket=ticket, original=original)
+            dup_ticket.save()
+            ticket.status= 'duplicate'
+            followUp.action = 'closed'            
+
+        followUp.save()
+        ticket.save()
+        
+
+
+        
+
+
+        
     class Meta:
         model = FollowUp
         fields = ['comment']

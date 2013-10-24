@@ -196,33 +196,18 @@ def TicketFollowUpView(request, pk, action='no_action',
         return HttpResponseRedirect(url)
     
     if request.POST:
-        form = CommentForm(request.POST, action=action)
+        form = CommentForm(request.POST, ticket=ticket,
+                           user=request.user, action=action)
         if form.is_valid():
-            new_comment=form.save(commit=False)
-            new_comment.submitted_by=request.user
-            new_comment.ticket = ticket
-            new_comment.action = action
-            new_comment.save()
-
-            if action == 'closed' or action == 'reopened':
-                ticket.status=action
-                ticket.save()
-            if form.cleaned_data.get('duplicate'):
-                original_pk=form.cleaned_data['same_as_ticket']
-                original = Ticket.objects.get(pk=original_pk)
-                dup_ticket = TicketDuplicate(ticket=ticket, original=original)
-                dup_ticket.save()
-
-                ticket.status= 'duplicate'
-                ticket.save()
-                
+            form.save()                
             return HttpResponseRedirect(ticket.get_absolute_url())
         else:
             render_to_response(template_name,
                               {'form': form, 'ticket':ticket},
                               context_instance=RequestContext(request))
     else:
-        form = CommentForm(action=action)
+        form = CommentForm(ticket=ticket, user=request.user,
+                           action=action)
             
     return render_to_response(template_name,
                               {'form': form, 'ticket':ticket},

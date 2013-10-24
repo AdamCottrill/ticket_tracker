@@ -142,6 +142,7 @@ class SplitTicketTestCase(WebTest):
         '''you have to be an administrator to split tickets
         ticket
         '''
+        #TODO
         pass
 
     def test_split_logged_admin(self):
@@ -152,6 +153,7 @@ class SplitTicketTestCase(WebTest):
         # that the status of the original ticket has been updated
         # accordingly
         #verify that two new tickets where created
+        #TODO        
         pass
 
         
@@ -243,6 +245,7 @@ class TicketFollowupTestCase(WebTest):
         '''if you're an not administator, you should NOT be able to close a
         ticket
         '''
+        #TODO        
         pass
         
     def test_reopen_ticket_admin(self):
@@ -285,6 +288,7 @@ class TicketFollowupTestCase(WebTest):
         '''if you're an not administator, you should NOT be able to reopen a
         ticket
         '''
+        #TODO        
         pass
 
     def test_close_ticket_as_duplicate_admin(self):
@@ -326,7 +330,6 @@ class TicketFollowupTestCase(WebTest):
         #get the original ticket for ticket 2 and verify that it is ticket 1
         original = ticket.get_originals()
         self.assertEqual(self.ticket, original[0].original)
-
 
         
     def test_close_ticket_as_duplicate_to_self(self):
@@ -407,6 +410,7 @@ class TicketFollowupTestCase(WebTest):
         # verify that a comment was created and that the status of the
         # original ticket has been updated accordingly
 
+        #TODO
         pass
 
         login = self.client.login(username=self.user2.username,
@@ -442,6 +446,7 @@ class TicketFollowupTestCase(WebTest):
         '''if you're an not administator, you should NOT be able to close a
         ticket as a duplicate
         '''
+        #TODO
         pass
 
                 
@@ -449,5 +454,6 @@ class TicketFollowupTestCase(WebTest):
         '''if you try to comment on an non-existent ticket, you will
         be re-directed to licket list.
         '''
+        #TODO
         pass
         
