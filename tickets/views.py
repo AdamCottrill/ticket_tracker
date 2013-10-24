@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.forms.formsets import formset_factory
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.views.generic.list import ListView
 from django.views.generic import DetailView
@@ -11,6 +11,11 @@ from django.views.generic import DetailView
 
 from .models import Ticket, UserVoteLog, FollowUp, TicketDuplicate
 from .forms import TicketForm, CommentForm, SplitTicketForm 
+
+
+def is_admin(user):
+    '''return true if the user belongs to the admin group, false otherwise'''
+    return(user.groups.filter(name='admin').exists())
 
 
 class TicketDetailView(DetailView):
@@ -118,7 +123,7 @@ def TicketUpdateView(request, pk=None,
     if pk:
         ticket = get_object_or_404(Ticket, pk=pk)
         if not (request.user == ticket.submitted_by or
-                request.user.is_staff):        
+                is_admin(request.user)):        
             return HttpResponseRedirect(ticket.get_absolute_url())
     else:
         ticket = Ticket(submitted_by=request.user, status='new')
@@ -146,14 +151,17 @@ def SplitTicketView(request, pk=None,
     set to the values for the same field in the parent.
     '''
         
-    ticket = get_object_or_404(Ticket, pk=pk)
+    #ticket = get_object_or_404(Ticket, pk=pk)
 
     try:
         ticket = Ticket.objects.get(id=pk)
-    except User.DoesNotExist:
+    except Ticket.DoesNotExist:
         url = reverse('ticket_list')
         return HttpResponseRedirect(url)
-    
+
+    if is_admin(request.user) == False:        
+        return HttpResponseRedirect(ticket.get_absolute_url())
+        
     #start with the same data in both tickets as the original.
     initial = {
             'status1':'new',
@@ -194,7 +202,10 @@ def TicketFollowUpView(request, pk, action='no_action',
     except Ticket.DoesNotExist:
         url = reverse('ticket_list')
         return HttpResponseRedirect(url)
-    
+
+    if is_admin(request.user) == False and action != 'no_action':
+        return redirect(ticket.get_absolute_url())
+        
     if request.POST:
         form = CommentForm(request.POST, ticket=ticket,
                            user=request.user, action=action)

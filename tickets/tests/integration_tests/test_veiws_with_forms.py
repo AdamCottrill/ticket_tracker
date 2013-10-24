@@ -1,4 +1,4 @@
-
+from django.contrib.auth.models import Group
 from django_webtest import WebTest
 
 from tickets.tests.factories import *
@@ -13,6 +13,9 @@ class TicketUpdateTestCase(WebTest):
         self.user = UserFactory()
         self.user2 = UserFactory(is_staff=True)
         self.user3 = UserFactory(username='hsimpson')
+
+        adminGrp, created = Group.objects.get_or_create(name='admin') 
+        self.user2.groups.add(adminGrp)
         
         self.status = 'new'
         self.ticket_type = 'bug'
@@ -123,6 +126,11 @@ class SplitTicketTestCase(WebTest):
     def setUp(self):        
 
         self.user = UserFactory()
+        self.user2 = UserFactory(is_staff=True)
+
+        adminGrp, created = Group.objects.get_or_create(name='admin') 
+        self.user2.groups.add(adminGrp)
+        
         self.ticket = TicketFactory()
         
     def test_split_not_logged_in(self):
@@ -139,12 +147,23 @@ class SplitTicketTestCase(WebTest):
         self.assertIn(new_url, location)
 
     def test_split_logged_in_not_admin(self):
-        '''you have to be an administrator to split tickets
-        ticket
+        '''you have to be an administrator to split tickets ticket -
+        if you are not an administrator, you will be re-directed to
+        the tickets detail view.
         '''
-        #TODO
-        pass
-
+        myuser = self.user
+        login = self.client.login(username=myuser.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+        
+        url = reverse('split_ticket', 
+                      kwargs=({'pk':self.ticket.id}))
+        response = self.app.get(url, user=myuser).follow()
+        
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')        
+        self.assertEqual(response.status_code, 200)        
+        
+        
     def test_split_logged_admin(self):
         '''if you're an administator, you should be able to split a
         ticket
@@ -154,11 +173,45 @@ class SplitTicketTestCase(WebTest):
         # accordingly
         #verify that two new tickets where created
         #TODO        
-        pass
 
+        myuser = self.user2
+        login = self.client.login(username=myuser.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
         
+        url = reverse('split_ticket', 
+                      kwargs=({'pk':self.ticket.id}))
+        response = self.app.get(url, user=myuser)
+        
+        self.assertTemplateUsed(response, 'tickets/split_ticket_form.html') 
+        self.assertEqual(response.status_code, 200)        
+        
+        form = response.forms['splitticket']
 
+        msg = 'This ticket needs to be split'        
+        msg1 = 'This is part 1.'
+        msg2 = 'This is part 2.'                
+        
+        form['comment'] = msg
+        form['description1'] = msg1
+        form['description2'] = msg2
+        
+        response = form.submit().follow()
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+        #the comment from the splitting form should be in the response
+        self.assertContains(response, msg)        
+        msg3 = "This ticket has been split into the  following ticket(s):"
+        self.assertContains(response, msg3)
 
+        #verify that self.ticket 1 as two children and its status is split
+        ticket = Ticket.objects.get(id=self.ticket.id)
+        self.assertEqual(ticket.status, 'split')
+        
+        children = ticket.get_children()
+        self.assertQuerysetEqual(children, [msg1,msg2],
+                    lambda a:a.__unicode__())
+        
 class TicketFollowupTestCase(WebTest):
     '''
     '''
@@ -168,6 +221,9 @@ class TicketFollowupTestCase(WebTest):
         self.user = UserFactory()
         self.user2 = UserFactory(is_staff=True)
         self.user3 = UserFactory(username='hsimpson')
+
+        adminGrp, created = Group.objects.get_or_create(name='admin') 
+        self.user2.groups.add(adminGrp)
 
         self.ticket = TicketFactory()
         self.ticket2 = TicketFactory(description='This is a duplicate')
@@ -243,10 +299,21 @@ class TicketFollowupTestCase(WebTest):
         
     def test_close_ticket_non_admin(self):
         '''if you're an not administator, you should NOT be able to close a
-        ticket
+        ticket.  Instead, you will be re-directed to the ticket list.
         '''
-        #TODO        
-        pass
+
+        myuser = self.user
+        login = self.client.login(username=myuser.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+        
+        url = reverse('close_ticket', 
+                      kwargs=({'pk':self.ticket.id}))
+        response = self.app.get(url, user=myuser).follow()
+        
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')        
+        self.assertEqual(response.status_code, 200)        
+
         
     def test_reopen_ticket_admin(self):
         '''if you're an administator, you should be able to reopen a
@@ -286,11 +353,34 @@ class TicketFollowupTestCase(WebTest):
         
     def test_reopen_ticket_non_admin(self):
         '''if you're an not administator, you should NOT be able to reopen a
-        ticket
+        ticket.  You will be re-directed to its detail page.
         '''
-        #TODO        
-        pass
 
+        #make sure that the ticket is closed before we do anything
+        self.ticket = Ticket.objects.get(id=self.ticket.id)
+        self.ticket.status = 'closed'
+        self.ticket.save()
+        self.assertEqual(self.ticket.status,'closed')
+        
+        myuser = self.user
+        login = self.client.login(username=myuser.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+        
+        url = reverse('reopen_ticket', 
+                      kwargs=({'pk':self.ticket.id}))
+        response = self.app.get(url, user=myuser).follow()
+        
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')        
+        self.assertEqual(response.status_code, 200)        
+
+        #make sure that the ticket is still closed 
+        self.ticket = Ticket.objects.get(id=self.ticket.id)
+        self.ticket.status = 'closed'
+        self.ticket.save()
+        self.assertEqual(self.ticket.status,'closed')
+
+        
     def test_close_ticket_as_duplicate_admin(self):
         '''if you're an administator, you should be able to close a
         ticket  as a duplicate
@@ -410,9 +500,6 @@ class TicketFollowupTestCase(WebTest):
         # verify that a comment was created and that the status of the
         # original ticket has been updated accordingly
 
-        #TODO
-        pass
-
         login = self.client.login(username=self.user2.username,
                                   password='Abcdef12')
         self.assertTrue(login)
@@ -442,18 +529,20 @@ class TicketFollowupTestCase(WebTest):
         self.assertEqual(ticket.status,'new')
         
         
-    def test_close_ticket_as_duplicate_non_admin(self):
-        '''if you're an not administator, you should NOT be able to close a
-        ticket as a duplicate
-        '''
-        #TODO
-        pass
-
                 
     def test_comment_non_existent_ticket(self):
         '''if you try to comment on an non-existent ticket, you will
-        be re-directed to licket list.
+        be re-directed to ticket list.
         '''
-        #TODO
-        pass
+
+        myuser = self.user2
+        login = self.client.login(username=myuser.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
         
+        url = reverse('close_ticket', 
+                      kwargs=({'pk':999}))
+        response = self.app.get(url, user=myuser).follow()
+        
+        self.assertTemplateUsed(response, 'tickets/ticket_list.html')        
+        self.assertEqual(response.status_code, 200)        

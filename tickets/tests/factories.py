@@ -13,7 +13,8 @@ class UserFactory(factory.DjangoModelFactory):
     username = factory.Sequence(lambda n : "johndoe {}".format(n))
     email = 'johndoe@hotmail.com'    
     password = 'Abcdef12'
-    is_active=True
+    is_active = True
+    
     #from:
     #http://www.rkblog.rk.edu.pl/w/p/using-factory-boy-django-application-tests/
     @classmethod
