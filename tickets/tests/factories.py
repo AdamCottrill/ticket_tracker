@@ -39,13 +39,14 @@ class TicketFactory(factory.DjangoModelFactory):
     priority = 3
     created_on = datetime.now()
     parent = None
-
+    active = True
+    
 class FollowUpFactory(factory.DjangoModelFactory):
     FACTORY_FOR = FollowUp
 
     ticket = factory.SubFactory(TicketFactory)
     submitted_by = factory.SubFactory(UserFactory)
     comment = "Ok - we will take a look at it"
-
+    private = False
 
 

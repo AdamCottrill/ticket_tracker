@@ -234,4 +234,73 @@ class TestTicketDuplicates(TestCase):
     def tearDown(self):
         #self.ticket.delete()
         pass
+
+
+
+class TestTicketManager(TestCase):
+    '''verify that the custom ticket manager is returning the records
+       we expecte
+
+    '''
+    def setUp(self):
+        '''Create some test tickets'''
+        self.ticket1 = TicketFactory()
+        self.ticket2 = TicketFactory()
+        self.ticket3 = TicketFactory(active=False)        
+
+    def test_tickets_manager(self):
+        '''we should only get active tickets with the default manager
+        and all tickets with all_tickets.
+        '''
         
+        #only active tickets should be returned by the default manager
+        tickets = Ticket.objects.all()
+        self.assertEqual(tickets.count(),2)
+        self.assertQuerysetEqual(tickets, [1,2],
+        lambda a:a.id)
+        self.assertQuerysetEqual(tickets, [True, True],
+                                 lambda a:a.active)                
+        
+        #all tickets can be retrieved vy all_tickets
+        tickets = Ticket.all_tickets.all()
+        self.assertEqual(tickets.count(),3)
+        self.assertQuerysetEqual(tickets, [1,2,3],
+        lambda a:a.id)
+        self.assertQuerysetEqual(tickets, [True, True, False],
+                                 lambda a:a.active)                
+
+        
+class TestCommentManager(TestCase):
+    '''verify that the custom comment manager is returning the records
+       we expecte
+
+    '''
+    def setUp(self):
+        '''Create some test tickets'''
+        self.ticket1 = TicketFactory()
+        
+        self.comment1 = FollowUpFactory(ticket=self.ticket1)
+        self.comment2 = FollowUpFactory(ticket=self.ticket1)
+        self.comment3 = FollowUpFactory(ticket=self.ticket1,
+                                        private=True)        
+        
+    def test_tickets_manager(self):
+        '''we should only get public comments with the default manager
+        and all comments with all_comments.
+        '''
+        
+        #only public comments should be returned by the default manager
+        comments = FollowUp.objects.all()
+        self.assertEqual(comments.count(),2)
+        self.assertQuerysetEqual(comments, [1,2],
+                                 lambda a:a.id)
+        self.assertQuerysetEqual(comments, [False, False],
+                                 lambda a:a.private)                
+
+        #all comments can be retrieved vy all_comments
+        comments = FollowUp.all_comments.all()
+        self.assertEqual(comments.count(),3)
+        self.assertQuerysetEqual(comments, [1,2,3],
+                                 lambda a:a.id)
+        self.assertQuerysetEqual(comments, [False, False, True],
+                                 lambda a:a.private)                

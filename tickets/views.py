@@ -23,11 +23,22 @@ class TicketDetailView(DetailView):
     model = Ticket
 
     def get_context_data(self, **kwargs):
-        context = super(TicketDetailView, self).get_context_data(**kwargs)
+        '''Get the comments associated with this ticket.  Only include
+        the public comments unless  request.user is an admin or
+        created the ticket
+        '''
         
-        pk = context['ticket'].id 
-        comments = FollowUp.objects.filter(ticket__pk=pk
-           ).order_by('-created_on')
+        context = super(TicketDetailView, self).get_context_data(**kwargs)
+        user = self.request.user
+        pk = context['ticket'].id
+        ticket = Ticket.objects.get(id=pk)
+        if is_admin(user) or user==ticket.submitted_by:
+            comments = FollowUp.all_comments.filter(
+                ticket__pk=pk).order_by('-created_on')
+        else:
+            comments = FollowUp.objects.filter(
+                ticket__pk=pk).order_by('-created_on')
+        
         context['comments'] = comments
         return context
 

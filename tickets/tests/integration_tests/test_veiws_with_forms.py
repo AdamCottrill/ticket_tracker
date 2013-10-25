@@ -71,6 +71,14 @@ class TicketUpdateTestCase(WebTest):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tickets/ticket_form.html')
+
+        #verify that the form does not contain closed, split or duplicate
+        #these ticket status values are implemented else where.
+        #self.assertNotContains(response, 'close') "closed" in menu!
+        self.assertNotContains(response, 'split')
+        self.assertNotContains(response, 'duplicate')
+
+
         
         form = response.forms['ticket']
 
@@ -163,6 +171,25 @@ class SplitTicketTestCase(WebTest):
         self.assertTemplateUsed(response, 'tickets/ticket_detail.html')        
         self.assertEqual(response.status_code, 200)        
         
+
+    def test_split_logged_in_admin_does_not_exsits(self):
+        '''if you try to split a ticket that does not exist, you will
+        be re-directed to the ticket list.
+
+        '''
+        myuser = self.user2
+        login = self.client.login(username=myuser.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+        
+        url = reverse('split_ticket', 
+                      kwargs=({'pk':999}))
+        response = self.app.get(url, user=myuser).follow()
+        
+        self.assertTemplateUsed(response, 'tickets/ticket_list.html')        
+        self.assertEqual(response.status_code, 200)        
+        
+
         
     def test_split_logged_admin(self):
         '''if you're an administator, you should be able to split a

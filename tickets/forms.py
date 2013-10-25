@@ -194,8 +194,10 @@ class CommentForm(ModelForm):
                 ButtonHolder(Submit('submit', 'Re-open Ticket',
                                  css_class = 'btn btn-default pull-right')))
         else:
+            self.fields['private'] = BooleanField(required=False)            
             self.helper.layout = Layout(
                 'comment',
+                'private',
                 ButtonHolder(Submit('submit', 'Post Comment',
                                  css_class = 'btn btn-default pull-right')))
                             
@@ -228,11 +230,6 @@ class CommentForm(ModelForm):
             raise ValidationError("Duplicate true, no ticket number provided.")
         else:        
             original_pk = self.cleaned_data.get('same_as_ticket')
-            if original_pk:
-                try:
-                    original_pk = int(original_pk)
-                except ValueError:
-                    original_pk = None
         
         if self.cleaned_data.get('duplicate') and original_pk:
             try:
@@ -248,6 +245,7 @@ class CommentForm(ModelForm):
         followUp = FollowUp(
             ticket = self.ticket,
             submitted_by = self.user,
+            private = self.cleaned_data.get('private',False),
             comment = self.cleaned_data['comment']
         )
 

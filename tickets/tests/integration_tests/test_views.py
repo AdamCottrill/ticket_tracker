@@ -5,10 +5,123 @@ from django.conf import settings
 #from django.core.urlresolvers import reverse
 from django.test.client import Client
 from django.test import TestCase
-
+from django.contrib.auth.models import Group
 
 from tickets.tests.factories import *
 
+class TestTicketComments(TestCase):
+    '''private tickets should only be rendered if the user is logged
+    in and is either an administrator or the ticket creator.
+    '''
+    def setUp(self):
+        '''we will need some users, a ticket, and some private and
+        public comments.
+        '''
+
+        self.user1 = UserFactory(username = 'gcostanza')
+        self.user2 = UserFactory(username = 'hsimpson')
+        self.user3 = UserFactory(username = 'gseindfeld')        
+
+        #make user 2 an administrator
+        adminGrp, created = Group.objects.get_or_create(name='admin') 
+        self.user2.groups.add(adminGrp)
+        
+        self.ticket = TicketFactory(submitted_by = self.user1)
+
+        self.msg1 = 'This is a public message posted by George'
+        self.comment1 = FollowUpFactory(ticket=self.ticket,
+                                        submitted_by=self.user1,
+                                        comment=self.msg1)
+
+        self.msg2 = 'This is a public message posted by Homer'
+        self.comment2 = FollowUpFactory(ticket=self.ticket,
+                                        submitted_by=self.user2,
+                                        comment=self.msg2)
+
+        self.msg3 = 'This is a PRIVATE message posted by George'
+        self.comment3 = FollowUpFactory(ticket=self.ticket,
+                                        submitted_by=self.user1,
+                                        comment=self.msg3,
+                                        private=True)
+
+        self.msg4 = 'This is a PRIVATE message posted by Homer'
+        self.comment4 = FollowUpFactory(ticket=self.ticket,
+                                        submitted_by=self.user2,
+                                        comment=self.msg4,
+                                        private=True)
+
+        
+    def test_admin_sees_all_messages(self):
+        '''The administrator should be able to see all of the comments associated with a ticket.'''
+        
+        myuser = self.user2
+        login = self.client.login(username=myuser,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+
+        url = reverse('ticket_detail', kwargs={'pk':self.ticket.id})
+        response = self.client.get(url,follow=True) 
+
+        self.assertContains(response,self.msg1)
+        self.assertContains(response,self.msg2)
+        self.assertContains(response,self.msg3)
+        self.assertContains(response,self.msg4)        
+
+    def test_creator_sees_all_messages(self):
+        '''The ticket creator should be able to see all of the
+        comments associated with a ticket.
+        '''
+        
+        myuser = self.user1
+        login = self.client.login(username=myuser,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+
+        url = reverse('ticket_detail', kwargs={'pk':self.ticket.id})
+        response = self.client.get(url, follow=True) 
+
+        self.assertContains(response,self.msg1)
+        self.assertContains(response,self.msg2)
+        self.assertContains(response,self.msg3)
+        self.assertContains(response,self.msg4)        
+
+
+    def test_user_sees_public_messages(self):
+        '''A logged in user who is not the ticket creator or an
+        admin should only be able to see the public comments
+        associated with a ticket.
+        '''
+        
+        myuser = self.user3
+        login = self.client.login(username=myuser,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+
+        url = reverse('ticket_detail', kwargs={'pk':self.ticket.id})
+        response = self.client.get(url,follow=True) 
+
+        self.assertContains(response,self.msg1)
+        self.assertContains(response,self.msg2)
+        
+        self.assertNotContains(response,self.msg3)
+        self.assertNotContains(response,self.msg4)        
+
+    def test_nonlogged_user_sees_public_messages(self):
+
+        '''An anonomous user should only be able to see the public
+        comments associated with a ticket.
+        '''
+        
+        url = reverse('ticket_detail', kwargs={'pk':self.ticket.id})
+        response = self.client.get(url,follow=True) 
+
+        self.assertContains(response,self.msg1)
+        self.assertContains(response,self.msg2)
+        
+        self.assertNotContains(response,self.msg3)
+        self.assertNotContains(response,self.msg4)        
+
+        
 
 class TicketTestCase(TestCase):
     '''Verify that the ticket detail view renders all of the required
@@ -178,7 +291,9 @@ class TicketListTestCase(TestCase):
                                      description="This ticket is split.")
 
         #TODO - activate for inactive:
-        #self.ticket8 = TicketFactory(active=False)                        
+        desc = "This ticket is inactive. findme"
+        self.ticket8 = TicketFactory(active=False,
+                                     description=desc)                        
 
     def test_ticket_list(self):        
         '''this view should return all of our tickets'''
@@ -193,7 +308,9 @@ class TicketListTestCase(TestCase):
         self.assertContains(response, self.ticket4.name())                
         self.assertContains(response, self.ticket5.name())
         self.assertContains(response, self.ticket6.name())
-        self.assertContains(response, self.ticket7.name())        
+        self.assertContains(response, self.ticket7.name())
+        
+        self.assertNotContains(response, self.ticket8.name())                
 
     def test_ticket_list_with_q(self):        
         '''this view should return all of our tickets that contain q
@@ -214,6 +331,8 @@ class TicketListTestCase(TestCase):
         self.assertNotContains(response, self.ticket3.name())
         self.assertNotContains(response, self.ticket6.name())
         self.assertNotContains(response, self.ticket7.name())        
+
+        self.assertNotContains(response, self.ticket8.name())                
         
     def test_my_tickets_list(self):        
         '''this view should return only those tickets that belong to
@@ -233,8 +352,12 @@ class TicketListTestCase(TestCase):
         self.assertNotContains(response, self.ticket4.name())                
         self.assertNotContains(response, self.ticket5.name())
         self.assertNotContains(response, self.ticket6.name())
-        self.assertNotContains(response, self.ticket7.name())        
+        self.assertNotContains(response, self.ticket7.name())
+        
+        #the inactive ticket should not be in the list
+        self.assertNotContains(response, self.ticket8.name())                
 
+        
     def test_my_tickets_list_with_q(self):        
         '''this view should return only those tickets that belong to
         our user and contain the string contained in q
@@ -261,6 +384,9 @@ class TicketListTestCase(TestCase):
         self.assertNotContains(response, self.ticket6.name())
         self.assertNotContains(response, self.ticket7.name())        
 
+        #the inactive ticket should not be in the list
+        self.assertNotContains(response, self.ticket8.name())                
+        
 
     def test_my_tickets_list_nonexistant_user(self):        
         '''this view should return all tickets since the user with id
@@ -278,7 +404,11 @@ class TicketListTestCase(TestCase):
         self.assertContains(response, self.ticket5.name())
         self.assertContains(response, self.ticket6.name())
         self.assertContains(response, self.ticket7.name())        
-                
+
+        #the inactive ticket should not be in the list
+        self.assertNotContains(response, self.ticket8.name())                
+
+        
     def test_open_ticket_list(self):        
         '''this view should return only those tickets that are currenly open.
         It should not include any tickets that are closed, duplicate or split
@@ -297,6 +427,10 @@ class TicketListTestCase(TestCase):
         self.assertNotContains(response, self.ticket6.name())
         self.assertNotContains(response, self.ticket7.name())        
 
+        #the inactive ticket should not be in the list
+        self.assertNotContains(response, self.ticket8.name())                
+
+        
     def test_closed_ticket_list(self):        
         '''this view should return only those tickets that have been
         closed.  this will include only tickets that are closed,
@@ -315,6 +449,10 @@ class TicketListTestCase(TestCase):
         self.assertContains(response, self.ticket6.name())
         self.assertContains(response, self.ticket7.name())        
 
+        #the inactive ticket should not be in the list
+        self.assertNotContains(response, self.ticket8.name())                
+
+        
     def test_bug_ticket_list(self):        
         '''this view should return only those tickets that are bug
         reports.  No feature request tickets should appear in this
@@ -336,6 +474,10 @@ class TicketListTestCase(TestCase):
         self.assertContains(response, self.ticket6.name())
         self.assertContains(response, self.ticket7.name())        
 
+        #the inactive ticket should not be in the list
+        self.assertNotContains(response, self.ticket8.name())                
+
+        
     def test_feature_reqeust_list(self):        
         '''this view should return only those tickets that are bug
         reports.  No feature request tickets should appear in this
@@ -356,6 +498,9 @@ class TicketListTestCase(TestCase):
         self.assertNotContains(response, self.ticket5.name())
         self.assertNotContains(response, self.ticket6.name())
         self.assertNotContains(response, self.ticket7.name())        
+
+        #the inactive ticket should not be in the list
+        self.assertNotContains(response, self.ticket8.name())                
 
         
 class VotingTestCase(TestCase):

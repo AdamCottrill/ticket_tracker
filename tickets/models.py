@@ -3,6 +3,25 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
+
+
+class TicketManager(models.Manager):
+    '''A custom model manager for tickets'''
+
+    def get_query_set(self):        
+        '''only those tickets that are active'''
+        #return self.filter(active=True)
+        return super(TicketManager, self).get_query_set().filter(active=True)
+    
+
+class CommentManager(models.Manager):
+    '''A custom model manager for comments'''
+
+    def get_query_set(self):
+        '''only those comments that are not private'''
+        #return self.filter(private=False)
+        return super(CommentManager, self).get_query_set().filter(private=False)
+            
 class Ticket(models.Model):
     '''
     '''
@@ -35,6 +54,7 @@ class Ticket(models.Model):
                                     related_name="assigned_tickets")
     submitted_by = models.ForeignKey(User, null=True, blank=True,
                                      related_name="submitted_tickets")
+    active = models.BooleanField(default=True)
     status = models.CharField(max_length=20, 
                               choices=TICKET_STATUS_CHOICES, default=True)
     ticket_type = models.CharField(max_length=10, 
@@ -49,12 +69,13 @@ class Ticket(models.Model):
                                    blank=True,
                                    null=True)
 
-
+    all_tickets = models.Manager()
+    objects = TicketManager()
+    
     def __unicode__(self):
         name = self.description.split("\n", 1)[0]
         name = name[:30]
         return name
-
     
     def name(self):
         name = self.description.split("\n", 1)[0]
@@ -125,7 +146,7 @@ class Ticket(models.Model):
         return children
         
     def is_closed(self):
-        '''a boolena method to indicate if this ticket is open or
+        '''a boolean method to indicate if this ticket is open or
         closed.  Makes templating much simpler.
         '''
         if self.status in ('closed', 'duplicate', 'split'):
@@ -141,7 +162,7 @@ class TicketDuplicate(models.Model):
     '''
     ticket = models.ForeignKey(Ticket,related_name="duplicate")
     original = models.ForeignKey(Ticket,related_name="original")
-
+    
     def __unicode__(self):
         string = "Ticket {0} is a duplicate of ticket {1}"
         string = string.format(self.ticket.id, self.original.id)
@@ -177,7 +198,10 @@ class FollowUp(models.Model):
     #closed = models.BooleanField(default=False)
     action = models.CharField(max_length=20, 
                               choices=ACTION_CHOICES, default="no_action")
+    private = models.BooleanField(default=False)
 
+    objects = CommentManager()
+    all_comments = models.Manager()
 
     
 class TicketAdmin(admin.ModelAdmin):
