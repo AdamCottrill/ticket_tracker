@@ -26,13 +26,15 @@ urlpatterns = patterns('',
 
                 url(r'^close/(?P<pk>\d+)/$',
                     view = TicketFollowUpView, kwargs={'action':'closed'}, 
-                    name = 'close_ticket'), 
+                    name = 'close_ticket'),
+                       
                 url(r'^reopen/(?P<pk>\d+)/$',
                     view = TicketFollowUpView, kwargs={'action':'reopened'}, 
                     name = 'reopen_ticket'), 
                        
                 url(r'^comment/(?P<pk>\d+)/$',
-                    view = TicketFollowUpView, kwargs= {'action':'no_action'},
+                    #view = TicketFollowUpView, kwargs= {'action':'no_action'},
+                    view = TicketCommentView, 
                     name = 'comment_ticket'),
 
                 url(r'^split/(?P<pk>\d+)/$',

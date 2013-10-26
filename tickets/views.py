@@ -10,12 +10,12 @@ from django.views.generic import DetailView
 
 
 from .models import Ticket, UserVoteLog, FollowUp, TicketDuplicate
-from .forms import TicketForm, CommentForm, SplitTicketForm 
+from .forms import TicketForm, CloseTicketForm, SplitTicketForm, CommentForm
+from .utils import is_admin
 
-
-def is_admin(user):
-    '''return true if the user belongs to the admin group, false otherwise'''
-    return(user.groups.filter(name='admin').exists())
+#def is_admin(user):
+#    '''return true if the user belongs to the admin group, false otherwise'''
+#    return(user.groups.filter(name='admin').exists())
 
 
 class TicketDetailView(DetailView):
@@ -201,7 +201,7 @@ def SplitTicketView(request, pk=None,
 
     
 @login_required
-def TicketFollowUpView(request, pk, action='no_action',
+def TicketFollowUpView(request, pk, action='close',
                      template_name='tickets/comment_form.html'):
     
     '''Add a comment to a ticket.  If the user is an administrator,
@@ -214,11 +214,11 @@ def TicketFollowUpView(request, pk, action='no_action',
         url = reverse('ticket_list')
         return HttpResponseRedirect(url)
 
-    if is_admin(request.user) == False and action != 'no_action':
+    if not is_admin(request.user):
         return redirect(ticket.get_absolute_url())
         
     if request.POST:
-        form = CommentForm(request.POST, ticket=ticket,
+        form = CloseTicketForm(request.POST, ticket=ticket,
                            user=request.user, action=action)
         if form.is_valid():
             form.save()                
@@ -228,12 +228,47 @@ def TicketFollowUpView(request, pk, action='no_action',
                               {'form': form, 'ticket':ticket},
                               context_instance=RequestContext(request))
     else:
-        form = CommentForm(ticket=ticket, user=request.user,
+        form = CloseTicketForm(ticket=ticket, user=request.user,
                            action=action)
             
     return render_to_response(template_name,
                               {'form': form, 'ticket':ticket},
                               context_instance=RequestContext(request))
+
+
+#==============================
+@login_required
+def TicketCommentView(request, pk, 
+                     template_name='tickets/comment_form.html'):
+    
+    '''Add a comment to a ticket.  If the user is an administrator,
+    this view is also used to close and re-open tickets.
+    '''
+    
+    try:
+        ticket = Ticket.objects.get(pk=pk)
+    except Ticket.DoesNotExist:
+        url = reverse('ticket_list')
+        return HttpResponseRedirect(url)
+
+    if request.POST:
+        form = CommentForm(request.POST, ticket=ticket,
+                           user=request.user)
+        if form.is_valid():
+            form.save()                
+            return HttpResponseRedirect(ticket.get_absolute_url())
+        else:
+            render_to_response(template_name,
+                              {'form': form, 'ticket':ticket},
+                              context_instance=RequestContext(request))
+    else:
+        form = CommentForm(ticket=ticket, user=request.user)
+            
+    return render_to_response(template_name,
+                              {'form': form, 'ticket':ticket},
+                              context_instance=RequestContext(request))
+
+    
     
 @login_required
 def upvote_ticket(request,pk):

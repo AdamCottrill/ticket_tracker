@@ -239,7 +239,8 @@ class SplitTicketTestCase(WebTest):
         self.assertQuerysetEqual(children, [msg1,msg2],
                     lambda a:a.__unicode__())
         
-class TicketFollowupTestCase(WebTest):
+
+class CommentTicketTestCase(WebTest):
     '''
     '''
 
@@ -252,9 +253,28 @@ class TicketFollowupTestCase(WebTest):
         adminGrp, created = Group.objects.get_or_create(name='admin') 
         self.user2.groups.add(adminGrp)
 
-        self.ticket = TicketFactory()
-        self.ticket2 = TicketFactory(description='This is a duplicate')
+        self.ticket = TicketFactory(submitted_by=self.user)
         
+    def test_comment_non_existent_ticket(self):
+        '''if we try to comment on a ticket that does not exist, we
+        should be re-directed to the ticket list.
+
+        '''
+
+        myuser = self.user2
+        login = self.client.login(username=myuser.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+        
+        url = reverse('comment_ticket', 
+                      kwargs=({'pk':99}))
+
+        response = self.app.get(url, user=myuser).follow()
+        
+        self.assertTemplateUsed(response, 'tickets/ticket_list.html')        
+        self.assertEqual(response.status_code, 200)        
+
+
     def test_comment_not_logged_in(self):
         '''if you're not logged in you shouldn't be able to comment on
         a ticket
@@ -270,6 +290,7 @@ class TicketFollowupTestCase(WebTest):
         self.assertIn(new_url, location)
 
 
+        
     def test_comment_logged_in_not_admin(self):
         '''you don't have to be an admin to comment on a ticket - just
         logged in
@@ -286,7 +307,6 @@ class TicketFollowupTestCase(WebTest):
         self.assertTemplateUsed(response, 'tickets/comment_form.html')
         
         form = response.forms['comment']
-
         form['comment'] = 'What a great idea'
 
         response = form.submit().follow()
@@ -295,6 +315,139 @@ class TicketFollowupTestCase(WebTest):
 
         self.assertContains(response,'What a great idea')
 
+
+    def test_private_comment_logged_in_not_admin_or_creator(self):
+        '''you can't leave a private comment if you are not an admin
+        or the ticket creator
+
+        '''
+        myuser = self.user3
+        login = self.client.login(username=myuser,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+        
+        url = reverse('comment_ticket', 
+                      kwargs=({'pk':self.ticket.id}))
+        response = self.app.get(url, user=myuser)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        
+        form = response.forms['comment']
+        form['comment'] = 'What a great idea'
+
+        #private should not be on of the available fields.
+        self.assertNotIn('private', form.fields.keys())
+
+
+    def test_private_comment_logged_in_admin(self):
+        '''you can leave a private comment if you are an admin
+        
+        '''
+        myuser = self.user2
+        login = self.client.login(username=myuser,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+        
+        url = reverse('comment_ticket', 
+                      kwargs=({'pk':self.ticket.id}))
+        response = self.app.get(url, user=myuser)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        
+        form = response.forms['comment']
+        form['comment'] = 'What a great idea'
+        form['private'] = True
+
+        response = form.submit().follow()
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+
+        self.assertContains(response,'What a great idea')
+        self.assertContains(response,'private')        
+
+        comment = FollowUp.all_comments.filter(ticket=self.ticket)
+        self.assertEqual(comment.count(),1)
+        self.assertTrue(comment[0].private)
+        
+
+    def test_private_comment_logged_in_creator(self):
+        '''you can leave a private comment if you are the ticket
+        creator
+
+        '''
+        myuser = self.user
+        login = self.client.login(username=myuser,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+        
+        url = reverse('comment_ticket', 
+                      kwargs=({'pk':self.ticket.id}))
+        response = self.app.get(url, user=myuser)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        
+        form = response.forms['comment']
+        form['comment'] = 'What a great idea'
+        form['private'] = True
+
+        response = form.submit().follow()
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+
+        self.assertContains(response,'What a great idea')
+        self.assertContains(response,'private')        
+
+        comment = FollowUp.all_comments.filter(ticket=self.ticket)
+        self.assertEqual(comment.count(),1)
+        self.assertTrue(comment[0].private)
+
+        
+    def test_comment_bad_data_logged_in(self):
+        '''you comment is a manditory field.  An error will be thown
+        if you don't provide one.
+
+        '''
+        login = self.client.login(username=self.user.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+        
+        url = reverse('comment_ticket', 
+                      kwargs=({'pk':self.ticket.id}))
+        response = self.app.get(url, user=self.user)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        
+        form = response.forms['comment']        
+        response = form.submit()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')        
+        
+        errmsg = "This field is required."
+        self.assertContains(response,errmsg)
+
+
+class CloseTicketTestCase(WebTest):
+    '''
+    '''
+
+    def setUp(self):        
+
+        self.user = UserFactory()
+        self.user2 = UserFactory(is_staff=True)
+        self.user3 = UserFactory(username='hsimpson')
+
+        adminGrp, created = Group.objects.get_or_create(name='admin') 
+        self.user2.groups.add(adminGrp)
+
+        self.ticket = TicketFactory()
+        self.ticket2 = TicketFactory(description='This is a duplicate')
+
+        
     def test_close_ticket_admin(self):
         '''if you're an administator, you should be able to close a
         ticket
@@ -555,9 +708,8 @@ class TicketFollowupTestCase(WebTest):
         ticket = Ticket.objects.get(id=self.ticket2.id)
         self.assertEqual(ticket.status,'new')
         
-        
                 
-    def test_comment_non_existent_ticket(self):
+    def test_close_non_existent_ticket(self):
         '''if you try to comment on an non-existent ticket, you will
         be re-directed to ticket list.
         '''

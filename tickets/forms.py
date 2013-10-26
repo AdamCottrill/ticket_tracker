@@ -10,6 +10,9 @@ from crispy_forms.layout import (Submit, Layout, ButtonHolder, Div, Fieldset,
 
 
 from .models import Ticket, FollowUp, TicketDuplicate
+from .utils import is_admin
+
+
 
 class TicketForm(ModelForm):
 
@@ -152,8 +155,12 @@ class SplitTicketForm(Form):
         original.save()
         
                 
-class CommentForm(ModelForm):
+class CloseTicketForm(ModelForm):
+    '''This form will be used to close tickets either outright or as a
+    duplicate.  It is also used to re-open closed tickets.  In each
+    case a comment is required.
 
+    '''
     comment = CharField(
         widget=Textarea(
             attrs={'class': 'input-xxlarge',}),
@@ -163,15 +170,13 @@ class CommentForm(ModelForm):
         self.action = kwargs.pop('action', 'no_action')
         self.ticket = kwargs.pop('ticket')
         self.user = kwargs.pop('user')                
-        super(CommentForm, self).__init__(*args, **kwargs)        
+        super(CloseTicketForm, self).__init__(*args, **kwargs)        
 
         self.helper = FormHelper()
         self.helper.form_id = 'comment'
         self.helper.form_class = 'blueForms'
         self.helper.form_method = 'post'
 
-        #TODO - refactor this layout - all three options have comment
-        # and button (with different labels)        
         if self.action == 'closed':
             self.fields['duplicate'] = BooleanField(required=False)
             self.fields['same_as_ticket'] = IntegerField(required=False,
@@ -188,17 +193,10 @@ class CommentForm(ModelForm):
                 ButtonHolder(Submit('submit', 'Close Ticket',
                                  css_class = 'btn btn-danger pull-right'))
                 )
-        elif self.action=='reopened':
+        else:
             self.helper.layout = Layout(
                 'comment',
                 ButtonHolder(Submit('submit', 'Re-open Ticket',
-                                 css_class = 'btn btn-default pull-right')))
-        else:
-            self.fields['private'] = BooleanField(required=False)            
-            self.helper.layout = Layout(
-                'comment',
-                'private',
-                ButtonHolder(Submit('submit', 'Post Comment',
                                  css_class = 'btn btn-default pull-right')))
                             
     def clean_same_as_ticket(self):
@@ -230,7 +228,7 @@ class CommentForm(ModelForm):
             raise ValidationError("Duplicate true, no ticket number provided.")
         else:        
             original_pk = self.cleaned_data.get('same_as_ticket')
-        
+
         if self.cleaned_data.get('duplicate') and original_pk:
             try:
                 original = Ticket.objects.get(id=original_pk)
@@ -265,13 +263,79 @@ class CommentForm(ModelForm):
 
         followUp.save()
         ticket.save()
-        
-
-
-        
-
-
-        
+                
     class Meta:
         model = FollowUp
         fields = ['comment']
+
+
+                
+class CommentForm(ModelForm):
+
+    comment = CharField(
+        widget=Textarea(
+            attrs={'class': 'input-xxlarge',}),
+    )
+
+    def __init__(self, *args, **kwargs):
+
+        self.ticket = kwargs.pop('ticket')
+        self.user = kwargs.pop('user')                
+        super(CommentForm, self).__init__(*args, **kwargs)        
+
+        self.helper = FormHelper()
+        self.helper.form_id = 'comment'
+        self.helper.form_class = 'blueForms'
+        self.helper.form_method = 'post'
+
+        if is_admin(self.user) or self.user==self.ticket.submitted_by:
+            self.fields['private'] = BooleanField(required=False)            
+            self.helper.layout = Layout(
+                'comment',
+                'private',
+                ButtonHolder(Submit('submit', 'Post Comment',
+                                 css_class = 'btn btn-default pull-right')))
+        else:
+            self.helper.layout = Layout(
+                'comment',
+                ButtonHolder(Submit('submit', 'Post Comment',
+                                 css_class = 'btn btn-default pull-right')))
+            
+    def save(self, *args, **kwargs):
+        followUp = FollowUp(
+            ticket = self.ticket,
+            submitted_by = self.user,
+            private = self.cleaned_data.get('private',False),
+            comment = self.cleaned_data['comment']
+        )
+
+        followUp.save()
+                
+    class Meta:
+        model = FollowUp
+        fields = ['comment']
+
+
+
+
+
+
+        
+
+
+
+        
+
+
+        
+
+
+
+        
+
+
+
+        
+
+
+        

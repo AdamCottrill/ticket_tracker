@@ -5,7 +5,8 @@ from django.test import TestCase
 
 
 from tickets.models import *
-from tickets.forms import TicketForm, CommentForm, SplitTicketForm 
+from tickets.forms import (TicketForm, CloseTicketForm, CommentForm,
+                           SplitTicketForm)
 from tickets.tests.factories import *
 
 
@@ -119,10 +120,9 @@ class TestCommentForm(TestCase):
 
     def setUp(self):
 
-
         self.user = UserFactory()
-        self.comment = FollowUpFactory()
-        self.ticket = TicketFactory()
+        self.ticket = TicketFactory(submitted_by=self.user)
+        self.comment = FollowUpFactory(ticket=self.ticket)
         
     def test_good_data(self):
         '''verify that the same data comes out as went in'''
@@ -135,6 +135,24 @@ class TestCommentForm(TestCase):
         #check the data
         self.assertEqual(form.cleaned_data['comment'],
                          'A valid comment')
+        self.assertFalse(form.cleaned_data['private'])
+
+    def test_good_data_private(self):
+        '''verify that the same data comes out as went in, including
+        the private flag
+
+        '''
+
+        initial = { 'comment':"A valid comment",
+                    'private':True}
+        
+        form = CommentForm(data=initial, instance=self.comment,
+                           ticket=self.ticket, user=self.user)
+        self.assertTrue(form.is_valid())
+        #check the data
+        self.assertEqual(form.cleaned_data['comment'],
+                         'A valid comment')
+        self.assertTrue(form.cleaned_data['private'])
 
     def test_missing_comment(self):
         '''comment is a required field, verify that the form will not
@@ -147,11 +165,21 @@ class TestCommentForm(TestCase):
         self.assertFalse(form.is_valid())
 
 
+
+class TestCloseTicketForm(TestCase):
+
+    def setUp(self):
+
+        self.user = UserFactory()
+        self.comment = FollowUpFactory()
+        self.ticket = TicketFactory()
+
+        
     def test_duplicate_good_data(self):
         '''verify that the same data comes out as went in'''
 
         initial = { 'comment':"A valid comment"}
-        form = CommentForm(data=initial, instance=self.comment,
+        form = CloseTicketForm(data=initial, instance=self.comment,
                            action='closed', ticket=self.ticket, user=self.user)
         self.assertTrue(form.is_valid())
         #check the data
@@ -166,7 +194,7 @@ class TestCommentForm(TestCase):
         initial = { 'comment':"A valid comment", 'duplicate':True,
                     'same_as_ticket':1}
         
-        form = CommentForm(data=initial, instance=self.comment,
+        form = CloseTicketForm(data=initial, instance=self.comment,
                            action='closed', ticket=self.ticket, user=self.user)
         self.assertTrue(form.is_valid())
         #check the data
@@ -182,7 +210,7 @@ class TestCommentForm(TestCase):
         '''
 
         initial = { 'comment':None}
-        form = CommentForm(data=initial, instance=self.comment,
+        form = CloseTicketForm(data=initial, instance=self.comment,
                            ticket=self.ticket, user=self.user,
                            action='closed')
         self.assertFalse(form.is_valid())
@@ -195,7 +223,7 @@ class TestCommentForm(TestCase):
 
         initial = { 'comment':'This is a valid comment',
                     'duplicate':True}        
-        form = CommentForm(data=initial, instance=self.comment,
+        form = CloseTicketForm(data=initial, instance=self.comment,
                            ticket=self.ticket, user=self.user,
                            action='closed')
         print "form.is_valid() = %s" % form.is_valid()
@@ -208,7 +236,7 @@ class TestCommentForm(TestCase):
         
         initial = { 'comment':'This is a valid comment',
                     'duplicate':True, 'same_as_ticket':99}
-        form = CommentForm(data=initial, instance=self.comment,
+        form = CloseTicketForm(data=initial, instance=self.comment,
                            ticket=self.ticket, user=self.user,
                            action='closed')
         self.assertFalse(form.is_valid())
@@ -220,7 +248,7 @@ class TestCommentForm(TestCase):
         
         initial = { 'comment':'This is a valid comment',
                     'duplicate':True, 'same_as_ticket':'abc'}
-        form = CommentForm(data=initial, instance=self.comment,
+        form = CloseTicketForm(data=initial, instance=self.comment,
                            ticket=self.ticket, user=self.user,
                            action='closed')
         self.assertFalse(form.is_valid())
@@ -235,7 +263,7 @@ class TestCommentForm(TestCase):
         initial = { 'comment':'This is a valid comment', 'duplicate':False,
                     'same_as_ticket':1}
         
-        form = CommentForm(data=initial, instance=self.comment,
+        form = CloseTicketForm(data=initial, instance=self.comment,
                            ticket=self.ticket, user=self.user,
                            action='closed')
         self.assertFalse(form.is_valid())

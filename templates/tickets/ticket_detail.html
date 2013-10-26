@@ -57,12 +57,12 @@
       <div class="pull-right">
 	{%  if object.is_closed %}
 	<button type="button" class="btn btn-info btn-sm" disabled="disabled">Update</button>
-    	{% if user.is_staff %} 
+    	{% if user.is_staff %}
     	<a href="{% url 'reopen_ticket' object.id %}">
     	  <button type="button" class="btn btn-info btn-sm">Re-Open</button></a>
     	{% endif %}
   	{% else %}
-    	{% if user.is_staff or user == object.submitted_by %} 
+    	{% if user.is_staff or user == object.submitted_by %}
 	<a href="{% url 'update_ticket' object.id %}">
 	  <button type="button" class="btn btn-info btn-sm">Update</button></a>
 	{% endif %}
@@ -147,7 +147,10 @@
 
 	  {% else %}
 
-	  <p>On {{ comment.created_on }} {{ comment.submitted_by }} wrote:</p>
+	  <p>{% if comment.private %}  
+	    <button class="btn btn-warning btn-xs" type="submit">private</button>
+	    {% endif %}   
+	    On {{ comment.created_on }} {{ comment.submitted_by }} wrote:</p>
 	  {{ comment.comment }}
 	  {% endif %}
         </td>
