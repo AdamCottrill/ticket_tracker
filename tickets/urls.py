@@ -13,7 +13,7 @@ urlpatterns = patterns('',
                     name = "ticket_detail"),
                        
                 url(regex = r"^new/$",
-                    view = TicketUpdateView,                    
+                    view = TicketUpdateView,
                     name="new_ticket"),
                        
                 url(r'^update/(?P<pk>\d+)/$',
@@ -66,7 +66,4 @@ urlpatterns = patterns('',
                 url(regex = r"^featurerequests/$",
                     view = FeatureTicketListView.as_view(),
                     name="feature_requests"),
-                       
-                       
-                                              
 )

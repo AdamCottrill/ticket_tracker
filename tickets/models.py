@@ -4,15 +4,17 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 
-
 class TicketManager(models.Manager):
-    '''A custom model manager for tickets'''
+    '''A custom model manager for tickets.
 
-    def get_query_set(self):        
+    By default, only active tickets will be returned in any queryset.
+    '''
+
+    def get_query_set(self):
         '''only those tickets that are active'''
         #return self.filter(active=True)
         return super(TicketManager, self).get_query_set().filter(active=True)
-    
+
 
 class CommentManager(models.Manager):
     '''A custom model manager for comments'''
@@ -20,10 +22,17 @@ class CommentManager(models.Manager):
     def get_query_set(self):
         '''only those comments that are not private'''
         #return self.filter(private=False)
-        return super(CommentManager, self).get_query_set().filter(private=False)
-            
+        return super(CommentManager,
+                     self).get_query_set().filter(private=False)
+
+
 class Ticket(models.Model):
-    '''
+    '''A model for ticket objects.
+
+    This model used a custom model manager (TicketManager) to return
+    only active tickets by default.  To return all tickets use
+    all_tickets.all()
+
     '''
 
     TICKET_STATUS_CHOICES = {
@@ -33,12 +42,12 @@ class Ticket(models.Model):
         ('reopened', 'Reopened'),
         ('closed', 'Closed'),
         ('duplicate', 'Closed - Duplicate'),
-        ('split', 'Closed - Split'),            
+        ('split', 'Closed - Split'),
     }
 
     TICKET_TYPE_CHOICES = {
         ('feature', 'Feature Request'),
-        ('bug', 'Bug Report'),        
+        ('bug', 'Bug Report'),
     }
 
     TICKET_PRIORITY_CHOICES = {
@@ -46,51 +55,50 @@ class Ticket(models.Model):
         (2, 'High'),
         (3, 'Normal'),
         (4, 'Low'),
-        (5, 'Very Low'),        
+        (5, 'Very Low'),
     }
-    
-    
+
     assigned_to = models.ForeignKey(User, null=True, blank=True,
                                     related_name="assigned_tickets")
     submitted_by = models.ForeignKey(User, null=True, blank=True,
                                      related_name="submitted_tickets")
     active = models.BooleanField(default=True)
-    status = models.CharField(max_length=20, 
+    status = models.CharField(max_length=20,
                               choices=TICKET_STATUS_CHOICES, default=True)
-    ticket_type = models.CharField(max_length=10, 
-                              choices=TICKET_TYPE_CHOICES, default=True)
+    ticket_type = models.CharField(max_length=10,
+                                   choices=TICKET_TYPE_CHOICES, default=True)
     description = models.TextField()
-    #resolution = models.TextField()
     priority = models.IntegerField(choices=TICKET_PRIORITY_CHOICES)
     created_on = models.DateTimeField('date created', auto_now_add=True)
     updated_on = models.DateTimeField('date updated', auto_now=True)
     votes = models.IntegerField(default=0)
-    parent = models.ForeignKey('self',
-                                   blank=True,
-                                   null=True)
-
+    parent = models.ForeignKey('self', blank=True, null=True)
     all_tickets = models.Manager()
     objects = TicketManager()
-    
+
     def __unicode__(self):
         name = self.description.split("\n", 1)[0]
         name = name[:30]
         return name
-    
+
     def name(self):
         name = self.description.split("\n", 1)[0]
         name = name[:60]
         return name
 
     def get_absolute_url(self):
-        url = reverse('ticket_detail', kwargs={'pk':self.id})        
+        url = reverse('ticket_detail', kwargs={'pk':self.id})
         return url
 
     def up_vote(self):
-        self.votes +=1
+        '''A method to increment the number of votes associated with a
+        ticket.'''
+        self.votes += 1
         self.save()
 
     def down_vote(self):
+        '''A method to decrement the number of votes associated with a
+        ticket.'''
         if self.votes > 0:
             self.votes -= 1
             self.save()
@@ -113,7 +121,6 @@ class Ticket(models.Model):
             duplicates = None
         return duplicates
 
-
     def get_originals(self):
         '''a method to retreive the ticket object that this ticket
         duplicates.
@@ -135,7 +142,7 @@ class Ticket(models.Model):
         else:
             parent = None
         return parent
-        
+
     def get_children(self):
         '''return any tickets that were create by splitting this
         ticket
@@ -144,7 +151,7 @@ class Ticket(models.Model):
         if not children:
             children = None
         return children
-        
+
     def is_closed(self):
         '''a boolean method to indicate if this ticket is open or
         closed.  Makes templating much simpler.
@@ -153,21 +160,21 @@ class Ticket(models.Model):
             return True
         else:
             return False
-        
+
 
 class TicketDuplicate(models.Model):
     '''A simple table to keep track of which tickets are duplicates of
     which ticket.
 
     '''
-    ticket = models.ForeignKey(Ticket,related_name="duplicate")
-    original = models.ForeignKey(Ticket,related_name="original")
-    
+    ticket = models.ForeignKey(Ticket, related_name="duplicate")
+    original = models.ForeignKey(Ticket, related_name="original")
+
     def __unicode__(self):
         string = "Ticket {0} is a duplicate of ticket {1}"
         string = string.format(self.ticket.id, self.original.id)
         return string
-            
+
 
 class UserVoteLog(models.Model):
     '''A table to keep track of which tickets a user has voted for.
@@ -175,35 +182,38 @@ class UserVoteLog(models.Model):
     '''
     user = models.ForeignKey(User)
     ticket = models.ForeignKey(Ticket)
-    
-            
+
+
 class FollowUp(models.Model):
-    ''' '''
+    '''A model to hold comments and follow-up actions associated with a
+    ticket.
+
+    A FollowUp without any action is just a comment.  Valid actions
+    for a followup include closed, reopened and split.
+
+    '''
 
     ACTION_CHOICES = {
         ('no_action', 'No Action'),
         ('closed', 'Closed'),
         ('reopened', 'Re-Opened'),
-        ('split', 'Split')        
+        ('split', 'Split')
     }
-    
-    ticket = models.ForeignKey(Ticket)
-    parent = models.ForeignKey('self',
-                                   blank=True,
-                                   null=True)
 
-    submitted_by = models.ForeignKey(User, null=True, blank=True)    
+    ticket = models.ForeignKey(Ticket)
+    parent = models.ForeignKey('self', blank=True, null=True)
+
+    submitted_by = models.ForeignKey(User, null=True, blank=True)
     created_on = models.DateTimeField('date created', auto_now_add=True)
     comment = models.TextField()
-    #closed = models.BooleanField(default=False)
-    action = models.CharField(max_length=20, 
+    action = models.CharField(max_length=20,
                               choices=ACTION_CHOICES, default="no_action")
     private = models.BooleanField(default=False)
 
     objects = CommentManager()
     all_comments = models.Manager()
 
-    
+
 class TicketAdmin(admin.ModelAdmin):
     date_heirarchy = "created_on"
     list_filter = ("status",)
