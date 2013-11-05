@@ -1,5 +1,6 @@
 # usage: python manage.py test pjtk2 --settings=main.test_settings
 # flake8: noqa
+
 """Settings to be used for running tests."""
 import logging
 import os

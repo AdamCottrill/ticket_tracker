@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>{% block title %}{% endblock %}Simple Ticket</title>
+    <!--     <link rel="stylesheet" href="{{ STATIC_URL }}style.css" type="text/css" media="screen" /> -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/stickyfooter.css">
+
+    {% block extra_head %}
+    {% endblock %}
+
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-default" role="navigation">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="{% url 'ticket_list' %}">Ticket Tracker</a>
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse navbar-ex1-collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="{% url 'ticket_list' %}" class="sel">View Tickets</a></li>
+          {% if user.is_staff %}
+          <li><a href="{% url 'new_ticket' %}">New Ticket</a></li>
+          {% endif %}
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Filter <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="{% url 'ticket_list' %}">All Tickets</a></li>
+              {% if user.id %}
+              <li><a href="{% url 'my_ticket_list' user.id|default:-99 %}">My Tickets</a></li>
+              {% endif %}
+              <li class="divider"></li>
+              <li><a href="{% url 'open_tickets' %}">Open Tickets</a></li>
+              <li><a href="{% url 'closed_tickets' %}">Closed Tickets</a></li>
+              <li class="divider"></li>
+              <li><a href="{% url 'bug_reports' %}">Bug Reports</a></li>
+              <li><a href="{% url 'feature_requests' %}">Feature Requests</a></li>            
+            </ul>
+
+            {% block navbar_other_apps %}
+            {% endblock %}
+
+            {% if user.is_staff %}
+            <li><a href="{% url 'admin:index' %}">Admin</a></li>
+            {% endif %}
+          </li>
+        </ul>
+        <div class="col-sm-3">          
+            <form class="navbar-form navbar-left" role="search" action={% url 'ticket_list' %}>
+              <div class="input-group">
+                <input type="text" class="form-control" name="q" placeholder="Search Tickets">
+                  <div class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                      <i class="glyphicon glyphicon-search"></i>
+                    </button>
+                  </div>
+                </div><!-- /input-group -->
+              </form>
+        </div>
+        {% if user.is_authenticated %}
+        <p class="navbar-text">Welcome {{ user }}! </p>
+        <p class="navbar-text"><a href="{% url 'logout' %}?next=/ticket">Logout</a> </p>
+        {% else %}
+        <p class="navbar-text"><a href="{% url 'login' %}">Login</a> </p>
+        {% endif %}
+      </div><!-- /.navbar-collapse -->
+    </nav>
+
+
+    {% block content %}
+    {% endblock%}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
+
+
+  </body>
+</html>
