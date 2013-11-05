@@ -26,6 +26,22 @@ class CommentManager(models.Manager):
                      self).get_query_set().filter(private=False)
 
 
+class Application(models.Model):
+    '''A model to keep track of which application a ticket is
+    associated with.  The ticketTracker applicaton is likely to be
+    used to support several differnt application.  This table will
+    help us keep track of tickets are associated with which app.
+
+    Use the admin to add, update or remove applications.
+    
+    '''
+    application = models.CharField(max_length=20)
+        
+
+    def __unicode__(self):
+        return self.application
+
+    
 class Ticket(models.Model):
     '''A model for ticket objects.
 
@@ -73,6 +89,8 @@ class Ticket(models.Model):
     updated_on = models.DateTimeField('date updated', auto_now=True)
     votes = models.IntegerField(default=0)
     parent = models.ForeignKey('self', blank=True, null=True)
+    application = models.ForeignKey(Application)
+    
     all_tickets = models.Manager()
     objects = TicketManager()
 
@@ -214,10 +232,3 @@ class FollowUp(models.Model):
     all_comments = models.Manager()
 
 
-class TicketAdmin(admin.ModelAdmin):
-    date_heirarchy = "created_on"
-    list_filter = ("status",)
-    list_display = ("id", "name", "status", "assigned_to")
-    search_field = ['description']
-
-admin.site.register(Ticket, TicketAdmin)

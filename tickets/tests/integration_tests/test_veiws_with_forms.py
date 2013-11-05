@@ -95,6 +95,7 @@ class TicketUpdateTestCase(WebTest):
         self.assertContains(response, 'Feature Request')        
         self.assertContains(response, "Nevermind it is OK.")
 
+        
     def test_update_logged_admin(self):
         '''if you're an administator, you should be able to edit the
         ticket even if you didn't create it.
@@ -106,7 +107,6 @@ class TicketUpdateTestCase(WebTest):
         url = reverse('update_ticket', 
                       kwargs=({'pk':self.ticket.id}))
         response = self.app.get(url, user=self.user)
-
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tickets/ticket_form.html')

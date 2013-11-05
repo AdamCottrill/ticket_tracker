@@ -7,7 +7,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import (Submit, Layout, ButtonHolder, Div, Fieldset,
                                  Field)
 
-from .models import Ticket, FollowUp, TicketDuplicate
+from .models import Ticket, FollowUp, TicketDuplicate, Application
 from .utils import is_admin
 
 
@@ -41,8 +41,8 @@ class TicketForm(ModelForm):
 
     class Meta:
         model = Ticket
-        fields = ['status', 'ticket_type', 'priority', 'description',
-                  'assigned_to']
+        fields = ['status', 'ticket_type', 'priority', 'application',
+                  'description', 'assigned_to']
 
 
 class SplitTicketForm(Form):
@@ -62,6 +62,9 @@ class SplitTicketForm(Form):
     assigned_to1 = ModelChoiceField(queryset=User.objects.all(),
                                     label="Assigned To", required=False)
 
+    application1 = ModelChoiceField(queryset=Application.objects.all(),
+                                    label="Application")
+    
     description1 = CharField(label="Description",
                              widget=Textarea(attrs={
                                  'class': 'input-xxlarge'}))
@@ -81,6 +84,9 @@ class SplitTicketForm(Form):
     assigned_to2 = ModelChoiceField(queryset=User.objects.all(),
                                     label="Assigned To", required=False)
 
+    application2 = ModelChoiceField(queryset=Application.objects.all(),
+                                    label="Application")
+    
     description2 = CharField(label="Description", widget=Textarea(
         attrs={'class': 'input-xxlarge'}))
 

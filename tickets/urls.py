@@ -51,7 +51,7 @@ urlpatterns = patterns('',
                     view = TicketListView.as_view(),
                     name="my_ticket_list"),
 
-                url(regex = r"^active/$", 
+                url(regex = r"^open/$", 
                     view = OpenTicketListView.as_view(),
                     name="open_tickets"),
 
