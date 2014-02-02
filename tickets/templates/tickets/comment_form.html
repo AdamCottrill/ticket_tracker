@@ -10,7 +10,7 @@
   <div class="col-md-6">
     <b>Ticket Description:</b>
     <div class="row well">
-      {{ ticket.description }}
+      {{ ticket.description_html|safe }}
     </div>
     {% crispy form form.helper 'bootstrap' %}
   </div>

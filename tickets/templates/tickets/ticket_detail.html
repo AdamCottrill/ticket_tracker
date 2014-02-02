@@ -135,14 +135,14 @@
 
 	  <div class="alert alert-danger">
 	    <p>On {{ comment.created_on }} this ticket was <button class="btn btn-danger btn-xs" type="submit">closed</button> by {{ comment.submitted_by }}</p>
-	    {{ comment.comment }}
+	    {{ comment.comment_html|safe }}
 	  </div>
 
 	  {% elif comment.action == 'reopened'  %}
 
 	  <div class="alert alert-success">
 	    <p>On {{ comment.created_on }} this ticket was <button class="btn btn-success btn-xs" type="submit">re-opened</button> by {{ comment.submitted_by }}</p>
-	    {{ comment.comment }}
+	    {{ comment.comment_html|safe }}
 	  </div>
 
 	  {% else %}
@@ -151,7 +151,7 @@
 	    <button class="btn btn-warning btn-xs" type="submit">private</button>
 	    {% endif %}   
 	    On {{ comment.created_on }} {{ comment.submitted_by }} wrote:</p>
-	  {{ comment.comment }}
+	  {{ comment.comment_html|safe }}
 	  {% endif %}
         </td>
     </table>

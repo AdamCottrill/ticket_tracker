@@ -5,6 +5,8 @@ from django.core.urlresolvers import reverse
 
 from markdown2 import markdown
 
+#for markdown2 (<h1> becomes <h3>)
+DEMOTE_HEADERS = 2
 
 class TicketManager(models.Manager):
     '''A custom model manager for tickets'''
@@ -50,7 +52,7 @@ class Ticket(models.Model):
         (5, 'Very Low'),        
     }
     
-    
+
     assigned_to = models.ForeignKey(User, null=True, blank=True,
                                     related_name="assigned_tickets")
     submitted_by = models.ForeignKey(User, null=True, blank=True,
@@ -90,7 +92,8 @@ class Ticket(models.Model):
 
     def save(self, *args, **kwargs):
         self.description_html = markdown(self.description, 
-                                         extras={'demote-headers': 2})
+                                         extras={'demote-headers': 
+                                             DEMOTE_HEADERS})
         super(Ticket, self).save(*args, **kwargs)
 
     def up_vote(self):
@@ -202,6 +205,7 @@ class FollowUp(models.Model):
     submitted_by = models.ForeignKey(User, null=True, blank=True)    
     created_on = models.DateTimeField('date created', auto_now_add=True)
     comment = models.TextField()
+    comment_html = models.TextField(editable=False, blank=True)
     #closed = models.BooleanField(default=False)
     action = models.CharField(max_length=20, 
                               choices=ACTION_CHOICES, default="no_action")
@@ -209,6 +213,14 @@ class FollowUp(models.Model):
 
     objects = CommentManager()
     all_comments = models.Manager()
+
+
+    def save(self, *args, **kwargs):
+        self.comment_html = markdown(self.comment, 
+                                         extras={'demote-headers': 
+                                                 DEMOTE_HEADERS})
+        super(FollowUp, self).save(*args, **kwargs)
+
 
     
 class TicketAdmin(admin.ModelAdmin):
