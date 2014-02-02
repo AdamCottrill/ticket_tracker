@@ -88,6 +88,11 @@ class TicketUpdateTestCase(WebTest):
         form['priority'] = 4
 
         response = form.submit().follow()
+        
+        print "response = %s" % response
+
+        
+
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
         

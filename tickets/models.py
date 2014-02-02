@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
+from markdown2 import markdown
 
 
 class TicketManager(models.Manager):
@@ -60,6 +61,7 @@ class Ticket(models.Model):
     ticket_type = models.CharField(max_length=10, 
                               choices=TICKET_TYPE_CHOICES, default=True)
     description = models.TextField()
+    description_html = models.TextField(editable=False, blank=True) 
     #resolution = models.TextField()
     priority = models.IntegerField(choices=TICKET_PRIORITY_CHOICES)
     created_on = models.DateTimeField('date created', auto_now_add=True)
@@ -85,6 +87,11 @@ class Ticket(models.Model):
     def get_absolute_url(self):
         url = reverse('ticket_detail', kwargs={'pk':self.id})        
         return url
+
+    def save(self, *args, **kwargs):
+        self.description_html = markdown(self.description, 
+                                         extras={'demote-headers': 2})
+        super(Ticket, self).save(*args, **kwargs)
 
     def up_vote(self):
         self.votes +=1

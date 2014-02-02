@@ -1,0 +1,14 @@
+*~
+*#*
+venv/*
+elastic*
+static/*
+*.pyc
+*.pyr
+db/*
+coverage/*
+fixtures/*
+*flycheck*
+*fly_make*
+.pylintrc
+TAGS
