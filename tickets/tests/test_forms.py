@@ -1,6 +1,5 @@
-
+import pytest
 from datetime import datetime
-
 from django.test import TestCase
 
 
@@ -9,15 +8,17 @@ from tickets.forms import (TicketForm, CloseTicketForm, CommentForm,
                            SplitTicketForm)
 from tickets.tests.factories import *
 
-
+    
 class TestTicketForm(TestCase):
     '''Test the basic functionality of the ticket form'''
     
     def setUp(self):
         '''one ticket and one user that will be used in these tests'''
+        #we need to save a user to create a valid choice
         self.user1 = UserFactory()
-        self.ticket = TicketFactory()
-        
+        self.ticket = TicketFactory.build()
+    
+    @pytest.mark.django_db                    
     def test_good_data(self):
         '''verify that the same data comes out as went in'''
 
@@ -31,6 +32,9 @@ class TestTicketForm(TestCase):
         
         form = TicketForm(data=initial, instance=self.ticket)
         form.is_valid()
+        print "dir(form) = %s" % dir(form)
+        print "form.errors = %s" % form.errors
+
 
         self.assertTrue(form.is_valid())
         #check the data
@@ -121,9 +125,10 @@ class TestCommentForm(TestCase):
     def setUp(self):
 
         self.user = UserFactory()
-        self.ticket = TicketFactory(submitted_by=self.user)
-        self.comment = FollowUpFactory(ticket=self.ticket)
-        
+        self.ticket = TicketFactory.build(submitted_by=self.user)
+        self.comment = FollowUpFactory.build(ticket=self.ticket)
+
+    @pytest.mark.django_db                
     def test_good_data(self):
         '''verify that the same data comes out as went in'''
 
@@ -137,6 +142,7 @@ class TestCommentForm(TestCase):
                          'A valid comment')
         self.assertFalse(form.cleaned_data['private'])
 
+    @pytest.mark.django_db        
     def test_good_data_private(self):
         '''verify that the same data comes out as went in, including
         the private flag
@@ -154,6 +160,7 @@ class TestCommentForm(TestCase):
                          'A valid comment')
         self.assertTrue(form.cleaned_data['private'])
 
+    @pytest.mark.django_db        
     def test_missing_comment(self):
         '''comment is a required field, verify that the form will not
         validate without it.
@@ -186,6 +193,7 @@ class TestCloseTicketForm(TestCase):
         self.assertEqual(form.cleaned_data['comment'],
                          'A valid comment')
 
+    @pytest.mark.django_db        
     def test_duplicate_good_ticket(self):
         '''verify that the same data comes out as went in - duplicate
         is checked and a valid ticket number
@@ -277,9 +285,10 @@ class TestSplitForm(TestCase):
 
     def setUp(self):
 
-        self.user = UserFactory()
+        self.user = UserFactory.build()
         self.ticket = TicketFactory()
-        
+
+    @pytest.mark.django_db                
     def test_good_data(self):
         '''verify that the same data comes out as went in'''
 

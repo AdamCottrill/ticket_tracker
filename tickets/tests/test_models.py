@@ -3,6 +3,9 @@ from django.test import TestCase
 from tickets.models import *
 from tickets.tests.factories import *
 
+import pytest
+
+
 
 class TestTicket(TestCase):
     '''verify that the get_url, and voting methods work as
@@ -64,10 +67,10 @@ class TestTicketName(TestCase):
         self.name4 = '''This is a short, two line name.
         Here is the second line.'''
         
-        self.ticket1 = TicketFactory(description=self.name1)
-        self.ticket2 = TicketFactory(description=self.name2)
-        self.ticket3 = TicketFactory(description=self.name3)
-        self.ticket4 = TicketFactory(description=self.name4)
+        self.ticket1 = TicketFactory.build(description=self.name1)
+        self.ticket2 = TicketFactory.build(description=self.name2)
+        self.ticket3 = TicketFactory.build(description=self.name3)
+        self.ticket4 = TicketFactory.build(description=self.name4)
         
     def test_ticket_name(self):
         '''the name of the ticket should be the first line of the
@@ -91,8 +94,6 @@ class TestTicketName(TestCase):
         #self.ticket.delete()
         pass
 
-
-
 class TestTicketParentChildren(TestCase):
     '''Verify that the ticket methods to retrieve parent and child
     tickets work as expected.
@@ -111,15 +112,13 @@ class TestTicketParentChildren(TestCase):
     def test_ticket_get_parent(self):
         '''verify that only ticket 2 and 3 have a parent and that it
         is ticket 1.  Ticket 4 is not a parent and has no parent.
-        '''
-        
+        '''        
         self.assertEqual(None, self.ticket1.get_parent())
         self.assertEqual(self.ticket1, self.ticket2.get_parent())
         self.assertEqual(self.ticket1, self.ticket3.get_parent())
         self.assertEqual(None, self.ticket4.get_parent())
 
-
-
+    @pytest.mark.django_db        
     def test_ticket_get_parent_orphan(self):
         '''Just incase a ticket has a parent that does not, or no
         longer exists, get parent should gracefully return None
@@ -161,13 +160,13 @@ class TestTicketIsClose(TestCase):
     def setUp(self):
         '''Create a for each status'''
         
-        self.ticket1 = TicketFactory(status='new')
-        self.ticket2 = TicketFactory(status='accepted')
-        self.ticket3 = TicketFactory(status='assigned')
-        self.ticket4 = TicketFactory(status='reopened')
-        self.ticket5 = TicketFactory(status='closed')        
-        self.ticket6 = TicketFactory(status='duplicate')
-        self.ticket7 = TicketFactory(status='split')        
+        self.ticket1 = TicketFactory.build(status='new')
+        self.ticket2 = TicketFactory.build(status='accepted')
+        self.ticket3 = TicketFactory.build(status='assigned')
+        self.ticket4 = TicketFactory.build(status='reopened')
+        self.ticket5 = TicketFactory.build(status='closed')        
+        self.ticket6 = TicketFactory.build(status='duplicate')
+        self.ticket7 = TicketFactory.build(status='split')        
 
     def test_ticket_is_closed(self):
         '''verify that ticket.is_closed() is true tickets with status
@@ -203,6 +202,7 @@ class TestTicketDuplicates(TestCase):
         self.ticket2 = TicketFactory()
         self.ticket3 = TicketFactory()
 
+    @pytest.mark.django_db            
     def test_ticket_duplicate_of(self):
         '''verify that the ticket.duplicate_of() method creates a
         record in the TicketDuplicate table and that the ticket is the
@@ -272,8 +272,7 @@ class TestTicketManager(TestCase):
         
 class TestCommentManager(TestCase):
     '''verify that the custom comment manager is returning the records
-       we expecte
-
+       we expect
     '''
     def setUp(self):
         '''Create some test tickets'''
@@ -283,7 +282,7 @@ class TestCommentManager(TestCase):
         self.comment2 = FollowUpFactory(ticket=self.ticket1)
         self.comment3 = FollowUpFactory(ticket=self.ticket1,
                                         private=True)        
-        
+    @pytest.mark.django_db        
     def test_tickets_manager(self):
         '''we should only get public comments with the default manager
         and all comments with all_comments.
