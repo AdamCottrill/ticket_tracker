@@ -23,7 +23,7 @@ class TestTicketForm(TestCase):
         '''verify that the same data comes out as went in'''
 
         initial = {
-            'assigned_to':1,
+            'assigned_to':self.user1.id,
             'status':'new', 
             'ticket_type':'bug', 
             'description':'this is a test', 
@@ -180,6 +180,7 @@ class TestCloseTicketForm(TestCase):
         self.user = UserFactory()
         self.comment = FollowUpFactory()
         self.ticket = TicketFactory()
+        self.ticket2 = TicketFactory()
 
         
     def test_duplicate_good_data(self):
@@ -199,17 +200,23 @@ class TestCloseTicketForm(TestCase):
         is checked and a valid ticket number
         '''
 
-        initial = { 'comment':"A valid comment", 'duplicate':True,
-                    'same_as_ticket':1}
+        initial = { 'comment':"A valid comment", 
+                    'duplicate':True,
+                    'same_as_ticket': self.ticket2.id}
         
-        form = CloseTicketForm(data=initial, instance=self.comment,
-                           action='closed', ticket=self.ticket, user=self.user)
+        form = CloseTicketForm(data=initial, 
+                               instance=self.comment,
+                               action='closed', ticket=self.ticket, 
+                               user=self.user)
+        print "form.errors = %s" % form.errors
+
+
         self.assertTrue(form.is_valid())
         #check the data
         self.assertEqual(form.cleaned_data['comment'],
                          'A valid comment')
         self.assertTrue(form.cleaned_data['duplicate'])
-        self.assertEqual(form.cleaned_data['same_as_ticket'], 1)
+        self.assertEqual(form.cleaned_data['same_as_ticket'], self.ticket2.id)
 
         
     def test_duplicate_missing_comment(self):

@@ -20,8 +20,11 @@ class TestTicket(TestCase):
         '''the url should be the primary of the object returned as a
         string
         '''
-        self.assertEqual(self.ticket1.get_absolute_url(),'/ticket/1/')
-        self.assertEqual(self.ticket2.get_absolute_url(),'/ticket/2/')
+
+        url = '/ticket/{0}/'.format(self.ticket1.id)
+        self.assertEqual(self.ticket1.get_absolute_url(), url)
+        url = '/ticket/{0}/'.format(self.ticket2.id)
+        self.assertEqual(self.ticket2.get_absolute_url(), url)
                 
 
     def test_ticket_vote(self):
@@ -256,15 +259,17 @@ class TestTicketManager(TestCase):
         #only active tickets should be returned by the default manager
         tickets = Ticket.objects.all()
         self.assertEqual(tickets.count(),2)
-        self.assertQuerysetEqual(tickets, [1,2],
-        lambda a:a.id)
+        shouldbe = [self.ticket1.id, self.ticket2.id]
+        self.assertQuerysetEqual(tickets, shouldbe,
+                                 lambda a:a.id)
         self.assertQuerysetEqual(tickets, [True, True],
                                  lambda a:a.active)                
         
         #all tickets can be retrieved vy all_tickets
         tickets = Ticket.all_tickets.all()
         self.assertEqual(tickets.count(),3)
-        self.assertQuerysetEqual(tickets, [1,2,3],
+        shouldbe = [self.ticket1.id, self.ticket2.id, self.ticket3.id]
+        self.assertQuerysetEqual(tickets, shouldbe,
         lambda a:a.id)
         self.assertQuerysetEqual(tickets, [True, True, False],
                                  lambda a:a.active)                
@@ -291,7 +296,8 @@ class TestCommentManager(TestCase):
         #only public comments should be returned by the default manager
         comments = FollowUp.objects.all()
         self.assertEqual(comments.count(),2)
-        self.assertQuerysetEqual(comments, [1,2],
+        shouldbe = [self.comment1.id, self.comment2.id]
+        self.assertQuerysetEqual(comments, shouldbe,
                                  lambda a:a.id)
         self.assertQuerysetEqual(comments, [False, False],
                                  lambda a:a.private)                
@@ -299,7 +305,8 @@ class TestCommentManager(TestCase):
         #all comments can be retrieved vy all_comments
         comments = FollowUp.all_comments.all()
         self.assertEqual(comments.count(),3)
-        self.assertQuerysetEqual(comments, [1,2,3],
+        shouldbe = [self.comment1.id, self.comment2.id, self.comment3.id]
+        self.assertQuerysetEqual(comments, shouldbe,
                                  lambda a:a.id)
         self.assertQuerysetEqual(comments, [False, False, True],
                                  lambda a:a.private)                

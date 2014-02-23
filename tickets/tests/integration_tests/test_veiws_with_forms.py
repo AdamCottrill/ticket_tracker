@@ -589,7 +589,7 @@ class CloseTicketTestCase(WebTest):
         msg = 'This ticket is a duplicate of an earlier ticket'
         form['comment'] = msg
         form['duplicate'].checked = True
-        form['same_as_ticket'] = 1
+        form['same_as_ticket'] = self.ticket.id
         
         response = form.submit().follow()
         self.assertEqual(response.status_code, 200)
@@ -628,7 +628,7 @@ class CloseTicketTestCase(WebTest):
         msg = 'This ticket is a duplicate of an earlier ticket'
         form['comment'] = msg
         form['duplicate'].checked = True
-        form['same_as_ticket']=2 #WRONG
+        form['same_as_ticket'] = self.ticket2.id
         
         response = form.submit()
         self.assertEqual(response.status_code, 200)
