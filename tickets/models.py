@@ -11,11 +11,11 @@ DEMOTE_HEADERS = 2
 class TicketManager(models.Manager):
     '''A custom model manager for tickets'''
 
-    def get_query_set(self):        
+    def get_query_set(self):
         '''only those tickets that are active'''
         #return self.filter(active=True)
         return super(TicketManager, self).get_query_set().filter(active=True)
-    
+
 
 class CommentManager(models.Manager):
     '''A custom model manager for comments'''
@@ -24,7 +24,7 @@ class CommentManager(models.Manager):
         '''only those comments that are not private'''
         #return self.filter(private=False)
         return super(CommentManager, self).get_query_set().filter(private=False)
-            
+
 class Ticket(models.Model):
     '''
     '''
@@ -36,12 +36,12 @@ class Ticket(models.Model):
         ('reopened', 'Reopened'),
         ('closed', 'Closed'),
         ('duplicate', 'Closed - Duplicate'),
-        ('split', 'Closed - Split'),            
+        ('split', 'Closed - Split'),
     }
 
     TICKET_TYPE_CHOICES = {
         ('feature', 'Feature Request'),
-        ('bug', 'Bug Report'),        
+        ('bug', 'Bug Report'),
     }
 
     TICKET_PRIORITY_CHOICES = {
@@ -49,21 +49,21 @@ class Ticket(models.Model):
         (2, 'High'),
         (3, 'Normal'),
         (4, 'Low'),
-        (5, 'Very Low'),        
+        (5, 'Very Low'),
     }
-    
+
 
     assigned_to = models.ForeignKey(User, null=True, blank=True,
                                     related_name="assigned_tickets")
     submitted_by = models.ForeignKey(User, null=True, blank=True,
                                      related_name="submitted_tickets")
     active = models.BooleanField(default=True)
-    status = models.CharField(max_length=20, 
+    status = models.CharField(max_length=20,
                               choices=TICKET_STATUS_CHOICES, default=True)
-    ticket_type = models.CharField(max_length=10, 
+    ticket_type = models.CharField(max_length=10,
                               choices=TICKET_TYPE_CHOICES, default=True)
     description = models.TextField()
-    description_html = models.TextField(editable=False, blank=True) 
+    description_html = models.TextField(editable=False, blank=True)
     #resolution = models.TextField()
     priority = models.IntegerField(choices=TICKET_PRIORITY_CHOICES)
     created_on = models.DateTimeField('date created', auto_now_add=True)
@@ -75,24 +75,29 @@ class Ticket(models.Model):
 
     all_tickets = models.Manager()
     objects = TicketManager()
-    
+
     def __unicode__(self):
         name = self.description.split("\n", 1)[0]
         name = name[:30]
         return name
-    
+
+    def __str__(self):
+        name = self.description.split("\n", 1)[0]
+        name = name[:30]
+        return name
+
     def name(self):
         name = self.description.split("\n", 1)[0]
         name = name[:60]
         return name
 
     def get_absolute_url(self):
-        url = reverse('ticket_detail', kwargs={'pk':self.id})        
+        url = reverse('ticket_detail', kwargs={'pk':self.id})
         return url
 
     def save(self, *args, **kwargs):
-        self.description_html = markdown(self.description, 
-                                         extras={'demote-headers': 
+        self.description_html = markdown(self.description,
+                                         extras={'demote-headers':
                                              DEMOTE_HEADERS})
         super(Ticket, self).save(*args, **kwargs)
 
@@ -145,7 +150,7 @@ class Ticket(models.Model):
         else:
             parent = None
         return parent
-        
+
     def get_children(self):
         '''return any tickets that were create by splitting this
         ticket
@@ -154,7 +159,7 @@ class Ticket(models.Model):
         if not children:
             children = None
         return children
-        
+
     def is_closed(self):
         '''a boolean method to indicate if this ticket is open or
         closed.  Makes templating much simpler.
@@ -163,7 +168,7 @@ class Ticket(models.Model):
             return True
         else:
             return False
-        
+
 
 class TicketDuplicate(models.Model):
     '''A simple table to keep track of which tickets are duplicates of
@@ -172,12 +177,17 @@ class TicketDuplicate(models.Model):
     '''
     ticket = models.ForeignKey(Ticket,related_name="duplicate")
     original = models.ForeignKey(Ticket,related_name="original")
-    
+
     def __unicode__(self):
         string = "Ticket {0} is a duplicate of ticket {1}"
         string = string.format(self.ticket.id, self.original.id)
         return string
-            
+
+    def __str__(self):
+        string = "Ticket {0} is a duplicate of ticket {1}"
+        string = string.format(self.ticket.id, self.original.id)
+        return string
+
 
 class UserVoteLog(models.Model):
     '''A table to keep track of which tickets a user has voted for.
@@ -185,8 +195,8 @@ class UserVoteLog(models.Model):
     '''
     user = models.ForeignKey(User)
     ticket = models.ForeignKey(Ticket)
-    
-            
+
+
 class FollowUp(models.Model):
     ''' '''
 
@@ -194,20 +204,20 @@ class FollowUp(models.Model):
         ('no_action', 'No Action'),
         ('closed', 'Closed'),
         ('reopened', 'Re-Opened'),
-        ('split', 'Split')        
+        ('split', 'Split')
     }
-    
+
     ticket = models.ForeignKey(Ticket)
     parent = models.ForeignKey('self',
                                    blank=True,
                                    null=True)
 
-    submitted_by = models.ForeignKey(User, null=True, blank=True)    
+    submitted_by = models.ForeignKey(User, null=True, blank=True)
     created_on = models.DateTimeField('date created', auto_now_add=True)
     comment = models.TextField()
     comment_html = models.TextField(editable=False, blank=True)
     #closed = models.BooleanField(default=False)
-    action = models.CharField(max_length=20, 
+    action = models.CharField(max_length=20,
                               choices=ACTION_CHOICES, default="no_action")
     private = models.BooleanField(default=False)
 
@@ -216,13 +226,13 @@ class FollowUp(models.Model):
 
 
     def save(self, *args, **kwargs):
-        self.comment_html = markdown(self.comment, 
-                                         extras={'demote-headers': 
+        self.comment_html = markdown(self.comment,
+                                         extras={'demote-headers':
                                                  DEMOTE_HEADERS})
         super(FollowUp, self).save(*args, **kwargs)
 
 
-    
+
 class TicketAdmin(admin.ModelAdmin):
     date_heirarchy = "created_on"
     list_filter = ("status",)

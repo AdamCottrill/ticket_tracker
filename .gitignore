@@ -11,4 +11,6 @@ fixtures/*
 *flycheck*
 *fly_make*
 .pylintrc
+.coverage*
+*.restart
 TAGS

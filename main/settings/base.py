@@ -78,7 +78,7 @@ STATICFILES_DIRS = (
     root('static'),
 )
 
-print "\nSTATICFILES_DIRS = %s\n" % STATICFILES_DIRS
+#print "\nSTATICFILES_DIRS = %s\n" % STATICFILES_DIRS
 
 # List of finder classes that know how to find static files in
 # various locations.

@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 #from django.template import RequestContext
-from forms import UserForm, ChangePasswordForm
+from .forms import UserForm, ChangePasswordForm
 
 
 #def login(request):

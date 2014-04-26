@@ -8,42 +8,39 @@ from tickets.forms import (TicketForm, CloseTicketForm, CommentForm,
                            SplitTicketForm)
 from tickets.tests.factories import *
 
-    
+
 class TestTicketForm(TestCase):
     '''Test the basic functionality of the ticket form'''
-    
+
     def setUp(self):
         '''one ticket and one user that will be used in these tests'''
         #we need to save a user to create a valid choice
         self.user1 = UserFactory()
         self.ticket = TicketFactory.build()
-    
-    @pytest.mark.django_db                    
+
+    @pytest.mark.django_db
     def test_good_data(self):
         '''verify that the same data comes out as went in'''
 
         initial = {
             'assigned_to':self.user1.id,
-            'status':'new', 
-            'ticket_type':'bug', 
-            'description':'this is a test', 
-            'priority':3, 
+            'status':'new',
+            'ticket_type':'bug',
+            'description':'this is a test',
+            'priority':3,
         }
-        
+
         form = TicketForm(data=initial, instance=self.ticket)
         form.is_valid()
-        print "dir(form) = %s" % dir(form)
-        print "form.errors = %s" % form.errors
-
 
         self.assertTrue(form.is_valid())
         #check the data
-        self.assertEqual(form.cleaned_data['assigned_to'], self.user1)         
-        self.assertEqual(form.cleaned_data['status'], 'new') 
+        self.assertEqual(form.cleaned_data['assigned_to'], self.user1)
+        self.assertEqual(form.cleaned_data['status'], 'new')
         self.assertEqual(form.cleaned_data['ticket_type'], 'bug')
-        self.assertEqual(form.cleaned_data['description'], 'this is a test') 
+        self.assertEqual(form.cleaned_data['description'], 'this is a test')
         self.assertEqual(form.cleaned_data['priority'], 3)
-        
+
 
     def test_missing_description(self):
         '''Description is a required field - the form should not be valid
@@ -52,12 +49,12 @@ class TestTicketForm(TestCase):
 
         initial = {
             'assigned_to':1,
-            'status':'new', 
-            'ticket_type':'bug', 
-            #'description':'this is a test', 
-            'priority':3, 
+            'status':'new',
+            'ticket_type':'bug',
+            #'description':'this is a test',
+            'priority':3,
         }
-        
+
         form = TicketForm(data=initial, instance=self.ticket)
         self.assertFalse(form.is_valid())
 
@@ -68,12 +65,12 @@ class TestTicketForm(TestCase):
 
         initial = {
             'assigned_to':1,
-            #'status':'new', 
-            'ticket_type':'bug', 
-            'description':'this is a test', 
-            'priority':3, 
+            #'status':'new',
+            'ticket_type':'bug',
+            'description':'this is a test',
+            'priority':3,
         }
-        
+
         form = TicketForm(data=initial, instance=self.ticket)
         self.assertFalse(form.is_valid())
 
@@ -84,15 +81,15 @@ class TestTicketForm(TestCase):
 
         initial = {
             'assigned_to':1,
-            'status':'new', 
-            #'ticket_type':'bug', 
-            'description':'this is a test', 
-            'priority':3, 
+            'status':'new',
+            #'ticket_type':'bug',
+            'description':'this is a test',
+            'priority':3,
         }
-        
+
         form = TicketForm(data=initial, instance=self.ticket)
         self.assertFalse(form.is_valid())
-        
+
     def test_missing_assinged_to_OK(self):
         '''Assigned to is an optional field, the form should still
         validate without it.
@@ -100,22 +97,22 @@ class TestTicketForm(TestCase):
 
         initial = {
             #'assigned_to':1,
-            'status':'new', 
-            'ticket_type':'bug', 
-            'description':'this is a test', 
-            'priority':3, 
+            'status':'new',
+            'ticket_type':'bug',
+            'description':'this is a test',
+            'priority':3,
         }
-        
+
         form = TicketForm(data=initial, instance=self.ticket)
         self.assertTrue(form.is_valid())
 
         #check the data
-        self.assertEqual(form.cleaned_data['assigned_to'], None)         
-        self.assertEqual(form.cleaned_data['status'], 'new') 
+        self.assertEqual(form.cleaned_data['assigned_to'], None)
+        self.assertEqual(form.cleaned_data['status'], 'new')
         self.assertEqual(form.cleaned_data['ticket_type'], 'bug')
-        self.assertEqual(form.cleaned_data['description'], 'this is a test') 
+        self.assertEqual(form.cleaned_data['description'], 'this is a test')
         self.assertEqual(form.cleaned_data['priority'], 3)
-        
+
     def tearDown(self):
         pass
 
@@ -128,12 +125,12 @@ class TestCommentForm(TestCase):
         self.ticket = TicketFactory.build(submitted_by=self.user)
         self.comment = FollowUpFactory.build(ticket=self.ticket)
 
-    @pytest.mark.django_db                
+    @pytest.mark.django_db
     def test_good_data(self):
         '''verify that the same data comes out as went in'''
 
         initial = { 'comment':"A valid comment"}
-        
+
         form = CommentForm(data=initial, instance=self.comment,
                            ticket=self.ticket, user=self.user)
         self.assertTrue(form.is_valid())
@@ -142,7 +139,7 @@ class TestCommentForm(TestCase):
                          'A valid comment')
         self.assertFalse(form.cleaned_data['private'])
 
-    @pytest.mark.django_db        
+    @pytest.mark.django_db
     def test_good_data_private(self):
         '''verify that the same data comes out as went in, including
         the private flag
@@ -151,7 +148,7 @@ class TestCommentForm(TestCase):
 
         initial = { 'comment':"A valid comment",
                     'private':True}
-        
+
         form = CommentForm(data=initial, instance=self.comment,
                            ticket=self.ticket, user=self.user)
         self.assertTrue(form.is_valid())
@@ -160,7 +157,7 @@ class TestCommentForm(TestCase):
                          'A valid comment')
         self.assertTrue(form.cleaned_data['private'])
 
-    @pytest.mark.django_db        
+    @pytest.mark.django_db
     def test_missing_comment(self):
         '''comment is a required field, verify that the form will not
         validate without it.
@@ -182,7 +179,7 @@ class TestCloseTicketForm(TestCase):
         self.ticket = TicketFactory()
         self.ticket2 = TicketFactory()
 
-        
+
     def test_duplicate_good_data(self):
         '''verify that the same data comes out as went in'''
 
@@ -194,22 +191,20 @@ class TestCloseTicketForm(TestCase):
         self.assertEqual(form.cleaned_data['comment'],
                          'A valid comment')
 
-    @pytest.mark.django_db        
+    @pytest.mark.django_db
     def test_duplicate_good_ticket(self):
         '''verify that the same data comes out as went in - duplicate
         is checked and a valid ticket number
         '''
 
-        initial = { 'comment':"A valid comment", 
+        initial = { 'comment':"A valid comment",
                     'duplicate':True,
                     'same_as_ticket': self.ticket2.id}
-        
-        form = CloseTicketForm(data=initial, 
-                               instance=self.comment,
-                               action='closed', ticket=self.ticket, 
-                               user=self.user)
-        print "form.errors = %s" % form.errors
 
+        form = CloseTicketForm(data=initial,
+                               instance=self.comment,
+                               action='closed', ticket=self.ticket,
+                               user=self.user)
 
         self.assertTrue(form.is_valid())
         #check the data
@@ -218,7 +213,7 @@ class TestCloseTicketForm(TestCase):
         self.assertTrue(form.cleaned_data['duplicate'])
         self.assertEqual(form.cleaned_data['same_as_ticket'], self.ticket2.id)
 
-        
+
     def test_duplicate_missing_comment(self):
         '''comment is a required field, verify that the form will not
         validate without it.
@@ -230,25 +225,24 @@ class TestCloseTicketForm(TestCase):
                            action='closed')
         self.assertFalse(form.is_valid())
 
-        
+
     def test_duplicate_missing_ticket(self):
         '''form is not valid if duplicate is checked but no ticket
         number is provided.
         '''
 
         initial = { 'comment':'This is a valid comment',
-                    'duplicate':True}        
+                    'duplicate':True}
         form = CloseTicketForm(data=initial, instance=self.comment,
                            ticket=self.ticket, user=self.user,
                            action='closed')
-        print "form.is_valid() = %s" % form.is_valid()
 
         self.assertFalse(form.is_valid())
-        
+
     def test_duplicate_bad_ticket(self):
         '''form is not valid if ticket number is for a ticket that doesn't exist
         '''
-        
+
         initial = { 'comment':'This is a valid comment',
                     'duplicate':True, 'same_as_ticket':99}
         form = CloseTicketForm(data=initial, instance=self.comment,
@@ -260,7 +254,7 @@ class TestCloseTicketForm(TestCase):
     def test_duplicate_non_numeric_ticket(self):
         '''form is not valid if ticket number is not an integer
         '''
-        
+
         initial = { 'comment':'This is a valid comment',
                     'duplicate':True, 'same_as_ticket':'abc'}
         form = CloseTicketForm(data=initial, instance=self.comment,
@@ -269,7 +263,7 @@ class TestCloseTicketForm(TestCase):
         self.assertFalse(form.is_valid())
 
 
-        
+
     def test_duplicate_missing_check(self):
         '''throw an error if a ticket number is provided but the
         duplicate check box if left blank.
@@ -277,13 +271,13 @@ class TestCloseTicketForm(TestCase):
 
         initial = { 'comment':'This is a valid comment', 'duplicate':False,
                     'same_as_ticket':1}
-        
+
         form = CloseTicketForm(data=initial, instance=self.comment,
                            ticket=self.ticket, user=self.user,
                            action='closed')
         self.assertFalse(form.is_valid())
 
-                        
+
     def tearDown(self):
         pass
 
@@ -295,7 +289,7 @@ class TestSplitForm(TestCase):
         self.user = UserFactory.build()
         self.ticket = TicketFactory()
 
-    @pytest.mark.django_db                
+    @pytest.mark.django_db
     def test_good_data(self):
         '''verify that the same data comes out as went in'''
 
@@ -311,7 +305,7 @@ class TestSplitForm(TestCase):
             'assigned_to2':self.ticket.assigned_to,
             'description2':self.ticket.description,
             'comment':'This is a test',
-        } 
+        }
 
         form = SplitTicketForm(data=initial, user=self.user,
                                original_ticket=self.ticket)
@@ -320,7 +314,7 @@ class TestSplitForm(TestCase):
         #check the data
         self.assertEqual(form.cleaned_data['status1'],'new')
         self.assertEqual(form.cleaned_data['ticket_type1'],
-                                           str(self.ticket.ticket_type))        
+                                           str(self.ticket.ticket_type))
         self.assertEqual(form.cleaned_data['priority1'],
                          str(self.ticket.priority))
         self.assertEqual(form.cleaned_data['assigned_to1'],
@@ -340,11 +334,7 @@ class TestSplitForm(TestCase):
         #save the form and verify the effects
         form.save()
         ticket = Ticket.objects.get(id=self.ticket.id)
-        print "ticket.get_children() = %s" % ticket.get_children()        
         self.assertEqual(ticket.status,'split')
-        
-
-        
 
     def test_no_comment(self):
         '''form is not valid without a comment'''
@@ -361,7 +351,7 @@ class TestSplitForm(TestCase):
             'assigned_to2':self.ticket.assigned_to,
             'description2':self.ticket.description,
             #'comment':'This is a test',
-        } 
+        }
 
         form = SplitTicketForm(data=initial, user=self.user,
                                original_ticket=self.ticket)
@@ -384,7 +374,7 @@ class TestSplitForm(TestCase):
             'assigned_to2':self.ticket.assigned_to,
             'description2':self.ticket.description,
             'comment':'This is a test',
-        } 
+        }
 
         form = SplitTicketForm(data=initial, user=self.user,
                                original_ticket=self.ticket)
@@ -408,12 +398,12 @@ class TestSplitForm(TestCase):
             'assigned_to2':self.ticket.assigned_to,
             #'description2':self.ticket.description,
             'comment':'This is a test',
-        } 
+        }
 
         form = SplitTicketForm(data=initial, user=self.user,
                                original_ticket=self.ticket)
         self.assertFalse(form.is_valid())
-        
+
 
     def test_assigned_to_option(self):
         '''form is valid without assigned_to
@@ -431,13 +421,8 @@ class TestSplitForm(TestCase):
             #'assigned_to2':self.ticket.assigned_to,
             'description2':self.ticket.description,
             'comment':'This is a test',
-        } 
+        }
 
         form = SplitTicketForm(data=initial, user=self.user,
                                original_ticket=self.ticket)
         self.assertTrue(form.is_valid())
-        
-
-        
-        
-        

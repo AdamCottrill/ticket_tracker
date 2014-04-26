@@ -8,7 +8,7 @@ from main.settings.base import *
 
 USE_TZ = False
 
-INSTALLED_APPS += ('django_nose',)
+#INSTALLED_APPS += ('django_nose',)
 #INSTALLED_APPS.append('django_jasmine')
 
 DATABASES = {
@@ -26,14 +26,14 @@ PASSWORD_HASHERS = (
 #EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 SOUTH_TESTS_MIGRATE = False
 
-TEST_RUNNER = 'main.testrunner.NoseCoverageTestRunner'
+#TEST_RUNNER = 'main.testrunner.NoseCoverageTestRunner'
 
-COVERAGE_MODULE_EXCLUDES = [
-    'tests$', 'settings$', 'urls$', 'locale$',
-    'migrations', 'fixtures', 'admin$', 'django_extensions',
-]
-COVERAGE_MODULE_EXCLUDES += THIRDPARTY_APPS + DJANGO_APPS
-COVERAGE_REPORT_HTML_OUTPUT_DIR = os.path.join(__file__, '../../../coverage')
+#COVERAGE_MODULE_EXCLUDES = [
+#    'tests$', 'settings$', 'urls$', 'locale$',
+#    'migrations', 'fixtures', 'admin$', 'django_extensions',
+#]
+#COVERAGE_MODULE_EXCLUDES += THIRDPARTY_APPS + DJANGO_APPS
+#COVERAGE_REPORT_HTML_OUTPUT_DIR = os.path.join(__file__, '../../../coverage')
 
 
 #HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.BaseSignalProcessor'

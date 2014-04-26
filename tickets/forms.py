@@ -2,16 +2,13 @@ from django.contrib.auth.models import User
 from django.forms import (Form, ModelForm, CharField, Textarea, BooleanField,
                           ValidationError, ModelChoiceField, IntegerField)
 from django.forms.widgets import Select
-from django.shortcuts import get_object_or_404
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import (Submit, Layout, ButtonHolder, Div, Fieldset,
                                  Field)
 
-
 from .models import Ticket, FollowUp, TicketDuplicate
 from .utils import is_admin
-
 
 
 class TicketForm(ModelForm):
@@ -23,7 +20,7 @@ class TicketForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(TicketForm, self).__init__(*args, **kwargs)
-        
+
         self.helper = FormHelper()
         self.helper.form_id = 'ticket'
         self.helper.form_class = 'blueForms'
@@ -31,7 +28,7 @@ class TicketForm(ModelForm):
         self.helper.add_input(Submit('submit', 'Submit'))
 
         priorities = sorted(self.base_fields['priority'].choices,
-                            key=lambda x:x[0], reverse=True)
+                            key=lambda x:str(x[0]), reverse=True)
         self.fields['priority'].choices = priorities
 
         # filter the choice available in the form to only those that do
@@ -39,66 +36,66 @@ class TicketForm(ModelForm):
         status_choices = self.base_fields['status'].choices
         status_choices = [x for x in status_choices if x[1][:6]!='Closed']
         self.fields['status'].choices = status_choices
-        
+
     class Meta:
         model = Ticket
         fields = ['status', 'ticket_type', 'priority', 'description',
                   'assigned_to']
 
-        
+
 class SplitTicketForm(Form):
 
     status1 = CharField(max_length=20,label="Ticket Status",
                               widget=Select(choices=
                                 Ticket.TICKET_STATUS_CHOICES))
-    
+
     ticket_type1 = CharField(max_length=20,label="Ticket Type",
                               widget=Select(choices=
                                 Ticket.TICKET_TYPE_CHOICES))
-    
+
     priority1 = CharField(max_length=20, label="Priority",
                               widget=Select(choices=
                                 Ticket.TICKET_PRIORITY_CHOICES))
 
     assigned_to1 = ModelChoiceField(queryset=User.objects.all(),
                                     label="Assigned To", required=False)
-    
+
     description1 = CharField( label="Description",
                               widget=Textarea(attrs={
                                   'class': 'input-xxlarge',}))
-        
+
     status2 = CharField(max_length=20,label="Ticket Status",
                               widget=Select(choices=
                                 Ticket.TICKET_STATUS_CHOICES))
-    
+
     ticket_type2 = CharField(max_length=20, label="Ticket Type",
                               widget=Select(choices=
                                 Ticket.TICKET_TYPE_CHOICES))
-        
+
     priority2 = CharField(max_length=20, label="Priority",
                               widget=Select(choices=
                                 Ticket.TICKET_PRIORITY_CHOICES))
-    
+
     assigned_to2 = ModelChoiceField(queryset=User.objects.all(),
                                     label="Assigned To", required=False)
- 
+
     description2 = CharField(label="Description", widget=Textarea(
             attrs={'class': 'input-xxlarge',}))
-    
+
     comment = CharField(widget=Textarea(
             attrs={'class': 'input-xxlarge',}))
 
-    
+
     def __init__(self, user, original_ticket, *args, **kwargs):
-        self.original_ticket = original_ticket        
+        self.original_ticket = original_ticket
         self.user = user
         super(SplitTicketForm, self).__init__(*args, **kwargs)
-        
+
         self.helper = FormHelper()
         self.helper.form_id = 'splitticket'
         self.helper.form_class = 'blueForms'
         self.helper.form_method = 'post'
-        
+
         self.helper.layout = Layout(
             Div(
                 Div(
@@ -109,7 +106,7 @@ class SplitTicketForm(Form):
                              'assigned_to1',
                              'description1'),
                     css_class='col-md-6 well'),
-            Div(    
+            Div(
                 Fieldset("Ticket 2",
                      'status2',
                      'ticket_type2',
@@ -125,8 +122,8 @@ class SplitTicketForm(Form):
 
     def save(self):
 
-        original = self.original_ticket 
-        
+        original = self.original_ticket
+
         ticket1 = Ticket(status = self.cleaned_data['status1'],
                          assigned_to = self.cleaned_data.get('assigned_to1'),
                          priority = self.cleaned_data.get('priority1'),
@@ -153,8 +150,8 @@ class SplitTicketForm(Form):
 
         original.status = 'split'
         original.save()
-        
-                
+
+
 class CloseTicketForm(ModelForm):
     '''This form will be used to close tickets either outright or as a
     duplicate.  It is also used to re-open closed tickets.  In each
@@ -169,8 +166,8 @@ class CloseTicketForm(ModelForm):
     def __init__(self, *args, **kwargs):
         self.action = kwargs.pop('action', 'no_action')
         self.ticket = kwargs.pop('ticket')
-        self.user = kwargs.pop('user')                
-        super(CloseTicketForm, self).__init__(*args, **kwargs)        
+        self.user = kwargs.pop('user')
+        super(CloseTicketForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()
         self.helper.form_id = 'comment'
@@ -188,8 +185,8 @@ class CloseTicketForm(ModelForm):
                     Field('duplicate',css_class='col-md-3'),
                     Field('same_as_ticket',css_class='col-md-6',
                           placeholder='Same as ticket #'),
-                        css_class='form-group form-inline'), 
-                    css_class='row'),               
+                        css_class='form-group form-inline'),
+                    css_class='row'),
                 ButtonHolder(Submit('submit', 'Close Ticket',
                                  css_class = 'btn btn-danger pull-right'))
                 )
@@ -198,14 +195,14 @@ class CloseTicketForm(ModelForm):
                 'comment',
                 ButtonHolder(Submit('submit', 'Re-open Ticket',
                                  css_class = 'btn btn-default pull-right')))
-                            
+
     def clean_same_as_ticket(self):
         '''make sure that we're not duplicating ourselves'''
 
         same_as_ticket = self.cleaned_data.get('same_as_ticket')
         if same_as_ticket == self.ticket.id:
             errmsg = "Invalid ticket number. A ticket cannot duplicate itself."
-            raise ValidationError(errmsg)           
+            raise ValidationError(errmsg)
         else:
             return same_as_ticket
 
@@ -220,13 +217,13 @@ class CloseTicketForm(ModelForm):
 
         if (self.cleaned_data.get('same_as_ticket') and not
             self.cleaned_data.get('duplicate')):
-            
+
             raise ValidationError("Duplicate false, ticket number provided.")
-            
+
         elif (self.cleaned_data.get('duplicate') and not
               self.cleaned_data.get('same_as_ticket')):
             raise ValidationError("Duplicate true, no ticket number provided.")
-        else:        
+        else:
             original_pk = self.cleaned_data.get('same_as_ticket')
 
         if self.cleaned_data.get('duplicate') and original_pk:
@@ -236,8 +233,8 @@ class CloseTicketForm(ModelForm):
                 original = None
             if not original:
                  raise ValidationError("Invalid ticket number.")
-            
-        return self.cleaned_data            
+
+        return self.cleaned_data
 
     def save(self, *args, **kwargs):
         followUp = FollowUp(
@@ -248,7 +245,7 @@ class CloseTicketForm(ModelForm):
         )
 
         ticket = Ticket.objects.get(id=self.ticket.id)
-        
+
         if self.action == 'closed' or self.action == 'reopened':
             ticket.status=self.action
             followUp.action = self.action
@@ -259,17 +256,17 @@ class CloseTicketForm(ModelForm):
             dup_ticket = TicketDuplicate(ticket=ticket, original=original)
             dup_ticket.save()
             ticket.status= 'duplicate'
-            followUp.action = 'closed'            
+            followUp.action = 'closed'
 
         followUp.save()
         ticket.save()
-                
+
     class Meta:
         model = FollowUp
         fields = ['comment']
 
 
-                
+
 class CommentForm(ModelForm):
 
     comment = CharField(
@@ -280,8 +277,8 @@ class CommentForm(ModelForm):
     def __init__(self, *args, **kwargs):
 
         self.ticket = kwargs.pop('ticket')
-        self.user = kwargs.pop('user')                
-        super(CommentForm, self).__init__(*args, **kwargs)        
+        self.user = kwargs.pop('user')
+        super(CommentForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()
         self.helper.form_id = 'comment'
@@ -289,7 +286,7 @@ class CommentForm(ModelForm):
         self.helper.form_method = 'post'
 
         if is_admin(self.user) or self.user==self.ticket.submitted_by:
-            self.fields['private'] = BooleanField(required=False)            
+            self.fields['private'] = BooleanField(required=False)
             self.helper.layout = Layout(
                 'comment',
                 'private',
@@ -300,7 +297,7 @@ class CommentForm(ModelForm):
                 'comment',
                 ButtonHolder(Submit('submit', 'Post Comment',
                                  css_class = 'btn btn-default pull-right')))
-            
+
     def save(self, *args, **kwargs):
         followUp = FollowUp(
             ticket = self.ticket,
@@ -310,32 +307,7 @@ class CommentForm(ModelForm):
         )
 
         followUp.save()
-                
+
     class Meta:
         model = FollowUp
         fields = ['comment']
-
-
-
-
-
-
-        
-
-
-
-        
-
-
-        
-
-
-
-        
-
-
-
-        
-
-
-        
