@@ -1,9 +1,29 @@
+'''
+=============================================================
+/home/adam/Documents/djcode/tickettracker/tickets/models.py
+Created: 04 May 2014 21:26:46
+
+DESCRIPTION:
+
+
+
+A. Cottrill
+=============================================================
+'''
+
+
 from django.db import models
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from markdown2 import markdown
+
+from .utils import replace_links
+
+
+LINK_PATTERNS = getattr(settings, "LINK_PATTERNS", None)
 
 #for markdown2 (<h1> becomes <h3>)
 DEMOTE_HEADERS = 2
@@ -98,7 +118,10 @@ class Ticket(models.Model):
     def save(self, *args, **kwargs):
         self.description_html = markdown(self.description,
                                          extras={'demote-headers':
-                                             DEMOTE_HEADERS})
+                                                 DEMOTE_HEADERS,})
+        self.description_html = replace_links(self.description_html,
+                                              link_patterns=LINK_PATTERNS)
+
         super(Ticket, self).save(*args, **kwargs)
 
     def up_vote(self):
@@ -229,6 +252,9 @@ class FollowUp(models.Model):
         self.comment_html = markdown(self.comment,
                                          extras={'demote-headers':
                                                  DEMOTE_HEADERS})
+        self.comment_html = replace_links(self.comment_html,
+                                              link_patterns=LINK_PATTERNS)
+
         super(FollowUp, self).save(*args, **kwargs)
 
 

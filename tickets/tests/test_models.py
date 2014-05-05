@@ -6,12 +6,10 @@ from tickets.tests.factories import *
 import pytest
 
 
-
 class TestTicket(TestCase):
     '''verify that the get_url, and voting methods work as
        expected'''
     def setUp(self):
-
 
         self.ticket1 = TicketFactory()
         self.ticket2 = TicketFactory()
@@ -25,7 +23,6 @@ class TestTicket(TestCase):
         self.assertEqual(self.ticket1.get_absolute_url(), url)
         url = '/ticket/{0}/'.format(self.ticket2.id)
         self.assertEqual(self.ticket2.get_absolute_url(), url)
-
 
     def test_ticket_vote(self):
         '''verify that up_vote and down_vote method increment and
@@ -48,7 +45,6 @@ class TestTicket(TestCase):
         self.assertEqual(self.ticket1.votes, 1)
         self.assertEqual(self.ticket2.votes, 0)
 
-
     def tearDown(self):
         #self.ticket.delete()
         pass
@@ -62,7 +58,7 @@ class TestTicketName(TestCase):
     def setUp(self):
 
         self.name1 = '''this is a short name.'''
-        self.name2 = '''this is a long, one line name that should cropped{0}.'''
+        self.name2 = '''this is a long, one line name that should cropped{}.'''
         self.name2 = self.name2.format("e"*20)
         self.name3 = '''this is a long, two line name that should cropped{0}.
         Here is the second line.'''
@@ -92,10 +88,10 @@ class TestTicketName(TestCase):
         shouldbe = self.name4.split('\n')[0]
         self.assertEqual(self.ticket4.name(), shouldbe)
 
-
     def tearDown(self):
         #self.ticket.delete()
         pass
+
 
 class TestTicketParentChildren(TestCase):
     '''Verify that the ticket methods to retrieve parent and child
@@ -132,20 +128,20 @@ class TestTicketParentChildren(TestCase):
         self.assertEqual(None, self.ticket2.get_parent())
         self.assertEqual(None, self.ticket3.get_parent())
 
-
     def test_ticket_get_children(self):
-        '''Only ticket 1 has children - they should be ticket 2 and ticket 3.'''
+        '''Only ticket 1 has children - they should be ticket 2 and ticket
+        3.'''
+
         children = self.ticket1.get_children()
 
-        shouldbe = [self.ticket2.id,self.ticket3.id]
+        shouldbe = [self.ticket2.id, self.ticket3.id]
 
-        self.assertQuerysetEqual( children, shouldbe,
-                                  lambda a:a.id, ordered=False)
+        self.assertQuerysetEqual(children, shouldbe,
+                                 lambda a: a.id, ordered=False)
 
         self.assertEqual(self.ticket2.get_children(), None)
         self.assertEqual(self.ticket3.get_children(), None)
         self.assertEqual(self.ticket4.get_children(), None)
-
 
     def tearDown(self):
         #self.ticket.delete()
@@ -189,7 +185,6 @@ class TestTicketIsClose(TestCase):
         pass
 
 
-
 class TestTicketDuplicates(TestCase):
     '''Verify that we can create and retrieve duplicate tickets
     '''
@@ -217,7 +212,6 @@ class TestTicketDuplicates(TestCase):
         self.assertEqual(duplicates[0].ticket, self.ticket2)
         self.assertEqual(duplicates[0].original, self.ticket1)
 
-
     def test_get_duplicate_and_original_tickets(self):
 
         #identify ticket 2 as a duplicate of ticket1
@@ -231,11 +225,9 @@ class TestTicketDuplicates(TestCase):
         self.assertEqual(self.ticket3.get_originals(), None)
         self.assertEqual(self.ticket3.get_duplicates(), None)
 
-
     def tearDown(self):
         #self.ticket.delete()
         pass
-
 
 
 class TestTicketManager(TestCase):
@@ -256,21 +248,21 @@ class TestTicketManager(TestCase):
 
         #only active tickets should be returned by the default manager
         tickets = Ticket.objects.all()
-        self.assertEqual(tickets.count(),2)
+        self.assertEqual(tickets.count(), 2)
         shouldbe = [self.ticket1.id, self.ticket2.id]
         self.assertQuerysetEqual(tickets, shouldbe,
-                                 lambda a:a.id, ordered=False)
+                                 lambda a: a.id, ordered=False)
         self.assertQuerysetEqual(tickets, [True, True],
-                                 lambda a:a.active, ordered=False)
+                                 lambda a: a.active, ordered=False)
 
         #all tickets can be retrieved vy all_tickets
         tickets = Ticket.all_tickets.all()
-        self.assertEqual(tickets.count(),3)
+        self.assertEqual(tickets.count(), 3)
         shouldbe = [self.ticket1.id, self.ticket2.id, self.ticket3.id]
         self.assertQuerysetEqual(tickets, shouldbe,
-                                 lambda a:a.id, ordered=False)
+                                 lambda a: a.id, ordered=False)
         self.assertQuerysetEqual(tickets, [True, True, False],
-                                 lambda a:a.active, ordered=False)
+                                 lambda a: a.active, ordered=False)
 
 
 class TestCommentManager(TestCase):
@@ -285,6 +277,7 @@ class TestCommentManager(TestCase):
         self.comment2 = FollowUpFactory(ticket=self.ticket1)
         self.comment3 = FollowUpFactory(ticket=self.ticket1,
                                         private=True)
+
     @pytest.mark.django_db
     def test_tickets_manager(self):
         '''we should only get public comments with the default manager
@@ -293,19 +286,51 @@ class TestCommentManager(TestCase):
 
         #only public comments should be returned by the default manager
         comments = FollowUp.objects.all()
-        self.assertEqual(comments.count(),2)
+        self.assertEqual(comments.count(), 2)
         shouldbe = [self.comment1.id, self.comment2.id]
         self.assertQuerysetEqual(comments, shouldbe,
-                                 lambda a:a.id, ordered=False)
+                                 lambda a: a.id, ordered=False)
         self.assertQuerysetEqual(comments, [False, False],
-                                 lambda a:a.private, ordered=False)
+                                 lambda a: a.private, ordered=False)
 
         #all comments can be retrieved vy all_comments
         comments = FollowUp.all_comments.all()
-        self.assertEqual(comments.count(),3)
+        self.assertEqual(comments.count(), 3)
         shouldbe = [self.comment1.id, self.comment2.id, self.comment3.id]
         self.assertQuerysetEqual(comments, shouldbe,
-                                 lambda a:a.id, ordered=False)
+                                 lambda a: a.id, ordered=False)
         self.assertQuerysetEqual(comments, [False, False, True],
-                                 lambda a:a.private, ordered=False)
- 
+                                 lambda a: a.private, ordered=False)
+
+
+@pytest.mark.django_db
+def test_ticket_link():
+    """a simple little test to verify that the function replace_links is
+    being called on ticket save and inserting the correct link into
+    the ticket's html description.
+
+    """
+
+    desc_text = """this is similar to the problem identifed on ticket: 23"""
+    ticket = TicketFactory(description=desc_text)
+    ticket.save()
+
+    link_string = '<a href="/ticket/23">ticket 23</a>'
+    assert link_string in ticket.description_html
+
+
+@pytest.mark.django_db
+def test_comment_link():
+    """a simple little test to verify that the function replace_links() is
+    being called on comment save and inserting the correct to a ticket into
+    the comments's html description.
+
+    """
+
+    desc_text = """this is similar to the problem identifed on ticket: 23"""
+    comment = FollowUpFactory(comment=desc_text)
+    comment.save()
+
+    link_string = '<a href="/ticket/23">ticket 23</a>'
+    assert link_string in comment.comment_html
+

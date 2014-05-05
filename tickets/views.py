@@ -8,14 +8,9 @@ from django.template import RequestContext
 from django.views.generic.list import ListView
 from django.views.generic import DetailView
 
-
 from .models import Ticket, UserVoteLog, FollowUp, TicketDuplicate
 from .forms import TicketForm, CloseTicketForm, SplitTicketForm, CommentForm
 from .utils import is_admin
-
-#def is_admin(user):
-#    '''return true if the user belongs to the admin group, false otherwise'''
-#    return(user.groups.filter(name='admin').exists())
 
 
 class TicketDetailView(DetailView):
@@ -27,7 +22,7 @@ class TicketDetailView(DetailView):
         the public comments unless  request.user is an admin or
         created the ticket
         '''
-        
+
         context = super(TicketDetailView, self).get_context_data(**kwargs)
         user = self.request.user
         pk = context['ticket'].id
@@ -38,13 +33,13 @@ class TicketDetailView(DetailView):
         else:
             comments = FollowUp.objects.filter(
                 ticket__pk=pk).order_by('-created_on')
-        
+
         context['comments'] = comments
         return context
 
 
 class TicketListViewBase(ListView):
-    '''A base class for all ticket listviews.'''    
+    '''A base class for all ticket listviews.'''
     model = Ticket
 
 
@@ -58,7 +53,7 @@ class TicketListView(TicketListViewBase):
     def get_queryset(self):
         q = self.request.GET.get("q")
         userid = self.kwargs.pop('userid', None)
-        
+
         try:
             user = User.objects.get(id=userid)
         except User.DoesNotExist:
@@ -71,13 +66,13 @@ class TicketListView(TicketListViewBase):
             # existing templates.
             return Ticket.objects.filter(
                 submitted_by=user,
-                description__icontains=q).order_by("-created_on")            
+                description__icontains=q).order_by("-created_on")
         elif q:
             # return a filtered queryset
             return Ticket.objects.filter(
                 description__icontains=q).order_by("-created_on")
-                        
-        elif user:        
+
+        elif user:
             return Ticket.objects.filter(
                 submitted_by=user).order_by("-created_on")
         else:
@@ -85,18 +80,18 @@ class TicketListView(TicketListViewBase):
             return Ticket.objects.all().order_by("-created_on")
 
 
-    
+
 class ClosedTicketListView(TicketListViewBase):
-    '''A list of only closed tickets.'''    
-    
+    '''A list of only closed tickets.'''
+
     def get_queryset(self):
         inactive_codes = ['closed', 'split','duplicate']
         return Ticket.objects.filter(
                 status__in=inactive_codes).order_by("-created_on")
 
 class OpenTicketListView(TicketListViewBase):
-    '''A list of only open tickets.'''    
-    
+    '''A list of only open tickets.'''
+
     def get_queryset(self):
         open_codes = ['new','accepted', 'assigned','reopened']
         return Ticket.objects.filter(
@@ -104,25 +99,25 @@ class OpenTicketListView(TicketListViewBase):
 
 
 class BugTicketListView(TicketListViewBase):
-    '''A list of only bug reports tickets.'''    
-    
+    '''A list of only bug reports tickets.'''
+
     def get_queryset(self):
         return Ticket.objects.filter(
                 ticket_type='bug').order_by("-created_on")
 
 
 class FeatureTicketListView(TicketListViewBase):
-    '''A list of only feature request tickets.'''    
-    
+    '''A list of only feature request tickets.'''
+
     def get_queryset(self):
         return Ticket.objects.filter(
                 ticket_type='feature').order_by("-created_on")
-        
-    
 
 
-            
-    
+
+
+
+
 @login_required
 def TicketUpdateView(request, pk=None,
                      template_name='tickets/ticket_form.html'):
@@ -130,11 +125,11 @@ def TicketUpdateView(request, pk=None,
     administrators or the tags original submitter can make changes to
     a ticket
     '''
-    
+
     if pk:
         ticket = get_object_or_404(Ticket, pk=pk)
         if not (request.user == ticket.submitted_by or
-                is_admin(request.user)):        
+                is_admin(request.user)):
             return HttpResponseRedirect(ticket.get_absolute_url())
     else:
         ticket = Ticket(submitted_by=request.user, status='new')
@@ -144,7 +139,7 @@ def TicketUpdateView(request, pk=None,
         if form.is_valid():
             new_ticket = form.save()
             return HttpResponseRedirect(new_ticket.get_absolute_url())
-            
+
     else:
         form = TicketForm(instance=ticket)
 
@@ -161,7 +156,7 @@ def SplitTicketView(request, pk=None,
     children.  By default, all of the fields in the child ticket are
     set to the values for the same field in the parent.
     '''
-        
+
     #ticket = get_object_or_404(Ticket, pk=pk)
 
     try:
@@ -170,9 +165,9 @@ def SplitTicketView(request, pk=None,
         url = reverse('ticket_list')
         return HttpResponseRedirect(url)
 
-    if is_admin(request.user) == False:        
+    if is_admin(request.user) == False:
         return HttpResponseRedirect(ticket.get_absolute_url())
-        
+
     #start with the same data in both tickets as the original.
     initial = {
             'status1':'new',
@@ -185,7 +180,7 @@ def SplitTicketView(request, pk=None,
             'priority2':ticket.priority,
             'assigned_to2':ticket.assigned_to,
             'description2':ticket.description}
-    
+
     if request.method == 'POST':
         form = SplitTicketForm(data=request.POST, user = request.user,
                                original_ticket = ticket)
@@ -199,15 +194,15 @@ def SplitTicketView(request, pk=None,
                               {'form': form,},
                               context_instance=RequestContext(request))
 
-    
+
 @login_required
 def TicketFollowUpView(request, pk, action='close',
                      template_name='tickets/comment_form.html'):
-    
+
     '''Add a comment to a ticket.  If the user is an administrator,
     this view is also used to close and re-open tickets.
     '''
-    
+
     try:
         ticket = Ticket.objects.get(pk=pk)
     except Ticket.DoesNotExist:
@@ -216,12 +211,12 @@ def TicketFollowUpView(request, pk, action='close',
 
     if not is_admin(request.user):
         return redirect(ticket.get_absolute_url())
-        
+
     if request.POST:
         form = CloseTicketForm(request.POST, ticket=ticket,
                            user=request.user, action=action)
         if form.is_valid():
-            form.save()                
+            form.save()
             return HttpResponseRedirect(ticket.get_absolute_url())
         else:
             render_to_response(template_name,
@@ -230,7 +225,7 @@ def TicketFollowUpView(request, pk, action='close',
     else:
         form = CloseTicketForm(ticket=ticket, user=request.user,
                            action=action)
-            
+
     return render_to_response(template_name,
                               {'form': form, 'ticket':ticket},
                               context_instance=RequestContext(request))
@@ -238,13 +233,13 @@ def TicketFollowUpView(request, pk, action='close',
 
 #==============================
 @login_required
-def TicketCommentView(request, pk, 
+def TicketCommentView(request, pk,
                      template_name='tickets/comment_form.html'):
-    
+
     '''Add a comment to a ticket.  If the user is an administrator,
     this view is also used to close and re-open tickets.
     '''
-    
+
     try:
         ticket = Ticket.objects.get(pk=pk)
     except Ticket.DoesNotExist:
@@ -255,7 +250,7 @@ def TicketCommentView(request, pk,
         form = CommentForm(request.POST, ticket=ticket,
                            user=request.user)
         if form.is_valid():
-            form.save()                
+            form.save()
             return HttpResponseRedirect(ticket.get_absolute_url())
         else:
             render_to_response(template_name,
@@ -263,13 +258,13 @@ def TicketCommentView(request, pk,
                               context_instance=RequestContext(request))
     else:
         form = CommentForm(ticket=ticket, user=request.user)
-            
+
     return render_to_response(template_name,
                               {'form': form, 'ticket':ticket},
                               context_instance=RequestContext(request))
 
-    
-    
+
+
 @login_required
 def upvote_ticket(request,pk):
     '''A view to increment the vote count for a ticket.  Only allow
@@ -285,10 +280,6 @@ def upvote_ticket(request,pk):
     if user:
         p, created = UserVoteLog.objects.get_or_create(ticket=ticket,
                                                   user=user)
-        if ticket and created:        
+        if ticket and created:
             ticket.up_vote()
-    return HttpResponseRedirect(ticket.get_absolute_url())    
-    
-    
-    
-    
+    return HttpResponseRedirect(ticket.get_absolute_url())
