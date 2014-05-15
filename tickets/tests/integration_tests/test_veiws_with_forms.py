@@ -201,6 +201,11 @@ class SplitTicketTestCase(WebTest):
         #verify that two new tickets where created
         #TODO        
 
+
+        #if a ticket is assiged to someone already, assigned to is a
+        #manditory field
+        self.ticket.assigned_to = None
+        
         myuser = self.user2
         login = self.client.login(username=myuser.username,
                                   password='Abcdef12')
@@ -224,6 +229,7 @@ class SplitTicketTestCase(WebTest):
         form['description2'] = msg2
         
         response = form.submit().follow()
+        
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
         #the comment from the splitting form should be in the response

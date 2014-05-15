@@ -123,6 +123,9 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     root('templates'),
+    root('tickets/templates'),
+    root('simple_auth/templates'),    
+    
 )
 
 DJANGO_APPS = (
@@ -143,7 +146,8 @@ THIRDPARTY_APPS = (
     #'taggit',
 )
 
-MY_APPS = ('tickets',)
+MY_APPS = ('tickets',
+           'simple_auth',)
 
 INSTALLED_APPS = DJANGO_APPS + THIRDPARTY_APPS + MY_APPS           
 

@@ -265,11 +265,13 @@ def SplitTicketView(request, pk=None,
         'status1': 'new',
         'ticket_type1': ticket.ticket_type,
         'priority1': ticket.priority,
+        'application1': ticket.application,        
         'assigned_to1': ticket.assigned_to,
         'description1': ticket.description,
         'status2': 'new',
         'ticket_type2': ticket.ticket_type,
         'priority2': ticket.priority,
+        'application2': ticket.application,                
         'assigned_to2': ticket.assigned_to,
         'description2': ticket.description}
 

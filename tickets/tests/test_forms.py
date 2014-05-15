@@ -23,7 +23,8 @@ class TestTicketForm(TestCase):
 
         initial = {
             'assigned_to':1,
-            'status':'new', 
+            'status':'new',
+            'application':1,
             'ticket_type':'bug', 
             'description':'this is a test', 
             'priority':3, 
@@ -31,7 +32,7 @@ class TestTicketForm(TestCase):
         
         form = TicketForm(data=initial, instance=self.ticket)
         form.is_valid()
-
+        
         self.assertTrue(form.is_valid())
         #check the data
         self.assertEqual(form.cleaned_data['assigned_to'], self.user1)         
@@ -48,7 +49,8 @@ class TestTicketForm(TestCase):
 
         initial = {
             'assigned_to':1,
-            'status':'new', 
+            'status':'new',
+            'application':1,           
             'ticket_type':'bug', 
             #'description':'this is a test', 
             'priority':3, 
@@ -64,7 +66,8 @@ class TestTicketForm(TestCase):
 
         initial = {
             'assigned_to':1,
-            #'status':'new', 
+            #'status':'new',
+            'application':1,            
             'ticket_type':'bug', 
             'description':'this is a test', 
             'priority':3, 
@@ -96,7 +99,8 @@ class TestTicketForm(TestCase):
 
         initial = {
             #'assigned_to':1,
-            'status':'new', 
+            'status':'new',
+            'application':1,
             'ticket_type':'bug', 
             'description':'this is a test', 
             'priority':3, 
@@ -278,23 +282,28 @@ class TestSplitForm(TestCase):
     def setUp(self):
 
         self.user = UserFactory()
-        self.ticket = TicketFactory()
+        self.app = ApplicationFactory.create()
+        print self.app.id
+        self.ticket = TicketFactory(application=self.app)
+
         
     def test_good_data(self):
         '''verify that the same data comes out as went in'''
 
         initial = {
-            'status1':'new',
-            'ticket_type1':self.ticket.ticket_type,
-            'priority1':self.ticket.priority,
-            'assigned_to1':self.ticket.assigned_to,
-            'description1':self.ticket.description,
-            'status2':'new',
-            'ticket_type2':self.ticket.ticket_type,
-            'priority2':self.ticket.priority,
-            'assigned_to2':self.ticket.assigned_to,
-            'description2':self.ticket.description,
-            'comment':'This is a test',
+            'status1': 'new',
+            'ticket_type1': self.ticket.ticket_type,
+            'priority1': self.ticket.priority,
+            'application1': self.app.id,
+            'assigned_to1': self.ticket.assigned_to,
+            'description1': self.ticket.description,
+            'status2': 'new',
+            'application2': self.app.id,
+            'ticket_type2': self.ticket.ticket_type,
+            'priority2': self.ticket.priority,
+            'assigned_to2': self.ticket.assigned_to,
+            'description2': self.ticket.description,
+            'comment': 'This is a test',
         } 
 
         form = SplitTicketForm(data=initial, user=self.user,
@@ -309,6 +318,13 @@ class TestSplitForm(TestCase):
                          str(self.ticket.priority))
         self.assertEqual(form.cleaned_data['assigned_to1'],
                          self.ticket.assigned_to)
+        
+        self.assertEqual(form.cleaned_data['application1'],
+                         self.ticket.application)
+        self.assertEqual(form.cleaned_data['application2'],
+                         self.ticket.application)
+
+        
         self.assertEqual(form.cleaned_data['description1'],
                          self.ticket.description)
         self.assertEqual(form.cleaned_data['status2'],'new')
@@ -326,9 +342,7 @@ class TestSplitForm(TestCase):
         ticket = Ticket.objects.get(id=self.ticket.id)
         print "ticket.get_children() = %s" % ticket.get_children()        
         self.assertEqual(ticket.status,'split')
-        
-
-        
+                
 
     def test_no_comment(self):
         '''form is not valid without a comment'''
@@ -408,11 +422,13 @@ class TestSplitForm(TestCase):
             'ticket_type1':self.ticket.ticket_type,
             'priority1':self.ticket.priority,
             #'assigned_to1':self.ticket.assigned_to,
+            'application1':self.ticket.application.id,            
             'description1':self.ticket.description,
             'status2':'new',
             'ticket_type2':self.ticket.ticket_type,
             'priority2':self.ticket.priority,
             #'assigned_to2':self.ticket.assigned_to,
+            'application2':self.ticket.application.id,
             'description2':self.ticket.description,
             'comment':'This is a test',
         } 
