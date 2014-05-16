@@ -16,54 +16,54 @@
     <nav class="navbar navbar-default" role="navigation">
       <!-- Brand and toggle get grouped for better mobile display -->
       <div class="navbar-header">
-	<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-	  <span class="sr-only">Toggle navigation</span>
-	  <span class="icon-bar"></span>
-	  <span class="icon-bar"></span>
-	  <span class="icon-bar"></span>
-	</button>
-	<a class="navbar-brand" href="#">Ticket Tracker</a>
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Ticket Tracker</a>
       </div>
 
       <!-- Collect the nav links, forms, and other content for toggling -->
       <div class="collapse navbar-collapse navbar-ex1-collapse">
-	<ul class="nav navbar-nav">
-	  <li><a href="{% url 'ticket_list' %}" class="sel">View Tickets</a></li>
-	  {% if user.is_staff %}
-	  <li><a href="{% url 'new_ticket' %}">New Ticket</a></li>
-	  {% endif %}
-	  <li class="dropdown">
+        <ul class="nav navbar-nav">
+          <li><a href="{% url 'ticket_list' %}" class="sel">View Tickets</a></li>
+          {% if user.is_staff %}
+          <li><a href="{% url 'new_ticket' %}">New Ticket</a></li>
+          {% endif %}
+          <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Filter <b class="caret"></b></a>
             <ul class="dropdown-menu">
 
               <li><a href="{% url 'ticket_list' %}">All Tickets</a></li>
-	      {% if user.id %}
-	      <li><a href="{% url 'my_ticket_list' user.id|default:-99 %}">My Tickets</a></li>
-	      {% endif %}
-	      <li class="divider"></li>
+              {% if user.id %}
+              <li><a href="{% url 'my_ticket_list' user.id|default:-99 %}">My Tickets</a></li>
+              {% endif %}
+              <li class="divider"></li>
               <li><a href="{% url 'open_tickets' %}">Open Tickets</a></li>
               <li><a href="{% url 'closed_tickets' %}">Closed Tickets</a></li>
-	      <li class="divider"></li>
+              <li class="divider"></li>
               <li><a href="{% url 'bug_reports' %}">Bug Reports</a></li>
-              <li><a href="{% url 'feature_requests' %}">Feature Requests</a></li>	      
+              <li><a href="{% url 'feature_requests' %}">Feature Requests</a></li>            
             </ul>
-	    {% if user.is_staff %}
-	    <li><a href="/admin/">Admin</a></li>
-	    {% endif %}
-	  </li>
-	</ul>
-	<form class="navbar-form navbar-left" role="search" action={% url 'ticket_list' %}>
-	  <div class="form-group">
+            {% if user.is_staff %}
+            <li><a href="/admin/">Admin</a></li>
+            {% endif %}
+          </li>
+        </ul>
+        <form class="navbar-form navbar-left" role="search" action={% url 'ticket_list' %}>
+          <div class="form-group">
             <input type="text" class="form-control" name="q" placeholder="Search Tickets">
-	  </div>
-	  <button type="submit" class="btn btn-default">Submit</button>
-	</form>
-	{% if user.is_authenticated %}
-	<p class="navbar-text">Welcome {{ user }}! </p>
-	<p class="navbar-text"><a href="{% url 'logout' %}?next=/ticket">Logout</a> </p>
-	{% else %}
-	<p class="navbar-text"><a href="{% url 'login' %}">Login</a> </p>
-	{% endif %}
+          </div>
+          <button type="submit" class="btn btn-default">Submit</button>
+        </form>
+        {% if user.is_authenticated %}
+        <p class="navbar-text">Welcome {{ user }}! </p>
+        <p class="navbar-text"><a href="{% url 'logout' %}?next=/ticket">Logout</a> </p>
+        {% else %}
+        <p class="navbar-text"><a href="{% url 'login' %}">Login</a> </p>
+        {% endif %}
       </div><!-- /.navbar-collapse -->
     </nav>
 

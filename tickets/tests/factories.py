@@ -29,10 +29,15 @@ class UserFactory(factory.DjangoModelFactory):
         return user
 
 
+class ApplicationFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = Application
+    application = "MyFakeApp"
+
 class TicketFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Ticket
 
     submitted_by = factory.SubFactory(UserFactory)
+    application = factory.SubFactory(ApplicationFactory)    
     status = 'new'
     ticket_type = 'bug'
     description = 'There is something wrong.'

@@ -1,4 +1,4 @@
-{% extends "tickets/base.html" %}
+{% extends "tickets/tickets_base.html" %}
 
 {% load ticket_extras %}
 
@@ -26,11 +26,12 @@
     <thead>
       <tr>
 	<th>Ticket</th>
+	<th>Status</th>
 	<th>Description</th>
+	<th>Application</th>
 	<th>Submitted By</th>
 	<th>Submitted On</th>
 	<th>Ticket Type</th>
-	<th>Status</th>
 	<th>Priority</th>
 	<th>Votes</th>
 	<th>Assigned to</th>
@@ -40,11 +41,13 @@
     {% for object in object_list %}
     <tr>
       <td><a href="{{ object.get_absolute_url }}">{{object.id}}</a></td>
+      <td>{{object.status | status_btn }}</td>
       <td><a href="{{ object.get_absolute_url }}">{{  object.name }}</a></td>
+      <td>{{object.application}}</td>
       <td>{{object.submitted_by}}</td>
       <td>{{object.created_on}}</td>
       <td>{{object.ticket_type | ticket_type_btn }}</td>
-      <td>{{object.status | status_btn }}</td>
+
       <td>{{object.priority | priority_btn }}</td>
       <td>{{object.votes}}</td>
       {% if object.assigned_to %}

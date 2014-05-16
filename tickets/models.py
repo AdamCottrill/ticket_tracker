@@ -28,8 +28,12 @@ LINK_PATTERNS = getattr(settings, "LINK_PATTERNS", None)
 #for markdown2 (<h1> becomes <h3>)
 DEMOTE_HEADERS = 2
 
+
 class TicketManager(models.Manager):
-    '''A custom model manager for tickets'''
+    '''A custom model manager for tickets.
+
+    By default, only active tickets will be returned in any queryset.
+    '''
 
     def get_query_set(self):
         '''only those tickets that are active'''
@@ -43,10 +47,32 @@ class CommentManager(models.Manager):
     def get_query_set(self):
         '''only those comments that are not private'''
         #return self.filter(private=False)
-        return super(CommentManager, self).get_query_set().filter(private=False)
+        return super(CommentManager,
+                     self).get_query_set().filter(private=False)
+
+
+class Application(models.Model):
+    '''A model to keep track of which application a ticket is
+    associated with.  The ticketTracker applicaton is likely to be
+    used to support several differnt application.  This table will
+    help us keep track of tickets are associated with which app.
+
+    Use the admin to add, update or remove applications.
+
+    '''
+    application = models.CharField(max_length=20)
+
+    def __unicode__(self):
+        return self.application
+
 
 class Ticket(models.Model):
-    '''
+    '''A model for ticket objects.
+
+    This model used a custom model manager (TicketManager) to return
+    only active tickets by default.  To return all tickets use
+    all_tickets.all()
+
     '''
 
     TICKET_STATUS_CHOICES = {
@@ -72,7 +98,6 @@ class Ticket(models.Model):
         (5, 'Very Low'),
     }
 
-
     assigned_to = models.ForeignKey(User, null=True, blank=True,
                                     related_name="assigned_tickets")
     submitted_by = models.ForeignKey(User, null=True, blank=True,
@@ -84,14 +109,12 @@ class Ticket(models.Model):
                               choices=TICKET_TYPE_CHOICES, default=True)
     description = models.TextField()
     description_html = models.TextField(editable=False, blank=True)
-    #resolution = models.TextField()
     priority = models.IntegerField(choices=TICKET_PRIORITY_CHOICES)
     created_on = models.DateTimeField('date created', auto_now_add=True)
     updated_on = models.DateTimeField('date updated', auto_now=True)
     votes = models.IntegerField(default=0)
-    parent = models.ForeignKey('self',
-                                   blank=True,
-                                   null=True)
+    parent = models.ForeignKey('self', blank=True, null=True)
+    application = models.ForeignKey(Application)
 
     all_tickets = models.Manager()
     objects = TicketManager()
@@ -125,10 +148,14 @@ class Ticket(models.Model):
         super(Ticket, self).save(*args, **kwargs)
 
     def up_vote(self):
-        self.votes +=1
+        '''A method to increment the number of votes associated with a
+        ticket.'''
+        self.votes += 1
         self.save()
 
     def down_vote(self):
+        '''A method to decrement the number of votes associated with a
+        ticket.'''
         if self.votes > 0:
             self.votes -= 1
             self.save()
@@ -150,7 +177,6 @@ class Ticket(models.Model):
         if not duplicates:
             duplicates = None
         return duplicates
-
 
     def get_originals(self):
         '''a method to retreive the ticket object that this ticket
@@ -198,6 +224,7 @@ class TicketDuplicate(models.Model):
     which ticket.
 
     '''
+
     ticket = models.ForeignKey(Ticket,related_name="duplicate")
     original = models.ForeignKey(Ticket,related_name="original")
 
@@ -211,7 +238,6 @@ class TicketDuplicate(models.Model):
         string = string.format(self.ticket.id, self.original.id)
         return string
 
-
 class UserVoteLog(models.Model):
     '''A table to keep track of which tickets a user has voted for.
     Each user can only upvote a ticket once.
@@ -221,7 +247,13 @@ class UserVoteLog(models.Model):
 
 
 class FollowUp(models.Model):
-    ''' '''
+    '''A model to hold comments and follow-up actions associated with a
+    ticket.
+
+    A FollowUp without any action is just a comment.  Valid actions
+    for a followup include closed, reopened and split.
+
+    '''
 
     ACTION_CHOICES = {
         ('no_action', 'No Action'),
@@ -231,15 +263,15 @@ class FollowUp(models.Model):
     }
 
     ticket = models.ForeignKey(Ticket)
-    parent = models.ForeignKey('self',
-                                   blank=True,
-                                   null=True)
+    parent = models.ForeignKey('self', blank=True, null=True)
 
     submitted_by = models.ForeignKey(User, null=True, blank=True)
     created_on = models.DateTimeField('date created', auto_now_add=True)
     comment = models.TextField()
+
     comment_html = models.TextField(editable=False, blank=True)
     #closed = models.BooleanField(default=False)
+
     action = models.CharField(max_length=20,
                               choices=ACTION_CHOICES, default="no_action")
     private = models.BooleanField(default=False)
@@ -247,16 +279,13 @@ class FollowUp(models.Model):
     objects = CommentManager()
     all_comments = models.Manager()
 
-
     def save(self, *args, **kwargs):
         self.comment_html = markdown(self.comment,
                                          extras={'demote-headers':
                                                  DEMOTE_HEADERS})
         self.comment_html = replace_links(self.comment_html,
                                               link_patterns=LINK_PATTERNS)
-
         super(FollowUp, self).save(*args, **kwargs)
-
 
 
 class TicketAdmin(admin.ModelAdmin):
@@ -264,5 +293,3 @@ class TicketAdmin(admin.ModelAdmin):
     list_filter = ("status",)
     list_display = ("id", "name", "status", "assigned_to")
     search_field = ['description']
-
-admin.site.register(Ticket, TicketAdmin)

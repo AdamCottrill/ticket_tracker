@@ -572,7 +572,6 @@ class VotingTestCase(TestCase):
         self.assertEqual(ticket.votes, 1)
 
 
-
 ##class TicketUpdateTestCase(TestCase):
 ##    '''
 ##    '''

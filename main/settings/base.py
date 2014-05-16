@@ -78,8 +78,6 @@ STATICFILES_DIRS = (
     root('static'),
 )
 
-#print "\nSTATICFILES_DIRS = %s\n" % STATICFILES_DIRS
-
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = (
@@ -122,6 +120,9 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     root('templates'),
+    root('tickets/templates'),
+    root('simple_auth/templates'),    
+    
 )
 
 DJANGO_APPS = (
@@ -132,16 +133,19 @@ DJANGO_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
+    'django.contrib.admindocs',
 )
 
 THIRDPARTY_APPS = (
     'passwords',
+    'password_reset',
     'crispy_forms',
     'south',
     #'taggit',
 )
 
-MY_APPS = ('tickets',)
+MY_APPS = ('tickets',
+           'simple_auth',)
 
 INSTALLED_APPS = DJANGO_APPS + THIRDPARTY_APPS + MY_APPS           
 

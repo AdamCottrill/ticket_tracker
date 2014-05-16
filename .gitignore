@@ -3,6 +3,7 @@
 venv/*
 elastic*
 static/*
+simple_auth/*
 *.pyc
 *.pyr
 db/*
