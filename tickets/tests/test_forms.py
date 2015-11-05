@@ -28,14 +28,14 @@ class TestTicketForm(TestCase):
             'assigned_to': self.user1.id,
             'status': 'new',
             'application': 1,
-            'ticket_type': 'bug', 
-            'description': 'this is a test', 
+            'ticket_type': 'bug',
+            'description': 'this is a test',
             'priority': 3,
         }
 
         form = TicketForm(data=initial, instance=self.ticket)
         form.is_valid()
-        
+
         self.assertTrue(form.is_valid())
         #check the data
         self.assertEqual(form.cleaned_data['assigned_to'], self.user1)
@@ -53,10 +53,10 @@ class TestTicketForm(TestCase):
         initial = {
             'assigned_to': 1,
             'status': 'new',
-            'application': 1,           
-            'ticket_type': 'bug', 
-            #'description': 'this is a test', 
-            'priority': 3, 
+            'application': 1,
+            'ticket_type': 'bug',
+            #'description': 'this is a test',
+            'priority': 3,
 
         }
 
@@ -71,10 +71,10 @@ class TestTicketForm(TestCase):
         initial = {
             'assigned_to': 1,
             #'status': 'new',
-            'application': 1,            
-            'ticket_type': 'bug', 
-            'description': 'this is a test', 
-            'priority': 3, 
+            'application': 1,
+            'ticket_type': 'bug',
+            'description': 'this is a test',
+            'priority': 3,
 
         }
 
@@ -106,9 +106,9 @@ class TestTicketForm(TestCase):
             #'assigned_to': 1,
             'status': 'new',
             'application': self.app.id,
-            'ticket_type': 'bug', 
-            'description': 'this is a test', 
-            'priority': 3, 
+            'ticket_type': 'bug',
+            'description': 'this is a test',
+            'priority': 3,
 
         }
 
@@ -131,8 +131,8 @@ class TestCommentForm(TestCase):
     def setUp(self):
 
         self.user = UserFactory()
-        self.ticket = TicketFactory.build(submitted_by=self.user)
-        self.comment = FollowUpFactory.build(ticket=self.ticket)
+        self.ticket = TicketFactory(submitted_by=self.user)
+        self.comment = FollowUpFactory(ticket=self.ticket)
 
     @pytest.mark.django_db
     def test_good_data(self):
@@ -295,7 +295,7 @@ class TestSplitForm(TestCase):
 
     def setUp(self):
 
-        self.user = UserFactory.build()
+        self.user = UserFactory()
         self.app = ApplicationFactory.create()
         self.ticket = TicketFactory(application=self.app)
 
@@ -332,13 +332,13 @@ class TestSplitForm(TestCase):
                          str(self.ticket.priority))
         self.assertEqual(form.cleaned_data['assigned_to1'],
                          self.ticket.assigned_to)
-        
+
         self.assertEqual(form.cleaned_data['application1'],
                          self.ticket.application)
         self.assertEqual(form.cleaned_data['application2'],
                          self.ticket.application)
 
-        
+
         self.assertEqual(form.cleaned_data['description1'],
                          self.ticket.description)
         self.assertEqual(form.cleaned_data['status2'],'new')
@@ -377,7 +377,7 @@ class TestSplitForm(TestCase):
                                original_ticket=self.ticket)
         self.assertFalse(form.is_valid())
 
-    def test_no_description1(self): 
+    def test_no_description1(self):
         '''form is not valid without description for the first
         ticket
         '''
@@ -401,7 +401,7 @@ class TestSplitForm(TestCase):
         self.assertFalse(form.is_valid())
 
 
-    def test_no_description2(self): 
+    def test_no_description2(self):
         '''form is not valid without description for the second
         ticket
         '''
@@ -434,7 +434,7 @@ class TestSplitForm(TestCase):
             'ticket_type1': self.ticket.ticket_type,
             'priority1': self.ticket.priority,
             #'assigned_to1': self.ticket.assigned_to,
-            'application1': self.ticket.application.id,            
+            'application1': self.ticket.application.id,
             'description1': self.ticket.description,
             'status2': 'new',
             'ticket_type2': self.ticket.ticket_type,

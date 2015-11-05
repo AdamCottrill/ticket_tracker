@@ -63,8 +63,8 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
-#STATIC_ROOT = root('static')
+#STATIC_ROOT = ''
+STATIC_ROOT = root('static_root')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -121,8 +121,8 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
     root('templates'),
     root('tickets/templates'),
-    root('simple_auth/templates'),    
-    
+    root('simple_auth/templates'),
+
 )
 
 DJANGO_APPS = (
@@ -137,17 +137,17 @@ DJANGO_APPS = (
 )
 
 THIRDPARTY_APPS = (
+    'crispy_forms',
     'passwords',
     'password_reset',
-    'crispy_forms',
-    'south',
+    #'south',
     #'taggit',
 )
 
 MY_APPS = ('tickets',
            'simple_auth',)
 
-INSTALLED_APPS = DJANGO_APPS + THIRDPARTY_APPS + MY_APPS           
+INSTALLED_APPS = DJANGO_APPS + THIRDPARTY_APPS + MY_APPS
 
 # DEBUG_TOOLBAR_CONFIG = {
 #     'INTERCEPT_REDIRECTS': False,

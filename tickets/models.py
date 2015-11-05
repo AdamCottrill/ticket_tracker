@@ -35,20 +35,20 @@ class TicketManager(models.Manager):
     By default, only active tickets will be returned in any queryset.
     '''
 
-    def get_query_set(self):
+    def get_queryset(self):
         '''only those tickets that are active'''
         #return self.filter(active=True)
-        return super(TicketManager, self).get_query_set().filter(active=True)
+        return super(TicketManager, self).get_queryset().filter(active=True)
 
 
 class CommentManager(models.Manager):
     '''A custom model manager for comments'''
 
-    def get_query_set(self):
+    def get_queryset(self):
         '''only those comments that are not private'''
         #return self.filter(private=False)
         return super(CommentManager,
-                     self).get_query_set().filter(private=False)
+                     self).get_queryset().filter(private=False)
 
 
 class Application(models.Model):
@@ -102,6 +102,7 @@ class Ticket(models.Model):
                                     related_name="assigned_tickets")
     submitted_by = models.ForeignKey(User, null=True, blank=True,
                                      related_name="submitted_tickets")
+    application = models.ForeignKey(Application)
     active = models.BooleanField(default=True)
     status = models.CharField(max_length=20,
                               choices=TICKET_STATUS_CHOICES, default=True)
@@ -114,7 +115,7 @@ class Ticket(models.Model):
     updated_on = models.DateTimeField('date updated', auto_now=True)
     votes = models.IntegerField(default=0)
     parent = models.ForeignKey('self', blank=True, null=True)
-    application = models.ForeignKey(Application)
+
 
     all_tickets = models.Manager()
     objects = TicketManager()

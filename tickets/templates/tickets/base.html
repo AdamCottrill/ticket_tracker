@@ -4,7 +4,16 @@
   <head>
     <title>{% block title %}{% endblock %}Simple Ticket</title>
     <!--     <link rel="stylesheet" href="{{ STATIC_URL }}style.css" type="text/css" media="screen" /> -->
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+
+
 
     {% block extra_head %}
     {% endblock %}
@@ -45,7 +54,7 @@
               <li><a href="{% url 'closed_tickets' %}">Closed Tickets</a></li>
               <li class="divider"></li>
               <li><a href="{% url 'bug_reports' %}">Bug Reports</a></li>
-              <li><a href="{% url 'feature_requests' %}">Feature Requests</a></li>            
+              <li><a href="{% url 'feature_requests' %}">Feature Requests</a></li>
             </ul>
             {% if user.is_staff %}
             <li><a href="/admin/">Admin</a></li>

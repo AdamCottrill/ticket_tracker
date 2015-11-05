@@ -4,7 +4,8 @@ from django.forms import (Form, ModelForm, CharField, Textarea, BooleanField,
 from django.forms.widgets import Select
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import (Submit, Layout, ButtonHolder, Div, Fieldset,
+from crispy_forms.bootstrap import FormActions
+from crispy_forms.layout import (Submit, Layout, ButtonHolder,  Div, Fieldset,
                                  Field)
 
 from .models import Ticket, FollowUp, TicketDuplicate, Application
@@ -127,7 +128,7 @@ class SplitTicketForm(Form):
                     css_class='col-md-6 well'),
                 css_class='row'),
             'comment',
-            ButtonHolder(Submit('submit', 'Split Ticket',
+            FormActions(Submit('submit', 'Split Ticket',
                                 css_class='btn btn-danger pull-right'))
         )
 
@@ -200,13 +201,13 @@ class CloseTicketForm(ModelForm):
                           placeholder='Same as ticket #'),
                         css_class='form-group form-inline'),
                     css_class='row'),
-                ButtonHolder(Submit('submit', 'Close Ticket',
+                FormActions(Submit('submit', 'Close Ticket',
                                     css_class='btn btn-danger pull-right'))
                 )
         else:
             self.helper.layout = Layout(
                 'comment',
-                ButtonHolder(Submit('submit', 'Re-open Ticket',
+                FormActions(Submit('submit', 'Re-open Ticket',
                                  css_class = 'btn btn-default pull-right')))
 
     def clean_same_as_ticket(self):
@@ -304,12 +305,12 @@ class CommentForm(ModelForm):
             self.helper.layout = Layout(
                 'comment',
                 'private',
-                ButtonHolder(Submit('submit', 'Post Comment',
+                FormActions(Submit('submit', 'Post Comment',
                                     css_class='btn btn-default pull-right')))
         else:
             self.helper.layout = Layout(
                 'comment',
-                ButtonHolder(Submit('submit', 'Post Comment',
+                FormActions(Submit('submit', 'Post Comment',
                                  css_class = 'btn btn-default pull-right')))
 
     def save(self, *args, **kwargs):

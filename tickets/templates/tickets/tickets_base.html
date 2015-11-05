@@ -3,10 +3,14 @@
 <html>
   <head>
     <title>{% block title %}{% endblock %}Simple Ticket</title>
-    <!--     <link rel="stylesheet" href="{{ STATIC_URL }}style.css" type="text/css" media="screen" /> -->
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/bootstrap-theme.min.css">
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/stickyfooter.css">
+
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+
 
     {% block extra_head %}
     {% endblock %}
@@ -23,7 +27,7 @@
       .navbar-inverse .navbar-inner {
       filter: none;
       background-image: none;
-      } 
+      }
     </style>
 
 
@@ -58,7 +62,7 @@
               <li><a href="{% url 'closed_tickets' %}">Closed Tickets</a></li>
               <li class="divider"></li>
               <li><a href="{% url 'bug_reports' %}">Bug Reports</a></li>
-              <li><a href="{% url 'feature_requests' %}">Feature Requests</a></li>            
+              <li><a href="{% url 'feature_requests' %}">Feature Requests</a></li>
             </ul>
 
             {% block navbar_other_apps %}
@@ -81,7 +85,7 @@
           </li>
           </li>
         </ul>
-        <div class="col-sm-3">          
+        <div class="col-sm-3">
             <form class="navbar-form navbar-left" role="search" action={% url 'ticket_list' %}>
               <div class="input-group">
                 <input type="text" class="form-control" name="q" placeholder="Search Tickets">
@@ -95,9 +99,9 @@
         </div>
         {% if user.is_authenticated %}
         <p class="navbar-text">Welcome
-            {% if user.first_name %} 
+            {% if user.first_name %}
             {{ user.first_name }}!
-            {% else %} 
+            {% else %}
             {{ user.username }}!
             {% endif %} </p>
         <p class="navbar-text"><a href="{% url 'logout' %}?next=/ticket">Logout</a> </p>
@@ -112,7 +116,6 @@
     {% endblock%}
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
 
 
   </body>

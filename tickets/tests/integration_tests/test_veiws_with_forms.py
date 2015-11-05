@@ -98,7 +98,7 @@ class TicketUpdateTestCase(WebTest):
         self.assertContains(response, 'Feature Request')
         self.assertContains(response, "Nevermind it is OK.")
 
-        
+
     def test_update_logged_admin(self):
         '''if you're an administator, you should be able to edit the
         ticket even if you didn't create it.
@@ -208,7 +208,7 @@ class SplitTicketTestCase(WebTest):
         #if a ticket is assiged to someone already, assigned to is a
         #manditory field
         self.ticket.assigned_to = None
-        
+
         myuser = self.user2
         login = self.client.login(username=myuser.username,
                                   password='Abcdef12')
@@ -232,7 +232,7 @@ class SplitTicketTestCase(WebTest):
         form['description2'] = msg2
 
         response = form.submit().follow()
-        
+
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
         #the comment from the splitting form should be in the response
@@ -522,6 +522,8 @@ class CloseTicketTestCase(WebTest):
         url = reverse('reopen_ticket',
                       kwargs=({'pk':self.ticket.id}))
         response = self.app.get(url, user=self.user2)
+
+        print("response = {}".format(response))
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tickets/comment_form.html')

@@ -7,14 +7,15 @@ from tickets.models import *
 
 
 class UserFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = User
+    class Meta:
+        model = User
     first_name = 'John'
     last_name = 'Doe'
     username = factory.Sequence(lambda n : "johndoe {}".format(n))
-    email = 'johndoe@hotmail.com'    
+    email = 'johndoe@hotmail.com'
     password = 'Abcdef12'
     is_active = True
-    
+
     #from:
     #http://www.rkblog.rk.edu.pl/w/p/using-factory-boy-django-application-tests/
     @classmethod
@@ -22,7 +23,7 @@ class UserFactory(factory.DjangoModelFactory):
         password = kwargs.pop('password', None)
         user = super(UserFactory, cls)._prepare(create, **kwargs)
         if password:
-            user.raw_password = password            
+            user.raw_password = password
             user.set_password(password)
             if create:
                 user.save()
@@ -30,14 +31,17 @@ class UserFactory(factory.DjangoModelFactory):
 
 
 class ApplicationFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Application
+    class Meta:
+        model = Application
     application = "MyFakeApp"
 
+
 class TicketFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Ticket
+    class Meta:
+        model = Ticket
 
     submitted_by = factory.SubFactory(UserFactory)
-    application = factory.SubFactory(ApplicationFactory)    
+    application = factory.SubFactory(ApplicationFactory)
     status = 'new'
     ticket_type = 'bug'
     description = 'There is something wrong.'
@@ -45,13 +49,13 @@ class TicketFactory(factory.DjangoModelFactory):
     created_on = datetime.now()
     parent = None
     active = True
-    
+
+
 class FollowUpFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = FollowUp
+    class Meta:
+        model = FollowUp
 
     ticket = factory.SubFactory(TicketFactory)
     submitted_by = factory.SubFactory(UserFactory)
     comment = "Ok - we will take a look at it"
     private = False
-
-
