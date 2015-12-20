@@ -20,9 +20,9 @@ class TestTicket(TestCase):
         '''
 
         url = '/ticket/{0}/'.format(self.ticket1.id)
-        self.assertEqual(self.ticket1.get_absolute_url(), url)
+        self.assertIn(url, self.ticket1.get_absolute_url())
         url = '/ticket/{0}/'.format(self.ticket2.id)
-        self.assertEqual(self.ticket2.get_absolute_url(), url)
+        self.assertIn(url, self.ticket2.get_absolute_url())
 
     def test_ticket_vote(self):
         '''verify that up_vote and down_vote method increment and
@@ -315,7 +315,8 @@ def test_ticket_link():
     ticket = TicketFactory(description=desc_text)
     ticket.save()
 
-    link_string = '<a href="/ticket/23">ticket 23</a>'
+    #last half of the hyperlink - first part determined by project
+    link_string = '/ticket/23">ticket 23</a>'
     assert link_string in ticket.description_html
 
 
@@ -331,6 +332,16 @@ def test_comment_link():
     comment = FollowUpFactory(comment=desc_text)
     comment.save()
 
-    link_string = '<a href="/ticket/23">ticket 23</a>'
+    #last half of the hyperlink - first part determined by project
+    link_string = '/ticket/23">ticket 23</a>'
     assert link_string in comment.comment_html
 
+@pytest.mark.django_db
+def test_application_str():
+    """verify that the str method of the application model returns the
+    name of the application, not 'ApplicationObject' """
+
+    myapp = ApplicationFactory.create(application="MyApp")
+
+    assert str(myapp) == "MyApp"
+    assert str(myapp) != "Application object"

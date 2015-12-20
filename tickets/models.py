@@ -65,6 +65,11 @@ class Application(models.Model):
     def __unicode__(self):
         return self.application
 
+    def __str__(self):
+        return self.application
+
+
+
 
 class Ticket(models.Model):
     '''A model for ticket objects.
