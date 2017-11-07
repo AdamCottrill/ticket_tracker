@@ -10,9 +10,19 @@ class TicketUpdateTestCase(WebTest):
 
     def setUp(self):
 
-        self.user = UserFactory()
-        self.user2 = UserFactory(is_staff=True)
-        self.user3 = UserFactory(username='hsimpson')
+        self.user = UserFactory(username='bsimpson',
+                                 first_name = 'Bart',
+                                 last_name = 'Simpson')
+        #self.user2 = UserFactory(is_staff=True)
+
+        self.user2 = UserFactory(username = 'bgumble',
+                                 first_name = 'Barney',
+                                 last_name = 'Gumble',
+                                 is_staff=True)
+
+        self.user3 = UserFactory(username='hsimpson',
+                                 first_name = 'Homer',
+                                 last_name = 'Simpson')
 
         adminGrp, created = Group.objects.get_or_create(name='admin')
         self.user2.groups.add(adminGrp)
@@ -130,14 +140,53 @@ class TicketUpdateTestCase(WebTest):
         self.assertContains(response, "Nevermind it is OK.")
 
 
+    def test_assignto_only_admin_staff(self):
+        '''For now, only administrators should be eligible to assign tickets
+        to.
+
+        '''
+
+        login = self.client.login(username=self.user.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+
+        url = reverse('update_ticket',
+                      kwargs=({'pk':self.ticket.id}))
+        response = self.app.get(url, user=self.user)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/ticket_form.html')
+
+        form = response.forms['ticket']
+
+        #user2 is the only user who belongs to the admin group in this
+        #test, he is the only one who should appear as an option int
+        #the dropdown list, the other two should not.
+
+        #Project Leads - should not include Barney:
+        choices = form['assigned_to'].options
+
+        choices = [x[0] for x in choices]
+
+        assert str(self.user.id) not in choices
+        assert str(self.user2.id) in choices  #the only admin.
+        assert str(self.user3.id) not in choices
+
+
 class SplitTicketTestCase(WebTest):
     '''
     '''
 
     def setUp(self):
 
-        self.user = UserFactory()
-        self.user2 = UserFactory(is_staff=True)
+        self.user = UserFactory(username='bsimpson',
+                                 first_name = 'Bart',
+                                 last_name = 'Simpson')
+
+        self.user2 = UserFactory(username = 'bgumble',
+                                 first_name = 'Barney',
+                                 last_name = 'Gumble',
+                                 is_staff=True)
 
         adminGrp, created = Group.objects.get_or_create(name='admin')
         self.user2.groups.add(adminGrp)
@@ -246,7 +295,47 @@ class SplitTicketTestCase(WebTest):
 
         children = ticket.get_children()
         self.assertQuerysetEqual(children, [msg1, msg2],
-                                 lambda a: a.__unicode__(), ordered=False)
+                                 lambda a: a.__str__(), ordered=False)
+
+
+
+    def test_split_logged_only_assingto_admin(self):
+        '''if you're an administator, you should be able to split a ticket,
+        but only administrators should be listed as a choice to assign
+        tickets too.
+
+        '''
+        myuser = self.user2
+        login = self.client.login(username=myuser.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+
+        url = reverse('split_ticket',
+                      kwargs=({'pk':self.ticket.id}))
+        response = self.app.get(url, user=myuser)
+
+        self.assertTemplateUsed(response, 'tickets/split_ticket_form.html')
+        self.assertEqual(response.status_code, 200)
+
+        form = response.forms['splitticket']
+
+        #Only admin users should be on list of choices for assing_to
+        choices = form['assigned_to1'].options
+        choices = [x[0] for x in choices]
+
+        assert str(self.user.id) not in choices
+        assert str(self.user2.id) in choices  #the only admin.
+
+        #Only admin users should be on list of choices for assing_to
+        choices = form['assigned_to2'].options
+        choices = [x[0] for x in choices]
+
+        assert str(self.user.id) not in choices
+        assert str(self.user2.id) in choices  #the only admin.
+
+
+
+
 
 
 class CommentTicketTestCase(WebTest):
@@ -522,8 +611,6 @@ class CloseTicketTestCase(WebTest):
         url = reverse('reopen_ticket',
                       kwargs=({'pk':self.ticket.id}))
         response = self.app.get(url, user=self.user2)
-
-        print("response = {}".format(response))
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tickets/comment_form.html')

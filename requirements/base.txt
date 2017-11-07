@@ -1,0 +1,5 @@
+Django==1.8.7
+django-crispy-forms==1.7.0
+#simple_auth:
+django-password-reset==0.8.1
+django-passwords==0.3.12

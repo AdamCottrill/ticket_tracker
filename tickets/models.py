@@ -62,7 +62,7 @@ class Application(models.Model):
     '''
     application = models.CharField(max_length=20)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.application
 
 
@@ -102,7 +102,6 @@ class Ticket(models.Model):
                                     related_name="assigned_tickets")
     submitted_by = models.ForeignKey(User, null=True, blank=True,
                                      related_name="submitted_tickets")
-    application = models.ForeignKey(Application)
     active = models.BooleanField(default=True)
     status = models.CharField(max_length=20,
                               choices=TICKET_STATUS_CHOICES, default=True)
@@ -115,15 +114,11 @@ class Ticket(models.Model):
     updated_on = models.DateTimeField('date updated', auto_now=True)
     votes = models.IntegerField(default=0)
     parent = models.ForeignKey('self', blank=True, null=True)
-
+    application = models.ForeignKey(Application)
 
     all_tickets = models.Manager()
     objects = TicketManager()
 
-    def __unicode__(self):
-        name = self.description.split("\n", 1)[0]
-        name = name[:30]
-        return name
 
     def __str__(self):
         name = self.description.split("\n", 1)[0]
@@ -229,10 +224,6 @@ class TicketDuplicate(models.Model):
     ticket = models.ForeignKey(Ticket,related_name="duplicate")
     original = models.ForeignKey(Ticket,related_name="original")
 
-    def __unicode__(self):
-        string = "Ticket {0} is a duplicate of ticket {1}"
-        string = string.format(self.ticket.id, self.original.id)
-        return string
 
     def __str__(self):
         string = "Ticket {0} is a duplicate of ticket {1}"

@@ -2,6 +2,7 @@ import pytest
 from datetime import datetime
 from django.test import TestCase
 
+from django.contrib.auth.models import Group
 
 from tickets.models import *
 from tickets.forms import (TicketForm, CloseTicketForm, CommentForm,
@@ -16,6 +17,10 @@ class TestTicketForm(TestCase):
         '''one ticket and one user that will be used in these tests'''
         #we need to save a user to create a valid choice
         self.user1 = UserFactory()
+
+        adminGrp, created = Group.objects.get_or_create(name='admin')
+        self.user1.groups.add(adminGrp)
+
         self.app = ApplicationFactory.create()
         self.ticket = TicketFactory(application=self.app)
 
@@ -131,8 +136,8 @@ class TestCommentForm(TestCase):
     def setUp(self):
 
         self.user = UserFactory()
-        self.ticket = TicketFactory(submitted_by=self.user)
-        self.comment = FollowUpFactory(ticket=self.ticket)
+        self.ticket = TicketFactory.build(submitted_by=self.user)
+        self.comment = FollowUpFactory.build(ticket=self.ticket)
 
     @pytest.mark.django_db
     def test_good_data(self):

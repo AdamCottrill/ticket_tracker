@@ -1,6 +1,37 @@
-This diectory contains a django project that was developed following
-the screen cast that can be found here:
+* Ticket Tracker
+
+TicketTracker is a simple django application designed to keep track
+of tickets representing bug reports or feature requests.  Basic list
+views including all tickets, open tickets, closed tickets, bug
+reports, feature requests, and 'My Tickets' have been implemented,
+and could be easily augmented or extended.
+
+Users can open and update their own tickets, as well as comment on or
+vote for existing tickets opened by other users.
+
+Links to other tickets are supported in the ticket description or
+comments using the following convention 'ticket: N' where N is the
+ticket number.  Administrators can close tickets, mark them as
+duplicate (including a link to duplicate), or split tickets that
+involve more than one bug or feature.  Additionally, administrators
+can re-open tickets if necessary.
+
+While TicketTracker could be used as a standalone project, it is most
+often used as an add-in application for larger projects.  I regularly
+use a version of ticket tracker in my own applications during
+development and integrate another version in the final deployed
+project to provide users with a means of providing feedback and
+influencing the future development of the project.
+
+TODO:
+- filter tickets by application
+- integrate django_filter so that tickets can be filtered by multiple
+  criteria.
+
+
+TicketTracker was developed by extending and augmenting a django
+project that was described in this screencast tutorial:
 [[http://net.tutsplus.com/tutorials/python-tutorials/diving-into-django/]]
 
 Adam Cottrill
-January 27, 2013.
+Wed Jul 09 2014

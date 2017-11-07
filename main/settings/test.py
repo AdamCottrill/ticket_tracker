@@ -25,7 +25,7 @@ PASSWORD_HASHERS = (
 
 
 #EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
-SOUTH_TESTS_MIGRATE = False
+#SOUTH_TESTS_MIGRATE = False
 
 #TEST_RUNNER = 'main.testrunner.NoseCoverageTestRunner'
 
