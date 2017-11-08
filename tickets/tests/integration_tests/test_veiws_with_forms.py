@@ -45,10 +45,10 @@ class TicketUpdateTestCase(WebTest):
         url = reverse('update_ticket',
                       kwargs=({'pk':self.ticket.id}))
 
-        response = self.app.get(url).follow()
+        response = self.app.get(url)
         location = response['Location']
         new_url = '{0}?next={1}'.format(reverse('login'), url)
-        self.assertEqual(response.status_code, 301)
+        self.assertRedirects(response, new_url)
         self.assertIn(new_url, location)
 
     def test_update_logged_not_owner(self):
@@ -200,10 +200,10 @@ class SplitTicketTestCase(WebTest):
         url = reverse('split_ticket',
                       kwargs=({'pk':self.ticket.id}))
 
-        response = self.app.get(url).follow()
+        response = self.app.get(url)
         location = response['Location']
         new_url = '{0}?next={1}'.format(reverse('login'), url)
-        self.assertEqual(response.status_code, 301)
+        self.assertRedirects(response, new_url)
         self.assertIn(new_url, location)
 
     def test_split_logged_in_not_admin(self):
@@ -380,11 +380,12 @@ class CommentTicketTestCase(WebTest):
         url = reverse('comment_ticket',
                       kwargs=({'pk':self.ticket.id}))
 
-        response = self.app.get(url).follow()
+        print("url = " + url)
+        response = self.app.get(url)
         location = response['Location']
         new_url = '{0}?next={1}'.format(reverse('login'), url)
 
-        self.assertEqual(response.status_code, 301)
+        self.assertRedirects(response, new_url)
         self.assertIn(new_url, location)
 
 
