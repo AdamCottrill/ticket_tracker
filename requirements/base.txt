@@ -1,4 +1,4 @@
-Django==1.9.13
+Django==1.10.8
 django-crispy-forms==1.7.0
 #simple_auth:
 django-password-reset==0.8.1

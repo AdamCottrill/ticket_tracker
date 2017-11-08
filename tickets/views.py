@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template import RequestContext
 from django.views.generic.list import ListView
 from django.views.generic import DetailView
@@ -230,9 +230,8 @@ def TicketUpdateView(request, pk=None,
     else:
         form = TicketForm(instance=ticket)
 
-    return render_to_response(template_name,
-                              {'form': form},
-                              context_instance=RequestContext(request))
+    return render(request, template_name, {'form': form})
+
 
 
 @login_required
@@ -272,13 +271,13 @@ def SplitTicketView(request, pk=None,
         'status1': 'new',
         'ticket_type1': ticket.ticket_type,
         'priority1': ticket.priority,
-        'application1': ticket.application,        
+        'application1': ticket.application,
         'assigned_to1': ticket.assigned_to,
         'description1': ticket.description,
         'status2': 'new',
         'ticket_type2': ticket.ticket_type,
         'priority2': ticket.priority,
-        'application2': ticket.application,                
+        'application2': ticket.application,
         'assigned_to2': ticket.assigned_to,
         'description2': ticket.description}
 
@@ -291,9 +290,9 @@ def SplitTicketView(request, pk=None,
     else:
         form = SplitTicketForm(initial=initial,
                                user=request.user, original_ticket=ticket)
-    return render_to_response(template_name,
-                              {'form': form},
-                              context_instance=RequestContext(request))
+
+    return render(request, template_name, {'form': form})
+
 
 @login_required
 def TicketFollowUpView(request, pk, action='close',
@@ -333,16 +332,13 @@ def TicketFollowUpView(request, pk, action='close',
             form.save()
             return HttpResponseRedirect(ticket.get_absolute_url())
         else:
-            render_to_response(template_name,
-                               {'form': form, 'ticket': ticket},
-                               context_instance=RequestContext(request))
+            render(request, template_name, {'form': form, 'ticket': ticket})
+
     else:
         form = CloseTicketForm(ticket=ticket, user=request.user,
                            action=action)
 
-    return render_to_response(template_name,
-                              {'form': form, 'ticket': ticket},
-                              context_instance=RequestContext(request))
+    return render(request, template_name, {'form': form, 'ticket': ticket})
 
 
 #==============================
@@ -383,15 +379,13 @@ def TicketCommentView(request, pk,
             form.save()
             return HttpResponseRedirect(ticket.get_absolute_url())
         else:
-            render_to_response(template_name,
-                               {'form': form, 'ticket': ticket},
-                               context_instance=RequestContext(request))
+            render(request, template_name, {'form': form, 'ticket': ticket})
+
     else:
         form = CommentForm(ticket=ticket, user=request.user)
 
-    return render_to_response(template_name,
-                              {'form': form, 'ticket': ticket},
-                              context_instance=RequestContext(request))
+    return render(request, template_name, {'form': form, 'ticket': ticket})
+
 
 
 @login_required
