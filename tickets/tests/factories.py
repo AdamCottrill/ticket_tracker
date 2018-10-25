@@ -7,8 +7,11 @@ from tickets.models import *
 
 
 class UserFactory(factory.DjangoModelFactory):
+
+
     class Meta:
         model = User
+
     first_name = 'John'
     last_name = 'Doe'
     username = factory.Sequence(lambda n : "johndoe {}".format(n))
@@ -31,12 +34,13 @@ class UserFactory(factory.DjangoModelFactory):
 
 
 class ApplicationFactory(factory.DjangoModelFactory):
+
     class Meta:
         model = Application
     application = "MyFakeApp"
 
-
 class TicketFactory(factory.DjangoModelFactory):
+
     class Meta:
         model = Ticket
 
@@ -50,8 +54,8 @@ class TicketFactory(factory.DjangoModelFactory):
     parent = None
     active = True
 
-
 class FollowUpFactory(factory.DjangoModelFactory):
+
     class Meta:
         model = FollowUp
 

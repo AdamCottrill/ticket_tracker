@@ -4,22 +4,42 @@ from django.forms import (Form, ModelForm, CharField, Textarea, BooleanField,
 from django.forms.widgets import Select
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.bootstrap import FormActions
-from crispy_forms.layout import (Submit, Layout, ButtonHolder,  Div, Fieldset,
+from crispy_forms.layout import (Submit, Layout, ButtonHolder, Div, Fieldset,
                                  Field)
 
 from .models import Ticket, FollowUp, TicketDuplicate, Application
 from .utils import is_admin
 
 
+class UserModelChoiceField(ModelChoiceField):
+    '''a custom model choice widget for user objects.  It will
+    displace user first and last name in list of available choices
+    (rather than their official user name). modified from
+    https://docs.djangoproject.com/en/dev/ref/forms/fields/#modelchoicefield.
+    '''
+    def label_from_instance(self, obj):
+        if obj.first_name:
+            label = "{0} {1}".format(obj.first_name, obj.last_name)
+        else:
+            label = obj.__str__()
+        return label
+
+
+
 class TicketForm(ModelForm):
-    '''A model form associated with ticket objects.  Allows ticekts to be
+    '''A model form associated with ticket objects.  Allows tickets to be
     created and updated'''
 
     description = CharField(
         widget=Textarea(
             attrs={'class': 'input-xxlarge'}),
     )
+
+    assigned_to = UserModelChoiceField(
+        queryset=User.objects.filter(groups__name='admin'),
+        label="Assigned To",
+        required=False)
+
 
     def __init__(self, *args, **kwargs):
         super(TicketForm, self).__init__(*args, **kwargs)
@@ -61,8 +81,9 @@ class SplitTicketForm(Form):
                           widget=Select(choices=
                                         Ticket.TICKET_PRIORITY_CHOICES))
 
-    assigned_to1 = ModelChoiceField(queryset=User.objects.all(),
-                                    label="Assigned To", required=False)
+    assigned_to1 = UserModelChoiceField(
+        queryset=User.objects.filter(groups__name='admin'),
+        label="Assigned To", required=False)
 
     description1 = CharField( label="Description",
                               widget=Textarea(attrs={
@@ -83,8 +104,9 @@ class SplitTicketForm(Form):
                               widget=Select(choices=
                                 Ticket.TICKET_PRIORITY_CHOICES))
 
-    assigned_to2 = ModelChoiceField(queryset=User.objects.all(),
-                                    label="Assigned To", required=False)
+    assigned_to2 = UserModelChoiceField(
+        queryset=User.objects.filter(groups__name='admin'),
+        label="Assigned To", required=False)
 
     application2 = ModelChoiceField(queryset=Application.objects.all(),
                                     label="Application")
@@ -128,7 +150,7 @@ class SplitTicketForm(Form):
                     css_class='col-md-6 well'),
                 css_class='row'),
             'comment',
-            FormActions(Submit('submit', 'Split Ticket',
+            ButtonHolder(Submit('submit', 'Split Ticket',
                                 css_class='btn btn-danger pull-right'))
         )
 
@@ -201,13 +223,13 @@ class CloseTicketForm(ModelForm):
                           placeholder='Same as ticket #'),
                         css_class='form-group form-inline'),
                     css_class='row'),
-                FormActions(Submit('submit', 'Close Ticket',
+                ButtonHolder(Submit('submit', 'Close Ticket',
                                     css_class='btn btn-danger pull-right'))
                 )
         else:
             self.helper.layout = Layout(
                 'comment',
-                FormActions(Submit('submit', 'Re-open Ticket',
+                ButtonHolder(Submit('submit', 'Re-open Ticket',
                                  css_class = 'btn btn-default pull-right')))
 
     def clean_same_as_ticket(self):
@@ -305,12 +327,12 @@ class CommentForm(ModelForm):
             self.helper.layout = Layout(
                 'comment',
                 'private',
-                FormActions(Submit('submit', 'Post Comment',
+                ButtonHolder(Submit('submit', 'Post Comment',
                                     css_class='btn btn-default pull-right')))
         else:
             self.helper.layout = Layout(
                 'comment',
-                FormActions(Submit('submit', 'Post Comment',
+                ButtonHolder(Submit('submit', 'Post Comment',
                                  css_class = 'btn btn-default pull-right')))
 
     def save(self, *args, **kwargs):

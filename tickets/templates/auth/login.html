@@ -12,42 +12,42 @@
 
       <!-- Form itself -->
       <form method="POST" action="" class="well">
-	{% csrf_token %}
-	<legend>Login</legend>
+        {% csrf_token %}
+        <legend>Login</legend>
 
-	{% if form.errors %}
-	<div class="alert alert-danger">
-    	  <button type="button" class="close" data-dismiss="alert">×</button>
-	  <ul>
-	    {% for error in form.errors.values %}
-    	    <li>{{ error|striptags }}</li>
-	    {% endfor %}
-	  </ul>
-	</div>
-	{% endif %}
+        {% if form.errors %}
+        <div class="alert alert-danger">
+          <button type="button" class="close" data-dismiss="alert">×</button>
+          <ul>
+            {% for error in form.errors.values %}
+            <li>{{ error|striptags }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
 
-	<!-- Full Name -->
-	<div class="control-group">
+        <!-- Full Name -->
+        <div class="form-group">
           <div class="controls">
-	    <input type="text" class="form-control" name="username"
-		   placeholder="User Name" id="username" required
-		   data-validation-required-message="Please enter your user name" />
-	    <p class="help-block"></p>
-	  </div>
-	</div>
+            <input type="text" class="form-control" name="username"
+                   placeholder="User Name" id="username" required
+                   data-validation-required-message="Please enter your user name" />
+            <p class="help-block"></p>
+          </div>
+        </div>
 
         <!-- Password -->
-	<div class="control-group">
+        <div class="form-group">
           <div class="controls">
-	    <input type="password" class="form-control" placeholder="password"
-		   name="password" id="password" required />
+            <input type="password" class="form-control" placeholder="password"
+                   name="password" id="password" required />
           </div>
-	</div>
+        </div>
 
         <div class="row">
-	  <p>Not registered? <a href="{% url 'register' %}" tabindex="-1">Create an account here.</a>
-	    <button type="submit" class="btn btn-primary pull-right">Login</button><br /></p>
-	</div>
+          <p>Not registered? <a href="{% url 'register' %}" tabindex="-1">Create an account here.</a>
+            <button type="submit" class="btn btn-primary pull-right">Login</button><br /></p>
+        </div>
 
       </form>
     </div>
