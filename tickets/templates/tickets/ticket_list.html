@@ -7,13 +7,6 @@
 
 {% block extra_head %}
 
- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-<!-- bootstrap widget theme -->
-<!-- tablesorter plugin -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.15.14/jquery.tablesorter.js"></script>
-
-<!-- tablesorter widget file - loaded after the plugin -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.15.14/jquery.tablesorter.widgets.js"></script>
 
 {% endblock %}
 
@@ -22,64 +15,421 @@
 
 <div class="container">
 
-  <table cellspacing="0" class="tablesorter">
-    <thead>
-      <tr>
-	<th>Ticket</th>
-	<th>Status</th>
-	<th>Description</th>
-	<th>Application</th>
-	<th>Submitted By</th>
-	<th>Submitted On</th>
-	<th>Ticket Type</th>
-	<th>Priority</th>
-	<th>Votes</th>
-	<th>Assigned to</th>
-      </tr>
-    </thead>
-    </tbody>
-    {% for object in object_list %}
-    <tr>
-      <td><a href="{{ object.get_absolute_url }}">{{object.id}}</a></td>
-      <td>{{object.status | status_btn }}</td>
-      <td><a href="{{ object.get_absolute_url }}">{{  object.name }}</a></td>
-      <td>{{object.application}}</td>
-      <td>{{object.submitted_by}}</td>
-      <td>{{object.created_on}}</td>
-      <td>{{object.ticket_type | ticket_type_btn }}</td>
-
-      <td>{{object.priority | priority_btn }}</td>
-      <td>{{object.votes}}</td>
-      {% if object.assigned_to %}
-      <td>{{ object.assigned_to }} </td>
-      {% else %} <td>Nobody (yet)</td> {% endif %}
+    <div  class="row" >
+        <div id="filter-column" class="col-md-2" >
 
 
-    </tr>
-    {% endfor %}
-    </tbody>
-  </table>
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingOne">
+                        <h6 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Status
+                            </a>
+                        </h6>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+                        <div class="panel-body">
+                            <form id="priority-checkboxes">
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="status-new"> <span class="label-text">New</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="status-accepted"> <span class="label-text">Accepted</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="status-reopened"> <span class="label-text">Re-opened</span>
+                                    </label>
+                                </div>
+
+
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="status-closed"> <span class="label-text">Closed</span>
+                                    </label>
+                                </div>
+
+
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="status-split"> <span class="label-text">Closed Split</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="status-duplicate"> <span class="label-text">Closed Duplicate</span>
+                                    </label>
+                                </div>
+
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingTwo">
+                        <h6 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                                Priority
+                            </a>
+                        </h6>
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                        <div class="panel-body">
+
+                            <form id="priority-checkboxes">
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="priority-critical"> <span class="label-text">Critical</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="priority-high"> <span class="label-text">High</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="priority-normal"> <span class="label-text">Normal</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="priority-low"> <span class="label-text">Low</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="priority-very-low"> <span class="label-text">Very Low</span>
+                                    </label>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingThree">
+                        <h6 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+                                Ticket Type
+                            </a>
+                        </h6>
+                    </div>
+                    <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                        <div class="panel-body">
+                            <form id="ticket-type-checkboxes">
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="type-feature-request">
+                                        <span class="label-text">Feature Request</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="type-bug-report">
+                                        Bug Report
+                                    </label>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingFour">
+                        <h6 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
+                                Application
+                            </a>
+                        </h6>
+                    </div>
+                    <div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
+                        <div class="panel-body">
+                            <form id="application-checkboxes">
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="application-tfat">
+                                        <span class="label-text">TFAT</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="application-fsis-ii">
+                                        <span class="label-text">FSIS-II</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="application-procval">
+                                        <span class="label-text">Proc Val</span>
+                                    </label>
+                                </div>
+
+
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="application-project-tracker">
+                                        <span class="label-text">Project Tracker</span>
+                                    </label>
+                                </div>
+
+
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="application-dbdiff">
+                                        <span class="label-text">db_diff</span>
+                                    </label>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingFive">
+                        <h6 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
+                                Submitted By
+                            </a>
+                        </h6>
+                    </div>
+                    <div id="collapseFive" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFive">
+                        <div class="panel-body">
+                            <form id="assigned-to-checkboxes">
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="submitted-by-cottrillad">
+                                        <span class="label-text">cottrillad</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="submitted-by-leevi">
+                                        <span class="label-text">leevi</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="submitted-by-davisch">
+                                        <span class="label-text">davisch</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="submitted-by-wilsonda">
+                                        <span class="label-text">wilsonda</span>
+                                    </label>
+                                </div>
+
+
+
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="submitted-by-speersje">
+                                        <span class="label-text">speersje</span>
+                                    </label>
+                                </div>
+
+
+
+                            </form>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingSix">
+                        <h6 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSix" aria-expanded="true" aria-controls="collapseSix">
+                                Assigned To
+                            </a>
+                        </h6>
+                    </div>
+                    <div id="collapseSix" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingSix">
+                        <div class="panel-body ">
+                            <form id="assigned-to-checkboxes">
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="assigned-to-none">
+                                        <span class="label-text">Nobody (yet)</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <label>
+                                        <input type="checkbox" name="check" value="assigned-to-cottrillad">
+                                        <span class="label-text">cottrillad</span>
+                                    </label>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="ticket-table-column" class="col-md-10" >
+
+
+            <table cellspacing="0" class="tablesorter">
+                <thead>
+                    <tr>
+                        <th>Ticket</th>
+                        <th>Status</th>
+                        <th>Description</th>
+                        <th>Application</th>
+                        <th>Submitted By</th>
+                        <th>Submitted On</th>
+                        <th>Ticket Type</th>
+                        <th>Priority</th>
+                        <th>Votes</th>
+                        <th>Assigned to</th>
+                    </tr>
+                </thead>
+                <tbody id="ticket-list" >
+                    {% for object in object_list %}
+                    <tr class="ticket" data-category="status-{{ object.status|classify }} type-{{ object.get_ticket_type_display|classify }} priority-{{ object.get_priority_display|classify }} application-{{ object.application|classify }} submitted-by-{{ object.submitted_by|classify }} assigned-to-{{object.assigned_to|classify}}" >
+                        <td><a href="{{ object.get_absolute_url }}">{{object.id}}</a></td>
+                        <td>{{object.status | status_btn }}</td>
+                        <td><a href="{{ object.get_absolute_url }}">{{  object.name }}</a></td>
+                        <td>{{object.application}}</td>
+                        <td>{{object.submitted_by}}</td>
+                        <td>{{object.created_on}}</td>
+                        <td>{{object.ticket_type | ticket_type_btn }}</td>
+
+                        <td>{{object.priority | priority_btn }}</td>
+                        <td>{{object.votes}}</td>
+                        {% if object.assigned_to %}
+                        <td>{{ object.assigned_to }} </td>
+                        {% else %} <td>Nobody (yet)</td> {% endif %}
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+
+        </div>
+
+    </div>
+
+
 </div>
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<!-- bootstrap widget theme -->
+<!-- tablesorter plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.15.14/jquery.tablesorter.js"></script>
+
+<!-- tablesorter widget file - loaded after the plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.15.14/jquery.tablesorter.widgets.js"></script>
 
 
 
 <script type="text/javascript">
 
  $(".tablesorter").tablesorter({
-   theme: 'bootstrap',
-   widthFixed: true,
-   showProcessing: true,
-   headerTemplate: '{content} {icon}',
-   widgets: ['zebra', 'uitheme', 'scroller'],
-   widgetOptions: {
-     scroller_height: 300,
-     scroller_barWidth: 17,
-     scroller_jumpToHeader: true,
-     scroller_idPrefix: 's_'
-   }
+     theme: 'bootstrap',
+     widthFixed: true,
+     showProcessing: true,
+     headerTemplate: '{content} {icon}',
+     widgets: ['zebra', 'uitheme', 'scroller'],
+     widgetOptions: {
+         scroller_height: 300,
+         scroller_barWidth: 17,
+         scroller_jumpToHeader: true,
+         scroller_idPrefix: 's_'
+     }
  });
 
+ /* modified from http://jsfiddle.net/n3EmN/171/ */
+
+ var $filterCheckboxes = $('input[type="checkbox"]');
+
+ $filterCheckboxes.on('change', function() {
+
+     var selectedFilters = {};
+
+     $filterCheckboxes.filter(':checked').each(function() {
+
+         var formId = this.closest('form').id;
+         var ckboxVal = this.value;
+
+         if (!selectedFilters.hasOwnProperty(formId)) {
+             selectedFilters[formId] = [];
+         }
+         selectedFilters[formId].push(ckboxVal);
+
+     });
+
+
+     // create a collection containing all of the filterable elements
+     var filteredResults = $('.ticket');
+
+     // loop over the selected filter name -> (array) values pairs
+     $.each(selectedFilters, function(name, filterValues) {
+
+         // filter each .flower element
+         filteredResults = filteredResults.filter(function() {
+
+             var matched = false;
+             var currentFilterValues = $(this).data('category').split(' ');
+
+             // loop over each category value in the current .flower's data-category
+             $.each(currentFilterValues, function(_, currentFilterValue) {
+
+                 // if the current category exists in the selected filters array
+                 // set matched to true, and stop looping. as we're ORing in each
+                 // set of filters, we only need to match once
+
+                 if ($.inArray(currentFilterValue, filterValues) != -1) {
+                     matched = true;
+                     return false;
+                 }
+             });
+
+             // if matched is true the current .flower element is returned
+             return matched;
+
+         });
+     });
+
+     $('.ticket').hide().filter(filteredResults).show();
+
+ });
+
+
+
 </script>
+
 
 
 
