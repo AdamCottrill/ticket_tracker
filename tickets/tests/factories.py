@@ -2,44 +2,37 @@ import factory
 from datetime import datetime
 from django.contrib.auth.models import User
 
+from tickets.models import Ticket, FollowUp, Application
 
-from tickets.models import *
 
-
-class UserFactory(factory.DjangoModelFactory):
-
+class UserFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = User
 
     first_name = 'John'
     last_name = 'Doe'
-    username = factory.Sequence(lambda n : "johndoe {}".format(n))
+    username = factory.Sequence(lambda n: "johndoe {}".format(n))
     email = 'johndoe@hotmail.com'
     password = 'Abcdef12'
     is_active = True
 
-    #from:
-    #http://www.rkblog.rk.edu.pl/w/p/using-factory-boy-django-application-tests/
     @classmethod
-    def _prepare(cls, create, **kwargs):
-        password = kwargs.pop('password', None)
-        user = super(UserFactory, cls)._prepare(create, **kwargs)
-        if password:
-            user.raw_password = password
-            user.set_password(password)
-            if create:
-                user.save()
-        return user
+    def _create(cls, model_class, *args, **kwargs):
+        """Override the default ``_create`` with our custom call."""
+        manager = cls._get_manager(model_class)
+        # The default would use ``manager.create(*args, **kwargs)``
+        return manager.create_user(*args, **kwargs)
 
 
-class ApplicationFactory(factory.DjangoModelFactory):
+class ApplicationFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Application
     application = "MyFakeApp"
 
-class TicketFactory(factory.DjangoModelFactory):
+
+class TicketFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Ticket
@@ -54,7 +47,8 @@ class TicketFactory(factory.DjangoModelFactory):
     parent = None
     active = True
 
-class FollowUpFactory(factory.DjangoModelFactory):
+
+class FollowUpFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = FollowUp

@@ -89,7 +89,7 @@ STATICFILES_FINDERS = (
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'jkb60_2g^-2n(z7nwv(5h)mb44g=qvc1&amp;54ckm6iof0bcg0$)n'
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = [
 
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -99,7 +99,7 @@ MIDDLEWARE_CLASSES = (
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
-)
+]
 
 #INTERNAL_IPS = ('127.0.0.1',)
 

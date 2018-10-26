@@ -18,7 +18,7 @@ urlpatterns = [
     url(r'^$', TicketListView.as_view(), name='index'),
 
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
 
     url(r'^ticket/', include('tickets.urls')),
 

@@ -2,9 +2,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
   <head>
-    <title>{% block title %}{% endblock %}Simple Ticket</title>
-    <!--     <link rel="stylesheet" href="{{ STATIC_URL }}style.css" type="text/css" media="screen" /> -->
-    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+      <title>{% block title %}{% endblock %}Simple Ticket</title>
+      <!--     <link rel="stylesheet" href="{{ STATIC_URL }}style.css" type="text/css" media="screen" /> -->
+
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
     {% block extra_head %}
     {% endblock %}
@@ -45,7 +46,7 @@
               <li><a href="{% url 'closed_tickets' %}">Closed Tickets</a></li>
               <li class="divider"></li>
               <li><a href="{% url 'bug_reports' %}">Bug Reports</a></li>
-              <li><a href="{% url 'feature_requests' %}">Feature Requests</a></li>            
+              <li><a href="{% url 'feature_requests' %}">Feature Requests</a></li>
             </ul>
             {% if user.is_staff %}
             <li><a href="/admin/">Admin</a></li>
