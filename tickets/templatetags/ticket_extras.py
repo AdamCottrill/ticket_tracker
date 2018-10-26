@@ -83,6 +83,14 @@ def classify(ticket_attribute):
 
     '''
 
-    classString = ticket_attribute.replace(' ', '-').lower()
+    classString = ticket_attribute.replace(' ', '-').replace('_', '-').lower()
 
     return mark_safe(classString)
+
+
+@register.filter
+@stringfilter
+def space(string):
+    '''A simple little template filter to replace underscores with spaces
+    '''
+    return mark_safe(string.replace('_', ' '))

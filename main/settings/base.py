@@ -206,5 +206,5 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 LOGIN_REDIRECT_URL = '/ticket'
 LOGIN_URL = '/accounts/login/'
 
-LINK_PATTERNS = [{'pattern': r'ticket:\s(\d+)',
+LINK_PATTERNS = [{'pattern': r'ticket:\s?(\d+)',
                   'url': r'<a href="/ticket/\1">ticket \1</a>'}]

@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -58,6 +60,48 @@ class TicketListViewBase(ListView):
     model = Ticket
 
 
+def get_ticket_filters():
+    """Return a dictionary that will be used to create the dynamic filters
+    on the fitler lists.  There will be one element for each filter
+    (status, application, ticket type, priority, submitted by, and
+    assigned to.
+
+    """
+
+    values = Ticket.TICKET_STATUS_CHOICES
+    status = [x[0] for x in values]
+
+    values = Ticket.TICKET_PRIORITY_CHOICES
+    priority = [x[1] for x in values]
+
+    values = Ticket.TICKET_TYPE_CHOICES
+    ticket_types = [x[1] for x in values]
+
+    values = Ticket.objects.all().values_list('application__application')\
+                                 .distinct()
+    applications = [x[0] for x in values]
+
+    values = Ticket.objects.all().values_list('submitted_by__username')\
+                                 .distinct()
+    submitted_by = [x[0] for x in values]
+
+    values = Ticket.objects.all().values_list('assigned_to__username')\
+                                 .distinct()
+    assigned_to = [x[0] for x in values]
+
+    ticket_filters = OrderedDict()
+
+    ticket_filters['status'] = status
+    ticket_filters['application'] = applications
+    ticket_filters['priority'] = priority
+    ticket_filters['type'] = ticket_types
+    ticket_filters['submitted_by'] = submitted_by
+    ticket_filters['assigned_to'] = assigned_to
+
+    return ticket_filters
+
+
+
 class TicketListView(TicketListViewBase):
     '''
     A view to render a list of tickets. If a query string and/or a
@@ -75,6 +119,17 @@ class TicketListView(TicketListViewBase):
     :template:`/tickets/ticket_list.html`
 
     '''
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+
+        context['filters'] = get_ticket_filters()
+        return context
+
+
+
+
 
     def get_queryset(self):
         q = self.request.GET.get("q")
