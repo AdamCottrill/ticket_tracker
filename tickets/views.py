@@ -59,6 +59,14 @@ class TicketListViewBase(ListView):
     '''A base class for all ticket listviews.'''
     model = Ticket
 
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+
+        context['filters'] = get_ticket_filters()
+        return context
+
+
 
 def get_ticket_filters():
     """Return a dictionary that will be used to create the dynamic filters
@@ -71,7 +79,8 @@ def get_ticket_filters():
     values = Ticket.TICKET_STATUS_CHOICES
     status = [x[0] for x in values]
 
-    values = Ticket.TICKET_PRIORITY_CHOICES
+    values = sorted(Ticket.TICKET_PRIORITY_CHOICES,
+                    key=lambda x: x[0])
     priority = [x[1] for x in values]
 
     values = Ticket.TICKET_TYPE_CHOICES
@@ -119,17 +128,6 @@ class TicketListView(TicketListViewBase):
     :template:`/tickets/ticket_list.html`
 
     '''
-
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super().get_context_data(**kwargs)
-
-        context['filters'] = get_ticket_filters()
-        return context
-
-
-
-
 
     def get_queryset(self):
         q = self.request.GET.get("q")
@@ -219,6 +217,17 @@ class BugTicketListView(TicketListViewBase):
 
     '''
 
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+
+        filters = get_ticket_filters()
+        filters.pop('type')
+        context['filters'] = filters
+        return context
+
+
+
     def get_queryset(self):
         return Ticket.objects.filter(
             ticket_type='bug').order_by("-created_on")
@@ -238,6 +247,17 @@ class FeatureTicketListView(TicketListViewBase):
     :template:`/tickets/ticket_list.html`
 
     '''
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+
+        filters = get_ticket_filters()
+        filters.pop('type')
+        context['filters'] = filters
+        return context
+
+
     def get_queryset(self):
         return Ticket.objects.filter(
             ticket_type='feature').order_by("-created_on")
