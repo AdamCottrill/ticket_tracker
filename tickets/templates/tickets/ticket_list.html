@@ -20,6 +20,8 @@
             {% include 'tickets/ticket_filters.html' %}
         </div>
 
+        {% if object_list %}
+
         <div id="ticket-table-column" class="col-md-10" >
 
 
@@ -59,7 +61,9 @@
                     {% endfor %}
                 </tbody>
             </table>
-
+            {% else %}
+            <h4>No Tickets Found.</h4>
+            {% endif %}
 
         </div>
 

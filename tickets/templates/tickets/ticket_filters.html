@@ -1,0 +1,31 @@
+{% load ticket_extras %}
+
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+    {% for filter, values in filters.items %}
+
+    <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="heading{{ forloop.counter }}">
+            <h6 class="panel-title">
+                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}">
+                    {{ filter | space | title }}
+                </a>
+            </h6>
+        </div>
+        <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+            <div class="panel-body">
+                <form id="{{ filter }}-checkboxes">
+                    {% for value in values %}
+                    <div class="form-check">
+                        <label>
+                            <input type="checkbox" name="check" value="{{ filter|classify }}-{{ value|classify }}"> <span class="label-text">{{ value|title }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </form>
+
+            </div>
+        </div>
+    </div>
+    {% endfor %}  <!-- filter loop -->
+</div>

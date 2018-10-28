@@ -3,6 +3,7 @@ from collections import OrderedDict
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import RequestContext
@@ -132,31 +133,32 @@ class TicketListView(TicketListViewBase):
     def get_queryset(self):
         q = self.request.GET.get("q")
         userid = self.kwargs.pop('userid', None)
+        what = self.kwargs.pop('what', None)
+
+        tickets = Ticket.objects.order_by("-created_on")\
+                                .prefetch_related('application',
+                                                  'submitted_by',
+                                                  'assigned_to')
 
         try:
             user = User.objects.get(id=userid)
         except User.DoesNotExist:
             user = None
 
-        # Fetch the queryset from the parent's get_queryset
-        # Get the q GET parameter
-        if user and q:
-            #NOTE - there is currenly no way to get here from our
-            # existing templates.
-            return Ticket.objects.filter(
-                submitted_by=user,
-                description__icontains=q).order_by("-created_on")
-        elif q:
-            # return a filtered queryset
-            return Ticket.objects.filter(
-                description__icontains=q).order_by("-created_on")
+        if q:
+            tickets = tickets.filter(description__icontains=q)
 
-        elif user:
-            return Ticket.objects.filter(
-                submitted_by=user).order_by("-created_on")
+        if user:
+            if what == 'submitted_by':
+                return tickets.filter(submitted_by=user)
+            elif what == 'assigned_to':
+                return tickets.filter(assigned_to=user)
+            else:
+                return tickets.filter(Q(submitted_by=user) |
+                                      Q(assigned_to=user))
         else:
             # No q or user is specified so we return the full queryset
-            return Ticket.objects.all().order_by("-created_on")
+            return tickets.all()
 
 
 class ClosedTicketListView(TicketListViewBase):
@@ -227,7 +229,6 @@ class BugTicketListView(TicketListViewBase):
         return context
 
 
-
     def get_queryset(self):
         return Ticket.objects.filter(
             ticket_type='bug').order_by("-created_on")
@@ -256,7 +257,6 @@ class FeatureTicketListView(TicketListViewBase):
         filters.pop('type')
         context['filters'] = filters
         return context
-
 
     def get_queryset(self):
         return Ticket.objects.filter(

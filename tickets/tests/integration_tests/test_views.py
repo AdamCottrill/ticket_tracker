@@ -245,6 +245,28 @@ class TicketTestCase(TestCase):
         self.assertContains(response, linktext, html=True)
 
 
+class EmptyTicketListTestCase(TestCase):
+    '''If there are not tickets in the ticket list query set, a usefull
+    message should appear in the response.
+    '''
+
+    def setUp(self):
+
+        pass
+
+    def test_empty_ticket_list(self):
+        '''this view should return all of our tickets'''
+
+        url = (reverse('ticket_list'))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "tickets/ticket_list.html")
+
+        self.assertContains(response,
+                            'No Tickets Found.')
+
+
+
 class TicketListTestCase(TestCase):
     '''There are a number of views that present various subsets of
     ticket in list form - verify that those lists contain the
@@ -255,6 +277,7 @@ class TicketListTestCase(TestCase):
 
         self.user1 = UserFactory(first_name='Homer',
                                  last_name='Simpson')
+
 
         desc = "This ticket is new. findme."
         self.ticket1 = TicketFactory(status='new',
@@ -268,7 +291,8 @@ class TicketListTestCase(TestCase):
 
         self.ticket3 = TicketFactory(status='assigned',
                                      ticket_type='feature',
-                                     description="This ticket is assigned.")
+                                     description="This ticket is assigned.",
+                                     assigned_to=self.user1)
 
         desc = "This ticket is reopened. findme."
         self.ticket4 = TicketFactory(status='reopened',
@@ -330,9 +354,33 @@ class TicketListTestCase(TestCase):
 
     def test_my_tickets_list(self):
         '''this view should return only those tickets that belong to
-        our user
+        our user - they are either submitted by him or assinged to him
         '''
         url = reverse('my_ticket_list', kwargs={'userid': self.user1.id})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "tickets/ticket_list.html")
+
+        # ticket 1 and 2 were created by homer and ticket 3 is assiged to him.:
+        self.assertContains(response, self.ticket1.name())
+        self.assertContains(response, self.ticket2.name())
+        self.assertContains(response, self.ticket3.name())
+        # these were not:
+        self.assertNotContains(response, self.ticket4.name())
+        self.assertNotContains(response, self.ticket5.name())
+        self.assertNotContains(response, self.ticket6.name())
+        self.assertNotContains(response, self.ticket7.name())
+
+        # the inactive ticket should not be in the list
+        self.assertNotContains(response, self.ticket8.name())
+
+
+    def test_my_submitted_tickets_list(self):
+        '''this view should return only those tickets that where submitted by
+        Homer.  Not the tickets submitted by others and assigned to him.
+
+        '''
+        url = reverse('submitted_by', kwargs={'userid': self.user1.id})
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
@@ -340,8 +388,33 @@ class TicketListTestCase(TestCase):
         # ticket 1 and 2 were created by homer:
         self.assertContains(response, self.ticket1.name())
         self.assertContains(response, self.ticket2.name())
+
         # these were not:
         self.assertNotContains(response, self.ticket3.name())
+        self.assertNotContains(response, self.ticket4.name())
+        self.assertNotContains(response, self.ticket5.name())
+        self.assertNotContains(response, self.ticket6.name())
+        self.assertNotContains(response, self.ticket7.name())
+
+        # the inactive ticket should not be in the list
+        self.assertNotContains(response, self.ticket8.name())
+
+
+    def test_my_assigned_tickets_list(self):
+        '''this view should return only those tickets that are assigned to
+        Homer.  Not the tickets he submitted and are assigned to someone else.
+
+        '''
+        url = reverse('assigned_to', kwargs={'userid': self.user1.id})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "tickets/ticket_list.html")
+
+        # ticket 3 is the only ticket currently assigned to Homer
+        self.assertContains(response, self.ticket3.name())
+        # these were not:
+        self.assertNotContains(response, self.ticket1.name())
+        self.assertNotContains(response, self.ticket2.name())
         self.assertNotContains(response, self.ticket4.name())
         self.assertNotContains(response, self.ticket5.name())
         self.assertNotContains(response, self.ticket6.name())
