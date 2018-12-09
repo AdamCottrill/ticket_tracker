@@ -22,6 +22,7 @@ class TicketUpdateTestCase(WebTest):
         self.user2 = UserFactory(username='bgumble',
                                  first_name='Barney',
                                  last_name='Gumble',
+                                 password='Abcdef12',
                                  is_staff=True)
 
         self.user3 = UserFactory(username='hsimpson',
@@ -39,7 +40,7 @@ class TicketUpdateTestCase(WebTest):
         self.ticket = TicketFactory(submitted_by=self.user,
                                     status=self.status,
                                     ticket_type=self.ticket_type,
-                                    description = self.description,
+                                    description=self.description,
                                     priority=self.priority)
 
     def test_update_not_logged_in(self):
@@ -94,19 +95,16 @@ class TicketUpdateTestCase(WebTest):
 
         form = response.forms['ticket']
 
-        form['status'] = 'accepted'
         form['ticket_type'] = 'feature'
         form['description'] = "Nevermind it is OK."
         form['priority'] = 4
 
         response = form.submit().follow()
 
-        print("response = %{}".format(response))
-
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
 
-        self.assertContains(response, 'Accepted')
+        self.assertContains(response, 'New</button>')
         self.assertContains(response, 'Feature Request')
         self.assertContains(response, "Nevermind it is OK.")
 
@@ -127,7 +125,6 @@ class TicketUpdateTestCase(WebTest):
 
         form = response.forms['ticket']
 
-        form['status'] = 'accepted'
         form['ticket_type'] = 'feature'
         form['description'] = "Nevermind it is OK."
         form['priority'] = 4
@@ -136,7 +133,7 @@ class TicketUpdateTestCase(WebTest):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
 
-        self.assertContains(response, 'Accepted')
+        self.assertContains(response, 'New</button>')
         self.assertContains(response, 'Feature Request')
         self.assertContains(response, "Nevermind it is OK.")
 
@@ -145,18 +142,18 @@ class TicketUpdateTestCase(WebTest):
         to.
         '''
 
-        login = self.client.login(username=self.user.username,
+        login = self.client.login(username=self.user2.username,
                                   password='Abcdef12')
         self.assertTrue(login)
 
-        url = reverse('update_ticket',
+        url = reverse('assign_ticket',
                       kwargs=({'pk': self.ticket.id}))
-        response = self.app.get(url, user=self.user)
+        response = self.app.get(url, user=self.user2)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tickets/ticket_form.html')
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
 
-        form = response.forms['ticket']
+        form = response.forms['comment']
 
         # user2 is the only user who belongs to the admin group in this
         # test, he is the only one who should appear as an option int
@@ -368,7 +365,6 @@ class CommentTicketTestCase(WebTest):
         url = reverse('comment_ticket',
                       kwargs=({'pk': self.ticket.id}))
 
-        print("url = " + url)
         response = self.app.get(url)
         location = response['Location']
         new_url = '{0}?next={1}'.format(reverse('login'), url)
@@ -418,7 +414,6 @@ class CommentTicketTestCase(WebTest):
         self.assertTemplateUsed(response, 'tickets/comment_form.html')
 
         form = response.forms['comment']
-        form['comment'] = 'What a great idea'
 
         # private should not be on of the available fields.
         self.assertNotIn('private', form.fields.keys())
@@ -540,7 +535,8 @@ class CloseTicketTestCase(WebTest):
         response = self.app.get(url, user=self.user2)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        self.assertTemplateUsed(response,
+                                'tickets/close_reopen_ticket_form.html')
 
         form = response.forms['comment']
 
@@ -591,7 +587,7 @@ class CloseTicketTestCase(WebTest):
         response = self.app.get(url, user=self.user2)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        self.assertTemplateUsed(response, 'tickets/close_reopen_ticket_form.html')
 
         form = response.forms['comment']
 
@@ -650,7 +646,7 @@ class CloseTicketTestCase(WebTest):
         response = self.app.get(url, user=self.user2)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        self.assertTemplateUsed(response, 'tickets/close_reopen_ticket_form.html')
 
         form = response.forms['comment']
 
@@ -688,7 +684,7 @@ class CloseTicketTestCase(WebTest):
         response = self.app.get(url, user=self.user2)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        self.assertTemplateUsed(response, 'tickets/close_reopen_ticket_form.html')
 
         form = response.forms['comment']
 
@@ -699,7 +695,7 @@ class CloseTicketTestCase(WebTest):
 
         response = form.submit()
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        self.assertTemplateUsed(response, 'tickets/close_reopen_ticket_form.html')
         errmsg = "Invalid ticket number. A ticket cannot duplicate itself."
         self.assertContains(response, msg)
         self.assertContains(response, errmsg)
@@ -722,7 +718,7 @@ class CloseTicketTestCase(WebTest):
         response = self.app.get(url, user=self.user2)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        self.assertTemplateUsed(response, 'tickets/close_reopen_ticket_form.html')
 
         form = response.forms['comment']
 
@@ -732,8 +728,9 @@ class CloseTicketTestCase(WebTest):
 
         response = form.submit()
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tickets/comment_form.html')
-        errmsg = "Duplicate true, no ticket number provided."
+        self.assertTemplateUsed(response, 'tickets/close_reopen_ticket_form.html')
+
+        errmsg = "Duplicate is true but no ticket number is provided."
         self.assertContains(response, msg)
         self.assertContains(response, errmsg)
 
@@ -757,7 +754,8 @@ class CloseTicketTestCase(WebTest):
         response = self.app.get(url, user=self.user2)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+        self.assertTemplateUsed(response,
+                                'tickets/close_reopen_ticket_form.html')
 
         form = response.forms['comment']
 
@@ -767,8 +765,9 @@ class CloseTicketTestCase(WebTest):
 
         response = form.submit()
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tickets/comment_form.html')
-        errmsg = "Duplicate false, ticket number provided."
+        self.assertTemplateUsed(response,
+                                'tickets/close_reopen_ticket_form.html')
+        errmsg = "Duplicate is false and a ticket number was provided."
         self.assertContains(response, msg)
         self.assertContains(response, errmsg)
 

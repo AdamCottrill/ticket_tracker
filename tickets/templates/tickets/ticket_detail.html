@@ -55,7 +55,7 @@
     <div class="row">
       <div class="pull-right">
 	{%  if object.is_closed %}
-	<button type="button" class="btn btn-info btn-sm" disabled="disabled">Update</button>
+	<button type="button" class="btn btn-info btn-sm" disabled="disabled">Edit Details</button>
     	{% if user.is_staff %}
     	<a href="{% url 'reopen_ticket' object.id %}">
     	  <button type="button" class="btn btn-info btn-sm">Re-Open</button></a>
@@ -63,12 +63,24 @@
   	{% else %}
     	{% if user.is_staff or user == object.submitted_by %}
 	<a href="{% url 'update_ticket' object.id %}">
-	  <button type="button" class="btn btn-info btn-sm">Update</button></a>
+	  <button type="button" class="btn btn-info btn-sm">Edit Details</button></a>
 	{% endif %}
 	{% endif %}
 	<a href="{% url 'comment_ticket' object.id %}">
-	  <button type="button" class="btn btn-info btn-sm">Comment</button></a>
+	    <button type="button" class="btn btn-info btn-sm">Comment</button></a>
 	{%  if object.is_closed == False and user.is_staff %}
+        {% if object.status == 'new' %}
+	<a href="{% url 'accept_ticket' object.id %}">
+	    <button type="button" class="btn btn-success btn-sm">Accept</button></a>
+	<a href="{% url 'assign_ticket' object.id %}">
+	    <button type="button" class="btn btn-success btn-sm">Accept and Assign</button></a>
+        {% elif object.status == 'accepted' %}
+	<a href="{% url 'assign_ticket' object.id %}">
+	    <button type="button" class="btn btn-success btn-sm">Assign</button></a>
+        {% elif object.status == 'assigned' %}
+	<a href="{% url 'assign_ticket' object.id %}">
+	    <button type="button" class="btn btn-success btn-sm">Re-assign</button></a>
+        {% endif %}
 	<a href="{% url 'split_ticket' object.id %}">
 	  <button type="button" class="btn btn-warning btn-sm">Split</button></a>
 	<a href="{% url 'close_ticket' object.id %}">
@@ -146,9 +158,9 @@
 
 	  {% else %}
 
-	  <p>{% if comment.private %}  
+	  <p>{% if comment.private %}
 	    <button class="btn btn-warning btn-xs" type="submit">private</button>
-	    {% endif %}   
+	    {% endif %}
 	    On {{ comment.created_on }} {{ comment.submitted_by }} wrote:</p>
 	  {{ comment.comment_html|safe }}
 	  {% endif %}

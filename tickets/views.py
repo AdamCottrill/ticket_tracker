@@ -6,13 +6,13 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template import RequestContext
 from django.views.generic.list import ListView
 from django.views.generic import DetailView
 
-
-from .models import Ticket, UserVoteLog, FollowUp, TicketDuplicate
-from .forms import TicketForm, CloseTicketForm, SplitTicketForm, CommentForm
+from .models import Ticket, UserVoteLog, FollowUp
+from .forms import (TicketForm, CloseTicketForm, SplitTicketForm,
+                    #CommentForm,
+                    AcceptTicketForm, AssignTicketForm, CommentTicketForm)
 from .utils import is_admin
 
 
@@ -301,12 +301,10 @@ def TicketUpdateView(request, pk=None,
         if form.is_valid():
             new_ticket = form.save()
             return HttpResponseRedirect(new_ticket.get_absolute_url())
-
     else:
         form = TicketForm(instance=ticket)
 
     return render(request, template_name, {'form': form})
-
 
 
 @login_required
@@ -341,7 +339,7 @@ def SplitTicketView(request, pk=None,
     if is_admin(request.user) is False:
         return HttpResponseRedirect(ticket.get_absolute_url())
 
-    #start with the same data in both tickets as the original.
+    # start with the same data in both tickets as the original.
     initial = {
         'status1': 'new',
         'ticket_type1': ticket.ticket_type,
@@ -370,59 +368,58 @@ def SplitTicketView(request, pk=None,
 
 
 @login_required
-def TicketFollowUpView(request, pk, action='close',
-                       template_name='tickets/comment_form.html'):
-    '''
-    This view is used by administrators to close and re-open tickets.
-    Tickets can be closed outright or as a duplicate.  In all cases a
-    comment (explanation) is required.
-
-   **Context:**
-
-    ``ticket``
-        a :model:`ticket.Ticket` object.
-
-    ``form``
-        an instance of a CloseTicketForm
-
-    **Template:**
-
-    :template:`/tickets/comment_form.html`
-
-    '''
-
-    try:
-        ticket = Ticket.objects.get(pk=pk)
-    except Ticket.DoesNotExist:
-        url = reverse('ticket_list')
-        return HttpResponseRedirect(url)
-
-    if not is_admin(request.user):
-        return redirect(ticket.get_absolute_url())
-
-    if request.POST:
-        form = CloseTicketForm(request.POST, ticket=ticket,
-                               user=request.user, action=action)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(ticket.get_absolute_url())
-        else:
-            render(request, template_name, {'form': form, 'ticket': ticket})
-
-    else:
-        form = CloseTicketForm(ticket=ticket, user=request.user,
-                           action=action)
-
-    return render(request, template_name, {'form': form, 'ticket': ticket})
-
+##def TicketFollowUpView(request, pk, action='closed',
+##                       template_name='tickets/comment_form.html'):
+##
+##    '''This view is used by administrators to accept, assign, close and
+##    re-open tickets.  Tickets can be closed outright or as a
+##    duplicate.  In all cases a comment (explanation) is required.
+##
+##   **Context:**
+##
+##    ``ticket``
+##        a :model:`ticket.Ticket` object.
+##
+##    ``form``
+##        an instance of a CloseTicketForm
+##
+##    **Template:**
+##
+##    :template:`/tickets/comment_form.html`
+##
+##    '''
+##
+##    try:
+##        ticket = Ticket.objects.get(pk=pk)
+##    except Ticket.DoesNotExist:
+##        url = reverse('ticket_list')
+##        return HttpResponseRedirect(url)
+##
+##    if not is_admin(request.user):
+##        return redirect(ticket.get_absolute_url())
+##
+##    if request.POST:
+##        form = CloseTicketForm(request.POST, ticket=ticket,
+##                               user=request.user, action=action)
+##        if form.is_valid():
+##            form.save()
+##            return HttpResponseRedirect(ticket.get_absolute_url())
+##        else:
+##            render(request, template_name, {'form': form, 'ticket': ticket})
+##
+##    else:
+##        form = CloseTicketForm(ticket=ticket, user=request.user,
+##                           action=action)
+##
+##    return render(request, template_name, {'form': form, 'ticket': ticket})
+##
 
 #==============================
 @login_required
-def TicketCommentView(request, pk,
-                      template_name='tickets/comment_form.html'):
+def TicketCommentView(request, pk, action='comment'):
 
     '''
-    Add a comment to a ticket. f the user is an administrator,
+    Add a comment to a ticket. If the user is an administrator,
     this view is also used to close and re-open tickets.
     (i.e. create a new :model:FollowUp
     object).  No actions are associated with the new FollowUp object.
@@ -436,7 +433,7 @@ def TicketCommentView(request, pk,
         an instance of a CommentForm
 
     **Template:**
-
+            template = 'tickets/close_repopen_ticket_form.html'
     :template:`/tickets/comment_form.html`
 
     '''
@@ -447,20 +444,53 @@ def TicketCommentView(request, pk,
         url = reverse('ticket_list')
         return HttpResponseRedirect(url)
 
+    if not is_admin(request.user) and action != 'comment':
+        return redirect(ticket.get_absolute_url())
+
+    if action == 'closed' or action == 'reopened':
+        template = 'tickets/close_reopen_ticket_form.html'
+    else:
+        template = 'tickets/comment_form.html'
+
     if request.POST:
-        form = CommentForm(request.POST, ticket=ticket,
-                           user=request.user)
+        if action == 'closed' or action == 'reopened':
+            form = CloseTicketForm(request.POST, ticket=ticket,
+                                   user=request.user,
+                                   action=action)
+        elif action == 'comment':
+            form = CommentTicketForm(request.POST, ticket=ticket,
+                                     user=request.user)
+        elif action == 'accept':
+            form = AcceptTicketForm(request.POST, ticket=ticket,
+                                    user=request.user)
+        else:
+            form = AssignTicketForm(request.POST, ticket=ticket,
+                                    user=request.user)
+
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(ticket.get_absolute_url())
         else:
-            render(request, template_name, {'form': form, 'ticket': ticket})
-
+            render(request,
+                   template,
+                   {'form': form, 'ticket': ticket, 'action': action})
     else:
-        form = CommentForm(ticket=ticket, user=request.user)
+        if action == 'closed' or action == 'reopened':
+            form = CloseTicketForm(ticket=ticket,
+                                   user=request.user,
+                                   action=action)
+        elif action == 'comment':
+            form = CommentTicketForm(ticket=ticket, user=request.user)
+        elif action == 'accept':
+            form = AcceptTicketForm(ticket=ticket, user=request.user)
+        else:
+            if ticket.assigned_to and action == 'assign':
+                action = 're-assign'
+            form = AssignTicketForm(ticket=ticket, user=request.user)
 
-    return render(request, template_name, {'form': form, 'ticket': ticket})
-
+    return render(request,
+                  template,
+                  {'form': form, 'ticket': ticket, 'action': action})
 
 
 @login_required

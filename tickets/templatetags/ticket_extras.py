@@ -79,7 +79,7 @@ def ticket_type_btn(ticket_type, btn_size="xs"):
 @stringfilter
 def classify(ticket_attribute):
     '''Given a ticket attribute, return a string representation that could
-    be used to to assing a class in an html template.
+    be used to to assign a class in an html template.
 
     '''
 
@@ -94,3 +94,28 @@ def space(string):
     '''A simple little template filter to replace underscores with spaces
     '''
     return mark_safe(string.replace('_', ' '))
+
+
+
+
+@register.filter
+@stringfilter
+def format_action(string):
+    '''A simple little template filter to return a title case, presence
+    tense version of a ticket action
+
+    '''
+
+    action_map = {
+        'reopened': 'Re-Open',
+        'closed': 'Close',
+        'new': 'New',
+        'accept': 'Accept',
+        'comment': 'Comment on ',
+        'assigned': 'Assign',
+        're-assign': 'Accept And Assign',
+        'duplicate': 'Duplicate',
+        'split': 'Split',
+    }
+
+    return mark_safe(action_map.get(string, string))

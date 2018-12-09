@@ -44,7 +44,8 @@
                     {% for object in object_list %}
                     <tr class="ticket" data-category="status-{{ object.status|classify }} type-{{ object.get_ticket_type_display|classify }} priority-{{ object.get_priority_display|classify }} application-{{ object.application|classify }} submitted-by-{{ object.submitted_by|classify }} assigned-to-{{object.assigned_to|classify}}" >
                         <td><a href="{{ object.get_absolute_url }}">{{object.id}}</a></td>
-                        <td>{{object.status | status_btn }}</td>
+                        <td><a href="{{ object.get_absolute_url }}">
+                            {{object.status | status_btn }}</a></td>
                         <td><a href="{{ object.get_absolute_url }}">{{  object.name }}</a></td>
                         <td>{{object.application}}</td>
                         <td>{{object.submitted_by}}</td>

@@ -1,0 +1,25 @@
+{% extends "tickets/tickets_base.html" %}
+
+
+{% load ticket_extras %}
+{% load crispy_forms_tags %}
+
+{% block title %} {{ action | format_action }} Ticket #{{ ticket.id }} {% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <h2>{{ action | format_action }} Ticket #{{ ticket.id }}</h2>
+    <br />
+    <div  class="row" >
+        <div class="col-md-6">
+            <b>Ticket Description:</b>
+            <div class="row well">
+                {{ ticket.description_html | safe }}
+            </div>
+            {% crispy form form.helper 'bootstrap3' %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

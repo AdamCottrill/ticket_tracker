@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.contrib.auth.models import Group
 
 from tickets.models import *
-from tickets.forms import (TicketForm, CloseTicketForm, CommentForm,
+from tickets.forms import (TicketForm, CloseTicketForm,
                            SplitTicketForm)
 from tickets.tests.factories import *
 
@@ -30,7 +30,6 @@ class TestTicketForm(TestCase):
         '''verify that the same data comes out as went in'''
 
         initial = {
-            'assigned_to': self.user1.id,
             'status': 'new',
             'application': 1,
             'ticket_type': 'bug',
@@ -43,8 +42,6 @@ class TestTicketForm(TestCase):
 
         self.assertTrue(form.is_valid())
         #check the data
-        self.assertEqual(form.cleaned_data['assigned_to'], self.user1)
-        self.assertEqual(form.cleaned_data['status'], 'new')
         self.assertEqual(form.cleaned_data['ticket_type'], 'bug')
         self.assertEqual(form.cleaned_data['description'], 'this is a test')
         self.assertEqual(form.cleaned_data['priority'], 3)
@@ -69,8 +66,9 @@ class TestTicketForm(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_missing_status(self):
-        '''Status is a required field - the form should not be valid
-        if status is omitted.
+        '''Status is no longer a required field as it is inferred from actions
+        applied to each ticket rather than entered as a field on a form.
+
         '''
 
         initial = {
@@ -84,7 +82,7 @@ class TestTicketForm(TestCase):
         }
 
         form = TicketForm(data=initial, instance=self.ticket)
-        self.assertFalse(form.is_valid())
+        self.assertTrue(form.is_valid())
 
     def test_missing_ticket_type(self):
         '''Ticket type is a required field - the form should not be valid
@@ -102,86 +100,62 @@ class TestTicketForm(TestCase):
         form = TicketForm(data=initial, instance=self.ticket)
         self.assertFalse(form.is_valid())
 
-    def test_missing_assinged_to_OK(self):
-        '''Assigned to is an optional field, the form should still
-        validate without it.
-        '''
-
-        initial = {
-            #'assigned_to': 1,
-            'status': 'new',
-            'application': self.app.id,
-            'ticket_type': 'bug',
-            'description': 'this is a test',
-            'priority': 3,
-
-        }
-
-        form = TicketForm(data=initial, instance=self.ticket)
-        self.assertTrue(form.is_valid())
-
-        #check the data
-        self.assertEqual(form.cleaned_data['assigned_to'], None)
-        self.assertEqual(form.cleaned_data['status'], 'new')
-        self.assertEqual(form.cleaned_data['ticket_type'], 'bug')
-        self.assertEqual(form.cleaned_data['description'], 'this is a test')
-        self.assertEqual(form.cleaned_data['priority'], 3)
 
     def tearDown(self):
         pass
 
 
-class TestCommentForm(TestCase):
-
-    def setUp(self):
-
-        self.user = UserFactory()
-        self.ticket = TicketFactory.build(submitted_by=self.user)
-        self.comment = FollowUpFactory.build(ticket=self.ticket)
-
-    @pytest.mark.django_db
-    def test_good_data(self):
-        '''verify that the same data comes out as went in'''
-
-        initial = { 'comment':"A valid comment"}
-
-        form = CommentForm(data=initial, instance=self.comment,
-                           ticket=self.ticket, user=self.user)
-        self.assertTrue(form.is_valid())
-        #check the data
-        self.assertEqual(form.cleaned_data['comment'],
-                         'A valid comment')
-        self.assertFalse(form.cleaned_data['private'])
-
-    @pytest.mark.django_db
-    def test_good_data_private(self):
-        '''verify that the same data comes out as went in, including
-        the private flag
-
-        '''
-
-        initial = { 'comment':"A valid comment",
-                    'private':True}
-
-        form = CommentForm(data=initial, instance=self.comment,
-                           ticket=self.ticket, user=self.user)
-        self.assertTrue(form.is_valid())
-        #check the data
-        self.assertEqual(form.cleaned_data['comment'],
-                         'A valid comment')
-        self.assertTrue(form.cleaned_data['private'])
-
-    @pytest.mark.django_db
-    def test_missing_comment(self):
-        '''comment is a required field, verify that the form will not
-        validate without it.
-        '''
-
-        initial = { 'comment':None}
-        form = CommentForm(data=initial, instance=self.comment,
-                                   ticket=self.ticket, user=self.user)
-        self.assertFalse(form.is_valid())
-
+##class TestCommentForm(TestCase):
+##
+##    def setUp(self):
+##
+##        self.user = UserFactory()
+##        self.ticket = TicketFactory.build(submitted_by=self.user)
+##        self.comment = FollowUpFactory.build(ticket=self.ticket)
+##
+##    @pytest.mark.django_db
+##    def test_good_data(self):
+##        '''verify that the same data comes out as went in'''
+##
+##        initial = { 'comment':"A valid comment"}
+##
+##        form = CommentForm(data=initial, instance=self.comment,
+##                           ticket=self.ticket, user=self.user)
+##        self.assertTrue(form.is_valid())
+##        #check the data
+##        self.assertEqual(form.cleaned_data['comment'],
+##                         'A valid comment')
+##        self.assertFalse(form.cleaned_data['private'])
+##
+##    @pytest.mark.django_db
+##    def test_good_data_private(self):
+##        '''verify that the same data comes out as went in, including
+##        the private flag
+##
+##        '''
+##
+##        initial = { 'comment':"A valid comment",
+##                    'private':True}
+##
+##        form = CommentForm(data=initial, instance=self.comment,
+##                           ticket=self.ticket, user=self.user)
+##        self.assertTrue(form.is_valid())
+##        #check the data
+##        self.assertEqual(form.cleaned_data['comment'],
+##                         'A valid comment')
+##        self.assertTrue(form.cleaned_data['private'])
+##
+##    @pytest.mark.django_db
+##    def test_missing_comment(self):
+##        '''comment is a required field, verify that the form will not
+##        validate without it.
+##        '''
+##
+##        initial = { 'comment':None}
+##        form = CommentForm(data=initial, instance=self.comment,
+##                                   ticket=self.ticket, user=self.user)
+##        self.assertFalse(form.is_valid())
+##
 
 
 class TestCloseTicketForm(TestCase):

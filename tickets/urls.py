@@ -1,11 +1,6 @@
 from django.conf.urls import url
 
-# from .views import (TicketListView, TicketDetailView,
-#                    TicketUpdateView, upvote_ticket, TicketFollowUpView,
-#                    SplitTicketView)
-
 from .views import *
-
 
 urlpatterns = [
 
@@ -26,24 +21,31 @@ urlpatterns = [
         name='upvote_ticket'),
 
     url(r'^close/(?P<pk>\d+)/$',
-        view=TicketFollowUpView, kwargs={'action': 'closed'},
+        view=TicketCommentView, kwargs={'action': 'closed'},
         name='close_ticket'),
 
     url(r'^reopen/(?P<pk>\d+)/$',
-        view=TicketFollowUpView, kwargs={'action': 'reopened'},
+        view=TicketCommentView, kwargs={'action': 'reopened'},
         name='reopen_ticket'),
 
+    url(r'^accept/(?P<pk>\d+)/$',
+        view=TicketCommentView, kwargs={'action': 'accept'},
+        name='accept_ticket'),
+
+    url(r'^assign/(?P<pk>\d+)/$',
+        view=TicketCommentView, kwargs={'action': 'assign'},
+        name='assign_ticket'),
+
     url(r'^comment/(?P<pk>\d+)/$',
-    #view=TicketFollowUpView, kwargs= {'action': 'no_action'},
-        view=TicketCommentView,
+        view=TicketCommentView, kwargs={'action': 'comment'},
         name='comment_ticket'),
 
     url(r'^split/(?P<pk>\d+)/$',
         view=SplitTicketView,
         name="split_ticket"),
 
-    #===========
-    #Ticket Lists
+    # ===========
+    # Ticket Lists
     url(regex=r"^$",
         view=TicketListView.as_view(),
         name="ticket_list"),
