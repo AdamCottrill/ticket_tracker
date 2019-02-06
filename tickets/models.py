@@ -25,7 +25,7 @@ from .utils import replace_links
 
 LINK_PATTERNS = getattr(settings, "LINK_PATTERNS", None)
 
-#for markdown2 (<h1> becomes <h3>)
+# for markdown2 (<h1> becomes <h3>)
 DEMOTE_HEADERS = 2
 
 
@@ -37,7 +37,7 @@ class TicketManager(models.Manager):
 
     def get_queryset(self):
         '''only those tickets that are active'''
-        #return self.filter(active=True)
+        # return self.filter(active=True)
         return super(TicketManager, self).get_queryset().filter(active=True)
 
 

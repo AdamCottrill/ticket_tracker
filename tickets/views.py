@@ -11,7 +11,7 @@ from django.views.generic import DetailView
 
 from .models import Ticket, UserVoteLog, FollowUp
 from .forms import (TicketForm, CloseTicketForm, SplitTicketForm,
-                    #CommentForm,
+                    # CommentForm,
                     AcceptTicketForm, AssignTicketForm, CommentTicketForm)
 from .utils import is_admin
 
@@ -68,7 +68,6 @@ class TicketListViewBase(ListView):
         return context
 
 
-
 def get_ticket_filters():
     """Return a dictionary that will be used to create the dynamic filters
     on the fitler lists.  There will be one element for each filter
@@ -109,7 +108,6 @@ def get_ticket_filters():
     ticket_filters['assigned_to'] = assigned_to
 
     return ticket_filters
-
 
 
 class TicketListView(TicketListViewBase):
@@ -205,7 +203,8 @@ class OpenTicketListView(TicketListViewBase):
 
 
 class BugTicketListView(TicketListViewBase):
-    '''A list of only bug reports tickets.
+    '''
+    A list of only bug reports tickets.
 
     **Context:**
 
@@ -228,14 +227,14 @@ class BugTicketListView(TicketListViewBase):
         context['filters'] = filters
         return context
 
-
     def get_queryset(self):
         return Ticket.objects.filter(
             ticket_type='bug').order_by("-created_on")
 
 
 class FeatureTicketListView(TicketListViewBase):
-    '''A list of only feature request tickets.
+    '''
+    A list of only feature request tickets.
 
     **Context:**
 
@@ -266,7 +265,8 @@ class FeatureTicketListView(TicketListViewBase):
 @login_required
 def TicketUpdateView(request, pk=None,
                      template_name='tickets/ticket_form.html'):
-    '''A view to allow users to update existing tickets or create new
+    '''
+    A view to allow users to update existing tickets or create new
     ones.
 
     New tickets can be created by any logged in user, but only
@@ -313,9 +313,9 @@ def SplitTicketView(request, pk=None,
     '''
     If a ticket is too complex to handle as a single issue, this
     view allows administrators to split the ticket into two child
-    tickets.  The orginial ticket is closed, but is referenced by the
+    tickets.  The original ticket is closed, but is referenced by the
     children.  By default, all of the fields in the child ticket are
-    set to the values for the same field in the parent.
+    initially set to the values for the same field in the parent.
 
     **Context:**
 
@@ -328,7 +328,7 @@ def SplitTicketView(request, pk=None,
 
     '''
 
-    #ticket = get_object_or_404(Ticket, pk=pk)
+    # ticket = get_object_or_404(Ticket, pk=pk)
 
     try:
         ticket = Ticket.objects.get(id=pk)
@@ -367,7 +367,7 @@ def SplitTicketView(request, pk=None,
     return render(request, template_name, {'form': form})
 
 
-@login_required
+##@login_required
 ##def TicketFollowUpView(request, pk, action='closed',
 ##                       template_name='tickets/comment_form.html'):
 ##
@@ -447,13 +447,13 @@ def TicketCommentView(request, pk, action='comment'):
     if not is_admin(request.user) and action != 'comment':
         return redirect(ticket.get_absolute_url())
 
-    if action == 'closed' or action == 'reopened':
+    if action in ('closed', 'reopened'):
         template = 'tickets/close_reopen_ticket_form.html'
     else:
         template = 'tickets/comment_form.html'
 
     if request.POST:
-        if action == 'closed' or action == 'reopened':
+        if action in ('closed', 'reopened'):
             form = CloseTicketForm(request.POST, ticket=ticket,
                                    user=request.user,
                                    action=action)
@@ -475,7 +475,7 @@ def TicketCommentView(request, pk, action='comment'):
                    template,
                    {'form': form, 'ticket': ticket, 'action': action})
     else:
-        if action == 'closed' or action == 'reopened':
+        if action in ('closed', 'reopened'):
             form = CloseTicketForm(ticket=ticket,
                                    user=request.user,
                                    action=action)
@@ -495,7 +495,8 @@ def TicketCommentView(request, pk, action='comment'):
 
 @login_required
 def upvote_ticket(request, pk):
-    '''A view to increment the vote count for a ticket.  Only allow
+    '''
+    A view to increment the vote count for a ticket.  Only allow
     votes if user has logged in and then only if they have not voted
     for this ticket yet.'
 
@@ -511,7 +512,7 @@ def upvote_ticket(request, pk):
 
     if user:
         p, created = UserVoteLog.objects.get_or_create(ticket=ticket,
-                                                  user=user)
+                                                       user=user)
         if ticket and created:
             ticket.up_vote()
     return HttpResponseRedirect(ticket.get_absolute_url())
