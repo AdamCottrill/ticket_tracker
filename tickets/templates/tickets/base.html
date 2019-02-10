@@ -39,7 +39,7 @@
 
               <li><a href="{% url 'ticket_list' %}">All Tickets</a></li>
               {% if user.id %}
-              <li><a href="{% url 'my_ticket_list' user.id|default:-99 %}">My Tickets</a></li>
+              <li><a href="{% url 'my_ticket_list' user.username %}">My Tickets</a></li>
               {% endif %}
               <li class="divider"></li>
               <li><a href="{% url 'open_tickets' %}">Open Tickets</a></li>

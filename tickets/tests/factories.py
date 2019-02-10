@@ -12,7 +12,7 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     first_name = 'John'
     last_name = 'Doe'
-    username = factory.Sequence(lambda n: "johndoe {}".format(n))
+    username = factory.Sequence(lambda n: "johndoe{}".format(n))
     email = 'johndoe@hotmail.com'
     password = 'Abcdef12'
     is_active = True

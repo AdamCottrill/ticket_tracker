@@ -163,12 +163,13 @@ class TicketListView(TicketListViewBase):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
 
-        userid = self.kwargs.get('userid', None)
-        if userid:
-            try:
-                context['user'] = User.objects.get(id=userid)
-            except User.DoesNotExist:
-                user = None
+        username = self.kwargs.get('username', None)
+        if username:
+            context['username'] = username
+            #            try:
+#                context['user'] = User.objects.get(id=username)
+#            except User.DoesNotExist:
+#                user = None
 
         context['query'] = self.request.GET.get("q")
 
@@ -181,7 +182,7 @@ class TicketListView(TicketListViewBase):
 
     def get_queryset(self):
         q = self.request.GET.get("q")
-        userid = self.kwargs.get('userid', None)
+        username = self.kwargs.get('username', None)
         what = self.kwargs.get('what', None)
 
         tickets = Ticket.objects.order_by("-created_on")\
@@ -189,22 +190,20 @@ class TicketListView(TicketListViewBase):
                                                   'submitted_by',
                                                   'assigned_to')
 
-        try:
-            user = User.objects.get(id=userid)
-        except User.DoesNotExist:
-            user = None
-
         if q:
             tickets = tickets.filter(description__icontains=q)
 
-        if user:
+        if username:
             if what == 'submitted_by':
-                tickets = tickets.filter(submitted_by=user)
+                tickets = tickets.filter(
+                    submitted_by__username=username)
             elif what == 'assigned_to':
-                tickets = tickets.filter(assigned_to=user)
+                tickets = tickets.filter(
+                    assigned_to__username=username)
             else:
-                tickets = tickets.filter(Q(submitted_by=user) |
-                                      Q(assigned_to=user))
+                tickets = tickets.filter(
+                    Q(submitted_by__username=username) |
+                    Q(assigned_to__username=username))
 
         # finally - django_filter
         tickets_qs = TicketFilter(self.request.GET,

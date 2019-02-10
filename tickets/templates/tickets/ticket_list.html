@@ -30,13 +30,14 @@
         <h3>{{ type  }}</h3>
         {% elif query %}
         <h3>Tickets that contain '{{ query }}':</h3>
-        {% elif user %}
+        {% elif username %}
         {% if what %}
-        <h3>Tickets {{ what }} {{ user.username }}:</h3>
+        <h3>Tickets {{ what }} {{ username }}:</h3>
         {% else %}
-        <h3>Tickets associated with {{ user.username }}:</h3>
+        <h3>Tickets associated with {{ username }}:</h3>
         {% endif %}
-
+        {% else %}
+        <h3>Tickets</h3>
         {% endif %}
 
 
@@ -67,14 +68,14 @@
                         <td><a href="?{% query_transform status=object.status %}">{{object.status | status_btn }}</a></td>
                         <td><a href="{{ object.get_absolute_url }}">{{  object.name }}</a></td>
                         <td><a href="?{% query_transform application=object.application.slug %}">{{object.application}}</a></td>
-                        <td><a href="{% url 'submitted_by' object.submitted_by.id %}">{{object.submitted_by}}</a></td>
+                        <td><a href="{% url 'submitted_by' object.submitted_by.username %}">{{object.submitted_by}}</a></td>
                         <td>{{object.created_on |date:"M d, Y" }}</td>
                         <td><a href="?{% query_transform ticket_type=object.ticket_type %}">{{object.ticket_type | ticket_type_btn }}</a></td>
 
                         <td><a href="?{% query_transform priority=object.priority %}">{{object.priority | priority_btn }}</a></td>
                         <td>{{object.votes}}</td>
                         {% if object.assigned_to %}
-                        <td><a href="{% url 'assigned_to' object.assigned_to.id %}">{{object.assigned_to}}</a></td>
+                        <td><a href="{% url 'assigned_to' object.assigned_to.username %}">{{object.assigned_to}}</a></td>
 
                         {% else %} <td>Nobody (yet)</td> {% endif %}
 

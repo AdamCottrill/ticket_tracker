@@ -50,15 +50,15 @@ urlpatterns = [
         view=TicketListView.as_view(),
         name="ticket_list"),
 
-    url(regex=r"^mytickets/(?P<userid>\d+|\-99)/$",
+    url(regex=r"^mytickets/(?P<username>[\w.@+-]+)/$",
         view=TicketListView.as_view(),
         name="my_ticket_list"),
 
-    url(regex=r"^assinged_to/(?P<userid>\d+|\-99)/$",
+    url(regex=r"^assinged_to/(?P<username>[\w.@+-]+)/$",
         view=TicketListView.as_view(),
         name="assigned_to", kwargs={'what': 'assigned_to'}),
 
-    url(regex=r"^submitted_by/(?P<userid>\d+|\-99)/$",
+    url(regex=r"^submitted_by/(?P<username>[\w.@+-]+)/$",
         view=TicketListView.as_view(),
         name="submitted_by", kwargs={'what': 'submitted_by'}),
 

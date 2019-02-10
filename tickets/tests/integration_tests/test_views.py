@@ -356,7 +356,7 @@ class TicketListTestCase(TestCase):
         '''this view should return only those tickets that belong to
         our user - they are either submitted by him or assinged to him
         '''
-        url = reverse('my_ticket_list', kwargs={'userid': self.user1.id})
+        url = reverse('my_ticket_list', kwargs={'username': self.user1.username})
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
@@ -380,7 +380,7 @@ class TicketListTestCase(TestCase):
         Homer.  Not the tickets submitted by others and assigned to him.
 
         '''
-        url = reverse('submitted_by', kwargs={'userid': self.user1.id})
+        url = reverse('submitted_by', kwargs={'username': self.user1.username})
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
@@ -405,7 +405,7 @@ class TicketListTestCase(TestCase):
         Homer.  Not the tickets he submitted and are assigned to someone else.
 
         '''
-        url = reverse('assigned_to', kwargs={'userid': self.user1.id})
+        url = reverse('assigned_to', kwargs={'username': self.user1.username})
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
@@ -433,7 +433,7 @@ class TicketListTestCase(TestCase):
         '''
 
         q = 'findme'
-        url = reverse('my_ticket_list', kwargs={'userid': self.user1.id})
+        url = reverse('my_ticket_list', kwargs={'username': self.user1.username})
         response = self.client.get(url,{'q': q}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
@@ -454,21 +454,22 @@ class TicketListTestCase(TestCase):
 
 
     def test_my_tickets_list_nonexistant_user(self):
-        '''this view should return all tickets since the user with id
-        22 does not exist
+        '''this view should not return any  tickets since the user with
+        username "bobwho" does not exist.
 
         '''
-        url = reverse('my_ticket_list', kwargs={'userid': 22})
+        url = reverse('my_ticket_list', kwargs={'username': 'bobwho'})
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
-        self.assertContains(response, self.ticket1.name())
-        self.assertContains(response, self.ticket2.name())
-        self.assertContains(response, self.ticket3.name())
-        self.assertContains(response, self.ticket4.name())
-        self.assertContains(response, self.ticket5.name())
-        self.assertContains(response, self.ticket6.name())
-        self.assertContains(response, self.ticket7.name())
+        self.assertContains(response, "<h4>No Tickets Found.</h4>")
+        self.assertNotContains(response, self.ticket1.name())
+        self.assertNotContains(response, self.ticket2.name())
+        self.assertNotContains(response, self.ticket3.name())
+        self.assertNotContains(response, self.ticket4.name())
+        self.assertNotContains(response, self.ticket5.name())
+        self.assertNotContains(response, self.ticket6.name())
+        self.assertNotContains(response, self.ticket7.name())
 
         # the inactive ticket should not be in the list
         self.assertNotContains(response, self.ticket8.name())
