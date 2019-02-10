@@ -39,7 +39,7 @@ def status_btn(status, btn_size='xs'):
         'new': ['success', 'New'],
         'accepted': ['info', 'Accepted'],
         'assigned': ['primary', 'Assigned'],
-        'reopened': ['warning', 'Reopened'],
+        're-opened': ['warning', 'Re-Opened'],
         'closed': ['default', 'Closed'],
         'duplicate': ['default', 'Closed - Duplicate'],
         'split': ['default', 'Closed - Split'],
@@ -107,7 +107,7 @@ def format_action(string):
     '''
 
     action_map = {
-        'reopened': 'Re-Open',
+        're-opened': 'Re-Open',
         'closed': 'Close',
         'new': 'New',
         'accept': 'Accept',

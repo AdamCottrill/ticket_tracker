@@ -98,7 +98,7 @@ class Ticket(models.Model):
         ('new', 'New'),
         ('accepted', 'Accepted'),
         ('assigned', 'Assigned'),
-        ('reopened', 'Reopened'),
+        ('re-opened', 'Re-Opened'),
         ('closed', 'Closed'),
         ('duplicate', 'Closed - Duplicate'),
         ('split', 'Closed - Split'),
@@ -274,7 +274,7 @@ class FollowUp(models.Model):
     ACTION_CHOICES = {
         ('no_action', 'No Action'),
         ('closed', 'Closed'),
-        ('reopened', 'Re-Opened'),
+        ('re-opened', 'Re-Opened'),
         ('split', 'Split')
     }
 
