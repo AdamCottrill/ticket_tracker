@@ -168,6 +168,76 @@ class TicketUpdateTestCase(WebTest):
         assert str(self.user2.id) in choices  # the only admin.
         assert str(self.user3.id) not in choices
 
+    def test_new_ticket(self):
+        '''The updateview is used to create tickets if no pk is provided. this
+        test verifies that it works as expected.
+        '''
+
+        login = self.client.login(username=self.user.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+
+        url = reverse('new_ticket')
+        response = self.app.get(url, user=self.user)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/ticket_form.html')
+
+        # verify that the form does not contain closed, split or duplicate
+        # these ticket status values are implemented else where.
+        # self.assertNotContains(response, 'close') "closed" in menu!
+        self.assertNotContains(response, 'split')
+        self.assertNotContains(response, 'duplicate')
+
+        form = response.forms['ticket']
+
+        form['ticket_type'] = 'feature'
+        form['description'] = "New Ticket created by UpdateView"
+        form['priority'] = 4
+        form['application'] = 1
+
+        response = form.submit().follow()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+
+        self.assertContains(response, 'New</button>')
+        self.assertContains(response, 'Feature Request')
+        self.assertContains(response, "New Ticket created by UpdateView")
+
+    def test_add_tags_ticket_detail_form(self):
+        '''if you're the ticket's owner you should be able to edit the
+        ticket
+        '''
+
+        login = self.client.login(username=self.user.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+
+        url = reverse('update_ticket',
+                      kwargs=({'pk': self.ticket.id}))
+        response = self.app.get(url, user=self.user)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/ticket_form.html')
+
+        # get the form and submit it
+        form = response.forms['ticket']
+        form['tags'] = "blue, green, red, yellow"
+
+        response = form.submit('submit').follow()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+
+        # verify that the tags submitted on the form are actually
+        # saved to the database and associated with this ticket.
+        tags_back = self.ticket.tags.all().order_by('name')
+        self.assertEqual(tags_back.count(), 4)
+        self.assertQuerysetEqual(tags_back, ["blue", "green", "red", "yellow"],
+                                 lambda a: str(a.name))
+
+
 
 class SplitTicketTestCase(WebTest):
     '''
@@ -326,14 +396,19 @@ class SplitTicketTestCase(WebTest):
 
 
 class CommentTicketTestCase(WebTest):
-    '''
+    '''TicketCommentView is used to provide comments, but is also used to
+    accept, assign and re-assign tickets.
+
+    anybod should be able to accept tickets, only admins should be
+    able to assign and re-assign tickets.
+
     '''
 
     def setUp(self):
 
         self.user = UserFactory()
         self.user2 = UserFactory(is_staff=True)
-        self.user3 = UserFactory(username='hsimpson')
+        self.user3 = UserFactory(username='hsimpson', is_staff=True)
 
         adminGrp, created = Group.objects.get_or_create(name='admin')
         self.user2.groups.add(adminGrp)
@@ -503,6 +578,303 @@ class CommentTicketTestCase(WebTest):
 
         errmsg = "This field is required."
         self.assertContains(response, errmsg)
+
+
+    def test_accept_ticket_unlogged_user(self):
+        """
+        A user who is not logged in should not be able to accept a
+        ticket. If they try, they should be re-directed to the ticket
+        detail page and the ticket should remain unassigned.
+
+        Arguments:
+        - `self`:
+
+        """
+
+        assert self.ticket.assigned_to is None
+        assert self.ticket.status == 'new'
+
+        url = reverse('accept_ticket', kwargs=({'pk': self.ticket.id}))
+        response = self.app.get(url, user=self.user).follow()
+
+        self.assertEqual(response.status_code, 200)
+        url = reverse('ticket_detail', kwargs=({'pk': self.ticket.id}))
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+
+        assert self.ticket.assigned_to is None
+        assert self.ticket.status == 'new'
+
+    def test_assign_ticket_unlogged_user(self):
+        """
+        A user who is not logged in should not be able to assign a
+        ticket. If they try, they should be re-directed to the ticket
+        detail page and the ticket should remain unassigned.
+
+        Arguments:
+        - `self`:
+
+        """
+
+        assert self.ticket.assigned_to is None
+        assert self.ticket.status == 'new'
+
+        url = reverse('assign_ticket', kwargs=({'pk': self.ticket.id}))
+        response = self.app.get(url, user=self.user).follow()
+
+        self.assertEqual(response.status_code, 200)
+        url = reverse('ticket_detail', kwargs=({'pk': self.ticket.id}))
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+
+        assert self.ticket.assigned_to is None
+        assert self.ticket.status == 'new'
+
+
+    def test_reassign_ticket_unlogged_user(self):
+        """
+        A user who is not logged in should not be able to re-assign a
+        ticket. If they try, they should be re-directed to the ticket
+        detail page and the ticket should remain assigned to the
+        original user.
+
+        Arguments:
+        - `self`:
+
+        """
+
+        self.ticket.assigned_to = self.user3
+        self.ticket.status = 'assigned'
+        self.ticket.save()
+
+        assert self.ticket.assigned_to == self.user3
+        assert self.ticket.status == 'assigned'
+
+        url = reverse('assign_ticket', kwargs=({'pk': self.ticket.id}))
+        response = self.app.get(url, user=self.user).follow()
+
+        self.assertEqual(response.status_code, 200)
+        url = reverse('ticket_detail', kwargs=({'pk': self.ticket.id}))
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+
+        #nothing has changed
+        assert self.ticket.assigned_to == self.user3
+        assert self.ticket.status == 'assigned'
+
+
+    def test_accept_ticket_user(self):
+        """
+        If someone who is not an admin tries to accept a ticket
+        A logged in user should be able to accept a ticket. Once accepted,
+        the ticket should be assigned to them.  When the form loads,
+        it should not contain the 'Assign To' dropdown box.
+
+        Arguments:
+        - `self`:
+
+        """
+
+        #verify that our ticket is not assigned to anyone yet
+        assert self.ticket.assigned_to is None
+        assert self.ticket.status == 'new'
+
+        login = self.client.login(username=self.user.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+
+        url = reverse('accept_ticket', kwargs=({'pk': self.ticket.id}))
+        response = self.app.get(url, user=self.user).follow()
+
+        self.assertEqual(response.status_code, 200)
+        url = reverse('ticket_detail', kwargs=({'pk': self.ticket.id}))
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+
+        assert self.ticket.assigned_to is None
+        assert self.ticket.status == 'new'
+
+    def test_accept_ticket_admin(self):
+        """
+        An admin user should be able to accept a ticket. Once accepted,
+        the status of the ticket will be 'accepted' but it will not be
+        assigned to anyone.
+
+        Arguments:
+        - `self`:
+
+        """
+
+        #verify that our ticket is not assigned to anyone yet
+        assert self.ticket.assigned_to is None
+        assert self.ticket.status == 'new'
+
+        login = self.client.login(username=self.user.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+
+        url = reverse('accept_ticket', kwargs=({'pk': self.ticket.id}))
+        response = self.app.get(url, user=self.user2)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+
+        msg = 'Accept Ticket #{}'
+        self.assertContains(response, msg.format(self.ticket.id))
+
+        form = response.forms['comment']
+        form['comment'] = 'I can do it.'
+        response = form.submit().follow()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+
+        #our user should now be assigned to this ticket.
+        ticket = Ticket.objects.get(id=self.ticket.id)
+        assert ticket.assigned_to is None
+        assert ticket.status == "accepted"
+
+
+    def test_assign_ticket_user(self):
+        """
+        A user who is not an administrator should not be able to assign
+        a ticket.  If they try, they should be re-directed to the
+        ticket detail page, and the ticket should remain unassigned
+
+        Arguments:
+        - `self`:
+        """
+
+        assert self.ticket.assigned_to is None
+        assert self.ticket.status == 'new'
+
+        login = self.client.login(username=self.user.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+
+        url = reverse('assign_ticket', kwargs=({'pk': self.ticket.id}))
+        response = self.app.get(url, user=self.user).follow()
+
+        self.assertEqual(response.status_code, 200)
+        url = reverse('ticket_detail', kwargs=({'pk': self.ticket.id}))
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+
+        assert self.ticket.assigned_to is None
+        assert self.ticket.status == 'new'
+
+
+
+    def test_assign_ticket_admin(self):
+        """
+        An administator should be able assign a ticket to another user.
+
+        Arguments:
+        - `self`:
+        """
+
+        #verify that our ticket is not assigned to anyone yet
+        assert self.ticket.assigned_to is None
+        assert self.ticket.status == 'new'
+
+        login = self.client.login(username=self.user.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+
+        url = reverse('assign_ticket', kwargs=({'pk': self.ticket.id}))
+        response = self.app.get(url, user=self.user2)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+
+        msg = 'Assign Ticket #{}'
+        self.assertContains(response, msg.format(self.ticket.id))
+
+        form = response.forms['comment']
+        form['comment'] = 'I have just the person.'
+        form['assigned_to'] = self.user3.id
+        response = form.submit().follow()
+
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+
+        #our user should now be assigned to this ticket.
+        ticket = Ticket.objects.get(id=self.ticket.id)
+        assert ticket.assigned_to == self.user3
+        assert ticket.status == "assigned"
+
+
+    def test_reassign_ticket_user(self):
+        """
+        A user who is not an administrator should not be able to re-assign
+        a ticket.  If they try, they should be re-directed to the
+        ticket detail page, and the ticket should remain assigned to
+        the original user.
+
+        Arguments:
+        - `self`:
+
+        """
+        #assign our ticket to a user and change its status
+        self.ticket.assigned_to = self.user3
+        self.ticket.status = 'assigned'
+        self.ticket.save()
+
+        #verify that our chages worked
+        assert self.ticket.assigned_to == self.user3
+        assert self.ticket.status == 'assigned'
+
+        login = self.client.login(username=self.user.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+
+        url = reverse('assign_ticket', kwargs=({'pk': self.ticket.id}))
+        response = self.app.get(url, user=self.user).follow()
+
+        self.assertEqual(response.status_code, 200)
+        url = reverse('ticket_detail', kwargs=({'pk': self.ticket.id}))
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+
+        #nothing has changed
+        assert self.ticket.assigned_to == self.user3
+        assert self.ticket.status == 'assigned'
+
+
+    def test_reassign_ticket_admin(self):
+        """
+        An administator should be able reassign a ticket to another user.
+
+        Arguments:
+        - `self`:
+
+        """
+
+        #assign our ticket to a user and change its status
+        self.ticket.assigned_to = self.user2
+        self.ticket.status = 'assigned'
+        self.ticket.save()
+
+        login = self.client.login(username=self.user.username,
+                                  password='Abcdef12')
+        self.assertTrue(login)
+
+        url = reverse('assign_ticket', kwargs=({'pk': self.ticket.id}))
+        response = self.app.get(url, user=self.user2)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/comment_form.html')
+
+        msg = 'Assign Ticket #{}'
+        self.assertContains(response, msg.format(self.ticket.id))
+
+        form = response.forms['comment']
+        form['comment'] = 'I have just the person.'
+        form['assigned_to'] = self.user3.id
+        response = form.submit().follow()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tickets/ticket_detail.html')
+
+        #our user should now be assigned to this ticket.
+        ticket = Ticket.objects.get(id=self.ticket.id)
+        assert ticket.assigned_to == self.user3
+        assert ticket.status == "assigned"
 
 
 class CloseTicketTestCase(WebTest):

@@ -7,6 +7,8 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import (Submit, Layout, ButtonHolder, Div, Fieldset,
                                  Field)
 
+from taggit.forms import TagWidget
+
 from .models import Ticket, FollowUp, TicketDuplicate, Application
 from .utils import is_admin
 
@@ -48,6 +50,7 @@ class TicketForm(ModelForm):
             attrs={'class': 'input-xxlarge'}),
     )
 
+
 #    # assigned_to should only be available to admin
 #    assigned_to = UserModelChoiceField(
 #        queryset=User.objects.filter(groups__name='admin'),
@@ -80,9 +83,13 @@ class TicketForm(ModelForm):
     class Meta:
         model = Ticket
         fields = ['ticket_type', 'priority', 'application',
-                  'description',
+                  'description', 'tags'
                   #          'assigned_to'
         ]
+
+        widgets = {
+            'tags': TagWidget(),
+        }
 
 
 class SplitTicketForm(Form):
@@ -454,6 +461,7 @@ class AcceptTicketForm(ModelForm):
             comment=self.cleaned_data['comment']
         )
 
+        self.ticket.assiged_to = self.user
         self.ticket.status = 'accepted'
         self.ticket.save()
         followUp.save()
@@ -473,7 +481,8 @@ class AssignTicketForm(ModelForm):
     )
 
     assigned_to = UserModelChoiceField(
-        queryset=User.objects.filter(groups__name='admin'),
+        #queryset=User.objects.filter(groups__name='admin'),
+        queryset=User.objects.filter(is_staff=True),
         label="Assign To",
         required=True,
         widget=Select(attrs={'class': 'form-control'})

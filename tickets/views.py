@@ -9,11 +9,35 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic.list import ListView
 from django.views.generic import DetailView
 
+from taggit.models import Tag
+
 from .models import Ticket, UserVoteLog, FollowUp
 from .forms import (TicketForm, CloseTicketForm, SplitTicketForm,
                     # CommentForm,
                     AcceptTicketForm, AssignTicketForm, CommentTicketForm)
 from .utils import is_admin
+
+
+
+
+class TagMixin(object):
+
+    def get_context_data(self, **kwargs):
+        context = super(TagMixin, self).get_context_data(**kwargs)
+        tag_slug = self.kwargs.get('slug')
+        context['tag'] = Tag.objects.filter(slug=tag_slug).first()
+        context['tags'] = Tag.objects.all()
+        return context
+
+
+class TagIndexView(TagMixin, ListView):
+    template_name = 'tickets/ticket_list.html'
+    model = Ticket
+    paginate_by =  50#RECORDS_PER_PAGE
+
+    def get_queryset(self):
+        return Ticket.objects.filter(tags__slug=self.kwargs.get('slug'))
+
 
 
 class TicketDetailView(DetailView):
@@ -56,7 +80,7 @@ class TicketDetailView(DetailView):
         return context
 
 
-class TicketListViewBase(ListView):
+class TicketListViewBase(TagMixin, ListView):
     '''A base class for all ticket listviews.'''
     model = Ticket
 
@@ -111,8 +135,7 @@ def get_ticket_filters():
 
 
 class TicketListView(TicketListViewBase):
-    '''
-    A view to render a list of tickets. If a query string and/or a
+    '''A view to render a list of tickets. If a query string and/or a
     user is provided, they will be used to filter the queryset,
     otherwise all tickets are returned in reverse chronological
     order.
@@ -122,16 +145,42 @@ class TicketListView(TicketListViewBase):
     ``object_list``
         a list of :model:`ticket.Ticket` objects.
 
+    ``query``
+        the query search string used to filter tickets. submitted via
+        the quick seach bar.
+
+``user``
+
     **Template:**
 
     :template:`/tickets/ticket_list.html`
 
     '''
 
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+
+        userid = self.kwargs.get('userid', None)
+        if userid:
+            try:
+                context['user'] = User.objects.get(id=userid)
+            except User.DoesNotExist:
+                user = None
+
+        context['query'] = self.request.GET.get("q")
+
+        what = self.kwargs.get('what', None)
+        if what:
+            context['what'] = what.replace('_', ' ')
+
+        return context
+
+
     def get_queryset(self):
         q = self.request.GET.get("q")
-        userid = self.kwargs.pop('userid', None)
-        what = self.kwargs.pop('what', None)
+        userid = self.kwargs.get('userid', None)
+        what = self.kwargs.get('what', None)
 
         tickets = Ticket.objects.order_by("-created_on")\
                                 .prefetch_related('application',
@@ -174,6 +223,12 @@ class ClosedTicketListView(TicketListViewBase):
 
     '''
 
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        context['closed'] = True
+        return context
+
     def get_queryset(self):
         inactive_codes = ['closed', 'split', 'duplicate']
         return Ticket.objects.filter(
@@ -195,6 +250,12 @@ class OpenTicketListView(TicketListViewBase):
     :template:`/tickets/ticket_list.html`
 
     '''
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        context['open'] = True
+        return context
 
     def get_queryset(self):
         open_codes = ['new', 'accepted', 'assigned', 'reopened']
@@ -225,6 +286,7 @@ class BugTicketListView(TicketListViewBase):
         filters = get_ticket_filters()
         filters.pop('type')
         context['filters'] = filters
+        context['type'] = 'Bug Reports'
         return context
 
     def get_queryset(self):
@@ -255,6 +317,7 @@ class FeatureTicketListView(TicketListViewBase):
         filters = get_ticket_filters()
         filters.pop('type')
         context['filters'] = filters
+        context['type'] = 'Feature Requests'
         return context
 
     def get_queryset(self):
@@ -270,7 +333,7 @@ def TicketUpdateView(request, pk=None,
     ones.
 
     New tickets can be created by any logged in user, but only
-    administrators or the tags original submitter can make changes to
+    administrators or the tickets original submitter can make changes to
     an existing ticket.
 
     If a primary key is include in the request, an attempt will be
@@ -464,6 +527,7 @@ def TicketCommentView(request, pk, action='comment'):
             form = AcceptTicketForm(request.POST, ticket=ticket,
                                     user=request.user)
         else:
+            # i.e. action==assign
             form = AssignTicketForm(request.POST, ticket=ticket,
                                     user=request.user)
 

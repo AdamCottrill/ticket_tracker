@@ -22,6 +22,7 @@ from markdown2 import markdown
 
 from .utils import replace_links
 
+from taggit.managers import TaggableManager
 
 LINK_PATTERNS = getattr(settings, "LINK_PATTERNS", None)
 
@@ -64,11 +65,6 @@ class Application(models.Model):
 
     def __str__(self):
         return self.application
-
-    def __str__(self):
-        return self.application
-
-
 
 
 class Ticket(models.Model):
@@ -121,8 +117,13 @@ class Ticket(models.Model):
     parent = models.ForeignKey('self', blank=True, null=True)
     application = models.ForeignKey(Application)
 
+    tags = TaggableManager(blank=True)
+
     all_tickets = models.Manager()
     objects = TicketManager()
+
+    class Meta:
+        ordering = ["-created_on"]
 
 
     def __str__(self):

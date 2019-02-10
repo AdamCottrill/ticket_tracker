@@ -77,4 +77,16 @@ urlpatterns = [
     url(regex=r"^featurerequests/$",
         view=FeatureTicketListView.as_view(),
         name="feature_requests"),
+
+        #project tags
+    #path('tag/<slug:slug>', TagIndexView.as_view(),
+    #     name='tagged'),
+
+
+    url(regex=r"^tagged/(?P<slug>[-\w]+)/$",
+        view=TagIndexView.as_view(),
+        name="tickets_tagged_with"),
+
+
+
 ]

@@ -47,10 +47,21 @@
 
     <hr />
 
-    <b>Description: </b>
-    <div class="row well">
-      <br /> {{ object.description_html|safe }}
-    </div>
+   <b>Description: </b>
+   <div class="row well">
+       <br /> {{ object.description_html|safe }}
+   </div>
+
+   {% if object.tags %}
+   <p>
+       <b>Tags: </b>
+       {%for tag in object.tags.all %}
+       <a href="{% url 'tickets_tagged_with' tag.slug %}">{{tag}}</a>
+       {% if not forloop.last %}, {% endif %}
+       {% endfor%}
+   </p>
+   {% endif %}
+
 
     <div class="row">
       <div class="pull-right">

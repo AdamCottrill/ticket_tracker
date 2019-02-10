@@ -199,6 +199,28 @@ class TestTicketDuplicates(TestCase):
         self.ticket3 = TicketFactory()
 
     @pytest.mark.django_db
+    def test_ticket_duplicate_str(self):
+        '''Verify that the string representation of a duplicate object is of
+        the form:
+
+        "Ticket {id1} is a duplicate of ticket {id2}".
+
+        '''
+
+        first = self.ticket1
+        second = self.ticket2
+
+        second.duplicate_of(first.id)
+
+        duplicate = TicketDuplicate.objects.get(ticket=second)
+
+        shouldbe = "Ticket {} is a duplicate of ticket {}".format(
+            second.id, first.id)
+
+        assert str(duplicate) == shouldbe
+
+
+    @pytest.mark.django_db
     def test_ticket_duplicate_of(self):
         '''verify that the ticket.duplicate_of() method creates a
         record in the TicketDuplicate table and that the ticket is the

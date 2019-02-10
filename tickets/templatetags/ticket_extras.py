@@ -112,7 +112,7 @@ def format_action(string):
         'new': 'New',
         'accept': 'Accept',
         'comment': 'Comment on ',
-        'assigned': 'Assign',
+        'assign': 'Assign',
         're-assign': 'Accept And Assign',
         'duplicate': 'Duplicate',
         'split': 'Split',

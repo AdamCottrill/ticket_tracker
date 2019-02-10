@@ -152,12 +152,13 @@ THIRDPARTY_APPS = (
     'passwords',
     'password_reset',
     'crispy_forms',
-#    'south',
-    #'taggit',
+    'taggit',
 )
 
-MY_APPS = ('tickets',
-           'simple_auth',)
+MY_APPS = (
+    'tickets',
+    'simple_auth',
+)
 
 INSTALLED_APPS = DJANGO_APPS + THIRDPARTY_APPS + MY_APPS
 

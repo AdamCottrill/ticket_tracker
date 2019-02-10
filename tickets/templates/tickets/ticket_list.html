@@ -20,6 +20,26 @@
             {% include 'tickets/ticket_filters.html' %}
         </div>
 
+        {% if tag %}
+        <h3>Tickets Tagged with '{{ tag }}':</h3>
+        {% elif open %}
+        <h3>Open Tickets</h3>
+        {% elif closed %}
+        <h3>Closed Tickets</h3>
+        {% elif type %}
+        <h3>{{ type  }}</h3>
+        {% elif query %}
+        <h3>Tickets that contain '{{ query }}':</h3>
+        {% elif user %}
+        {% if what %}
+        <h3>Tickets {{ what }} {{ user.username }}:</h3>
+        {% else %}
+        <h3>Tickets associated with {{ user.username }}:</h3>
+        {% endif %}
+        {% endif %}
+
+
+
         {% if object_list %}
 
         <div id="ticket-table-column" class="col-md-10" >
@@ -48,14 +68,15 @@
                             {{object.status | status_btn }}</a></td>
                         <td><a href="{{ object.get_absolute_url }}">{{  object.name }}</a></td>
                         <td>{{object.application}}</td>
-                        <td>{{object.submitted_by}}</td>
-                        <td>{{object.created_on}}</td>
+                        <td><a href="{% url 'submitted_by' object.submitted_by.id %}">{{object.submitted_by}}</a></td>
+                        <td>{{object.created_on |date:"M d, Y" }}</td>
                         <td>{{object.ticket_type | ticket_type_btn }}</td>
 
                         <td>{{object.priority | priority_btn }}</td>
                         <td>{{object.votes}}</td>
                         {% if object.assigned_to %}
-                        <td>{{ object.assigned_to }} </td>
+                        <td><a href="{% url 'assigned_to' object.assigned_to.id %}">{{object.assigned_to}}</a></td>
+
                         {% else %} <td>Nobody (yet)</td> {% endif %}
 
                     </tr>
