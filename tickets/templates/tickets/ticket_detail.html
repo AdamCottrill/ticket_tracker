@@ -52,7 +52,7 @@
        <br /> {{ object.description_html|safe }}
    </div>
 
-   {% if object.tags %}
+   {% if object.tags.all %}
    <p>
        <b>Tags: </b>
        {%for tag in object.tags.all %}

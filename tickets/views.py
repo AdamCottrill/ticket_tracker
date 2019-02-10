@@ -3,7 +3,7 @@ from collections import OrderedDict
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic.list import ListView
@@ -181,6 +181,12 @@ class TicketListView(TicketListViewBase):
         what = self.kwargs.get('what', None)
         if what:
             context['what'] = what.replace('_', ' ')
+
+        related_tags = Tag.objects.filter(ticket__id__in=self.object_list)\
+                                  .annotate(count=Count('id'))\
+                                  .order_by()
+        context['related_tags'] = related_tags
+
 
         return context
 

@@ -110,9 +110,8 @@ class ProjectTaggingTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed('tickets\ticket_list.html')
 
-        # print("response = {}".format(response))
-        msg = "Tickets Tagged with '{}':".format(tags[0])
-        self.assertContains(response, msg, html=True)
+        msg = "Tickets Tagged with '{}'".format(tags[0])
+        self.assertContains(response, msg)
 
         link_base = '<td><a href="{}">{}</a></td>'
 
