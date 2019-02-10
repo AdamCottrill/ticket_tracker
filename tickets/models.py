@@ -107,6 +107,7 @@ class Ticket(models.Model):
     TICKET_TYPE_CHOICES = {
         ('feature', 'Feature Request'),
         ('bug', 'Bug Report'),
+        ('task', 'Task'),
     }
 
     TICKET_PRIORITY_CHOICES = {

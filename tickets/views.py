@@ -163,13 +163,18 @@ class TicketListView(TicketListViewBase):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
 
+        ticket_type = self.kwargs.get('type', None)
+        if ticket_type:
+            choices = {k:v for k,v in Ticket.TICKET_TYPE_CHOICES}
+            context['type'] = choices.get(ticket_type)
+
+        ticket_status = self.kwargs.get('status', None)
+        if ticket_status:
+            context['status'] = ticket_status.title()
+
         username = self.kwargs.get('username', None)
         if username:
             context['username'] = username
-            #            try:
-#                context['user'] = User.objects.get(id=username)
-#            except User.DoesNotExist:
-#                user = None
 
         context['query'] = self.request.GET.get("q")
 
@@ -179,17 +184,18 @@ class TicketListView(TicketListViewBase):
 
         return context
 
-
     def get_queryset(self):
         q = self.request.GET.get("q")
         username = self.kwargs.get('username', None)
         what = self.kwargs.get('what', None)
+        ticket_type = self.kwargs.get('type', None)
+        ticket_status = self.kwargs.get('status', None)
+
 
         tickets = Ticket.objects.order_by("-created_on")\
                                 .prefetch_related('application',
                                                   'submitted_by',
                                                   'assigned_to')
-
         if q:
             tickets = tickets.filter(description__icontains=q)
 
@@ -205,149 +211,23 @@ class TicketListView(TicketListViewBase):
                     Q(submitted_by__username=username) |
                     Q(assigned_to__username=username))
 
-        # finally - django_filter
-        tickets_qs = TicketFilter(self.request.GET,
-                                            queryset=tickets)
+        if ticket_type:
+            tickets = tickets.filter(ticket_type=ticket_type)\
+                             .order_by("-created_on")
 
-        return tickets_qs.qs
-
-
-class ClosedTicketListView(TicketListViewBase):
-    '''A list of only closed tickets.
-
-    **Context:**
-
-    ``object_list``
-        a list of :model:`ticket.Ticket` objects where
-        status is either 'closed', 'duplicate' or 'split'.
-
-    **Template:**
-
-    :template:`/tickets/ticket_list.html`
-
-    '''
-
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super().get_context_data(**kwargs)
-        context['closed'] = True
-        return context
-
-    def get_queryset(self):
-        inactive_codes = ['closed', 'split', 'duplicate']
-        tickets =  Ticket.objects.filter(
-            status__in=inactive_codes).order_by("-created_on")
-
-        # finally - django_filter
-        tickets_qs = TicketFilter(self.request.GET,
-                                  queryset=tickets)
-
-        return tickets_qs.qs
-
-
-
-class OpenTicketListView(TicketListViewBase):
-
-    '''A list of only open tickets.
-
-    **Context:**
-
-    ``object_list``
-        a list of :model:`ticket.Ticket` objects where
-        status is either 'new','accepted', 'assigned' or 'reopened'
-
-    **Template:**
-
-    :template:`/tickets/ticket_list.html`
-
-    '''
-
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super().get_context_data(**kwargs)
-        context['open'] = True
-        return context
-
-    def get_queryset(self):
-        open_codes = ['new', 'accepted', 'assigned', 'reopened']
-        tickets = Ticket.objects.filter(
-            status__in=open_codes).order_by("-created_on")
+        if ticket_status:
+            closed_codes = ['closed', 'split', 'duplicate']
+            if ticket_status == 'closed':
+                tickets =  Ticket.objects.filter(
+                    status__in=closed_codes).order_by("-created_on")
+            else:
+                tickets =  Ticket.objects.exclude(
+                    status__in=closed_codes).order_by("-created_on")
 
         # finally - django_filter
         tickets_qs = TicketFilter(self.request.GET,
                                             queryset=tickets)
-        return tickets_qs.qs
 
-
-class BugTicketListView(TicketListViewBase):
-    '''
-    A list of only bug reports tickets.
-
-    **Context:**
-
-    ``object_list``
-        a list of :model:`ticket.Ticket` objects where
-        ticket_type=='bug'
-
-    **Template:**
-
-    :template:`/tickets/ticket_list.html`
-
-    '''
-
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super().get_context_data(**kwargs)
-
-        filters = get_ticket_filters()
-        filters.pop('type')
-        context['filters'] = filters
-        context['type'] = 'Bug Reports'
-        return context
-
-    def get_queryset(self):
-        tickets =  Ticket.objects.filter(
-            ticket_type='bug').order_by("-created_on")
-
-        # finally - django_filter
-        tickets_qs = TicketFilter(self.request.GET,
-                                            queryset=tickets)
-        return tickets_qs.qs
-
-
-
-class FeatureTicketListView(TicketListViewBase):
-    '''
-    A list of only feature request tickets.
-
-    **Context:**
-
-    ``object_list``
-        a list of :model:`ticket.Ticket` objects where
-        ticket_type=='feature'
-
-    **Template:**
-
-    :template:`/tickets/ticket_list.html`
-
-    '''
-
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super().get_context_data(**kwargs)
-
-        filters = get_ticket_filters()
-        filters.pop('type')
-        context['filters'] = filters
-        context['type'] = 'Feature Requests'
-        return context
-
-    def get_queryset(self):
-        tickets = Ticket.objects.filter(
-            ticket_type='feature').order_by("-created_on")
-        # finally - django_filter
-        tickets_qs = TicketFilter(self.request.GET,
-                                            queryset=tickets)
         return tickets_qs.qs
 
 
@@ -455,53 +335,6 @@ def SplitTicketView(request, pk=None,
 
     return render(request, template_name, {'form': form})
 
-
-##@login_required
-##def TicketFollowUpView(request, pk, action='closed',
-##                       template_name='tickets/comment_form.html'):
-##
-##    '''This view is used by administrators to accept, assign, close and
-##    re-open tickets.  Tickets can be closed outright or as a
-##    duplicate.  In all cases a comment (explanation) is required.
-##
-##   **Context:**
-##
-##    ``ticket``
-##        a :model:`ticket.Ticket` object.
-##
-##    ``form``
-##        an instance of a CloseTicketForm
-##
-##    **Template:**
-##
-##    :template:`/tickets/comment_form.html`
-##
-##    '''
-##
-##    try:
-##        ticket = Ticket.objects.get(pk=pk)
-##    except Ticket.DoesNotExist:
-##        url = reverse('ticket_list')
-##        return HttpResponseRedirect(url)
-##
-##    if not is_admin(request.user):
-##        return redirect(ticket.get_absolute_url())
-##
-##    if request.POST:
-##        form = CloseTicketForm(request.POST, ticket=ticket,
-##                               user=request.user, action=action)
-##        if form.is_valid():
-##            form.save()
-##            return HttpResponseRedirect(ticket.get_absolute_url())
-##        else:
-##            render(request, template_name, {'form': form, 'ticket': ticket})
-##
-##    else:
-##        form = CloseTicketForm(ticket=ticket, user=request.user,
-##                           action=action)
-##
-##    return render(request, template_name, {'form': form, 'ticket': ticket})
-##
 
 #==============================
 @login_required

@@ -63,20 +63,25 @@ urlpatterns = [
         name="submitted_by", kwargs={'what': 'submitted_by'}),
 
     url(regex=r"^open/$",
-        view=OpenTicketListView.as_view(),
-        name="open_tickets"),
+        view=TicketListView.as_view(),
+        name="open_tickets", kwargs={'status': 'open'}),
 
     url(regex=r"^closed/$",
-        view=ClosedTicketListView.as_view(),
-        name="closed_tickets"),
+        view=TicketListView.as_view(),
+        name="closed_tickets", kwargs={'status': 'closed'}),
 
     url(regex=r"^bugreports/$",
-        view=BugTicketListView.as_view(),
-        name="bug_reports"),
+        view=TicketListView.as_view(),
+        name="bug_reports", kwargs={'type': 'bug'}),
 
     url(regex=r"^featurerequests/$",
-        view=FeatureTicketListView.as_view(),
-        name="feature_requests"),
+        view=TicketListView.as_view(),
+        name="feature_requests", kwargs={'type': 'feature'}),
+
+    url(regex=r"^tasks/$",
+        view=TicketListView.as_view(),
+        name="tasks", kwargs={'type': 'task'}),
+
 
         #project tags
     #path('tag/<slug:slug>', TagIndexView.as_view(),

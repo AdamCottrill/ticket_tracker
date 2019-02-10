@@ -47,6 +47,7 @@
               <li class="divider"></li>
               <li><a href="{% url 'bug_reports' %}">Bug Reports</a></li>
               <li><a href="{% url 'feature_requests' %}">Feature Requests</a></li>
+              <li><a href="{% url 'tasks' %}">Tasks</a></li>
             </ul>
             {% if user.is_staff %}
             <li><a href="/admin/">Admin</a></li>

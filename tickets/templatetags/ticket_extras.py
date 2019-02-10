@@ -66,6 +66,7 @@ def ticket_type_btn(ticket_type, btn_size="xs"):
     btn_map = {
         'bug': ['danger', 'Bug Report'],
         'feature': ['default', 'Feature Request'],
+        'task': ['primary', 'Task'],
     }
 
     btn_attr = btn_map.get(ticket_type.lower())

@@ -22,12 +22,10 @@
 
         {% if tag %}
         <h3>Tickets Tagged with '{{ tag }}':</h3>
-        {% elif open %}
-        <h3>Open Tickets</h3>
-        {% elif closed %}
-        <h3>Closed Tickets</h3>
+        {% elif status %}
+        <h3>{{ status }} Tickets</h3>
         {% elif type %}
-        <h3>{{ type  }}</h3>
+        <h3>{{ type  }}s</h3>
         {% elif query %}
         <h3>Tickets that contain '{{ query }}':</h3>
         {% elif username %}
