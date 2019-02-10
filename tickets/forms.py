@@ -419,6 +419,7 @@ class CommentTicketForm(ModelForm):
         self.ticket = kwargs.pop('ticket')
         self.user = kwargs.pop('user')
         super(CommentTicketForm, self).__init__(*args, **kwargs)
+
         if is_admin(self.user) or self.user == self.ticket.submitted_by:
             self.fields['private'] = BooleanField(
                 required=False,
@@ -430,6 +431,7 @@ class CommentTicketForm(ModelForm):
     def save(self, *args, **kwargs):
         followUp = FollowUp(
             ticket=self.ticket,
+            submitted_by=self.user,
             private=self.cleaned_data.get('private', False),
             comment=self.cleaned_data['comment']
         )
@@ -458,8 +460,10 @@ class AcceptTicketForm(ModelForm):
     def save(self, *args, **kwargs):
         followUp = FollowUp(
             ticket=self.ticket,
+            submitted_by=self.user,
             comment=self.cleaned_data['comment']
         )
+
 
         self.ticket.assiged_to = self.user
         self.ticket.status = 'accepted'
@@ -499,6 +503,7 @@ class AssignTicketForm(ModelForm):
     def save(self, *args, **kwargs):
         followUp = FollowUp(
             ticket=self.ticket,
+            submitted_by=self.user,
             comment=self.cleaned_data['comment']
         )
 

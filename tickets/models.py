@@ -281,7 +281,7 @@ class FollowUp(models.Model):
     ticket = models.ForeignKey(Ticket)
     parent = models.ForeignKey('self', blank=True, null=True)
 
-    submitted_by = models.ForeignKey(User, null=True, blank=True)
+    submitted_by = models.ForeignKey(User)
     created_on = models.DateTimeField('date created', auto_now_add=True)
     comment = models.TextField()
 
@@ -301,6 +301,8 @@ class FollowUp(models.Model):
                                                  DEMOTE_HEADERS})
         self.comment_html = replace_links(self.comment_html,
                                               link_patterns=LINK_PATTERNS)
+
+
         super(FollowUp, self).save(*args, **kwargs)
 
 

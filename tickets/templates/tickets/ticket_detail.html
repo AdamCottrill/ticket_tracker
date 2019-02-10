@@ -150,34 +150,40 @@
 
     {% for comment in comments %}
 
-    <table class="table table-hover">
-      <tr>
-	<td>
-	  {% if comment.action == 'closed'  %}
+    {% if comment.action == 'closed'  %}
 
-	  <div class="alert alert-danger">
-	    <p>On {{ comment.created_on }} this ticket was <button class="btn btn-danger btn-xs" type="submit">closed</button> by {{ comment.submitted_by }}</p>
-	    {{ comment.comment_html|safe }}
-	  </div>
+    <div class="panel panel-danger">
+        <div class="panel-heading">
+            On {{ comment.created_on }} this ticket was <button class="btn btn-danger btn-xs" type="submit">closed</button> by {{ comment.submitted_by }}
+        </div>
+        <div class="panel-body">
+            {{ comment.comment_html|safe }}
+        </div>
+    </div>
+    {% elif comment.action == 'reopened'  %}
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            On {{ comment.created_on }} this ticket was <button class="btn btn-warning btn-xs" type="submit">re-opened</button> by {{ comment.submitted_by }}
+        </div>
+        <div class="panel-body">
+            {{ comment.comment_html|safe }}
+        </div>
+    </div>
 
-	  {% elif comment.action == 'reopened'  %}
-
-	  <div class="alert alert-success">
-	    <p>On {{ comment.created_on }} this ticket was <button class="btn btn-success btn-xs" type="submit">re-opened</button> by {{ comment.submitted_by }}</p>
-	    {{ comment.comment_html|safe }}
-	  </div>
-
-	  {% else %}
-
-	  <p>{% if comment.private %}
+    {% else %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            {% if comment.private %}
 	    <button class="btn btn-warning btn-xs" type="submit">private</button>
 	    {% endif %}
-	    On {{ comment.created_on }} {{ comment.submitted_by }} wrote:</p>
-	  {{ comment.comment_html|safe }}
-	  {% endif %}
-        </td>
-    </table>
-    <br />
+	    On {{ comment.created_on }} {{ comment.submitted_by }} wrote:
+        </div>
+        <div class="panel-body">
+            {{ comment.comment_html|safe }}
+        </div>
+    </div>
+    {% endif %}
+
     {% endfor %}
     {% else %}
     <em>No comments on this ticket yet.</em>
