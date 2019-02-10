@@ -17,6 +17,8 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.template.defaultfilters import slugify
+
 
 from markdown2 import markdown
 
@@ -62,6 +64,22 @@ class Application(models.Model):
 
     '''
     application = models.CharField(max_length=20)
+    slug = models.SlugField(unique=True, editable=False)
+
+    def save(self, *args, **kwargs):
+        """
+        A customized save method foe each application so that a unique
+        slug can be created. Used for url filtering.
+
+        from:http://stackoverflow.com/questions/7971689/
+             generate-slug-field-in-existing-table
+
+        Slugify name if a slug  doesn't already exist.
+
+        """
+
+        self.slug = slugify(self.application)
+        super(Application, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.application

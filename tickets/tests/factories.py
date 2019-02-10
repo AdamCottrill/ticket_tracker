@@ -29,8 +29,10 @@ class ApplicationFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Application
-    application = "MyFakeApp"
+        django_get_or_create = ('slug',)
 
+    application = "MyFakeApp"
+    slug = "myfakeapp"
 
 class TicketFactory(factory.django.DjangoModelFactory):
 

@@ -130,6 +130,7 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',
             ],
         },
     },
@@ -153,6 +154,7 @@ THIRDPARTY_APPS = (
     'password_reset',
     'crispy_forms',
     'taggit',
+    'django_filters',
 )
 
 MY_APPS = (

@@ -15,6 +15,7 @@ from .models import Ticket, UserVoteLog, FollowUp
 from .forms import (TicketForm, CloseTicketForm, SplitTicketForm,
                     # CommentForm,
                     AcceptTicketForm, AssignTicketForm, CommentTicketForm)
+from .filters import TicketFilter
 from .utils import is_admin
 
 
@@ -83,6 +84,7 @@ class TicketDetailView(DetailView):
 class TicketListViewBase(TagMixin, ListView):
     '''A base class for all ticket listviews.'''
     model = Ticket
+    filterset_class = TicketFilter
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
@@ -110,26 +112,26 @@ def get_ticket_filters():
     values = Ticket.TICKET_TYPE_CHOICES
     ticket_types = [x[1] for x in values]
 
-    values = Ticket.objects.all().values_list('application__application')\
+    values = Ticket.objects.values_list('application__application')\
                                  .distinct()
     applications = [x[0] for x in values]
 
-    values = Ticket.objects.all().values_list('submitted_by__username')\
+    values = Ticket.objects.values_list('submitted_by__username')\
                                  .distinct()
     submitted_by = [x[0] for x in values]
 
-    values = Ticket.objects.all().values_list('assigned_to__username')\
+    values = Ticket.objects.values_list('assigned_to__username')\
                                  .distinct()
     assigned_to = [x[0] for x in values]
 
     ticket_filters = OrderedDict()
 
     ticket_filters['status'] = status
-    ticket_filters['application'] = applications
+    ticket_filters['application'] = list(set(applications))
     ticket_filters['priority'] = priority
     ticket_filters['type'] = ticket_types
-    ticket_filters['submitted_by'] = submitted_by
-    ticket_filters['assigned_to'] = assigned_to
+    ticket_filters['submitted_by'] = list(set(submitted_by))
+    ticket_filters['assigned_to'] = list(set(assigned_to))
 
     return ticket_filters
 
@@ -197,15 +199,18 @@ class TicketListView(TicketListViewBase):
 
         if user:
             if what == 'submitted_by':
-                return tickets.filter(submitted_by=user)
+                tickets = tickets.filter(submitted_by=user)
             elif what == 'assigned_to':
-                return tickets.filter(assigned_to=user)
+                tickets = tickets.filter(assigned_to=user)
             else:
-                return tickets.filter(Q(submitted_by=user) |
+                tickets = tickets.filter(Q(submitted_by=user) |
                                       Q(assigned_to=user))
-        else:
-            # No q or user is specified so we return the full queryset
-            return tickets.all()
+
+        # finally - django_filter
+        tickets_qs = TicketFilter(self.request.GET,
+                                            queryset=tickets)
+
+        return tickets_qs.qs
 
 
 class ClosedTicketListView(TicketListViewBase):
@@ -231,8 +236,15 @@ class ClosedTicketListView(TicketListViewBase):
 
     def get_queryset(self):
         inactive_codes = ['closed', 'split', 'duplicate']
-        return Ticket.objects.filter(
+        tickets =  Ticket.objects.filter(
             status__in=inactive_codes).order_by("-created_on")
+
+        # finally - django_filter
+        tickets_qs = TicketFilter(self.request.GET,
+                                  queryset=tickets)
+
+        return tickets_qs.qs
+
 
 
 class OpenTicketListView(TicketListViewBase):
@@ -259,8 +271,13 @@ class OpenTicketListView(TicketListViewBase):
 
     def get_queryset(self):
         open_codes = ['new', 'accepted', 'assigned', 'reopened']
-        return Ticket.objects.filter(
+        tickets = Ticket.objects.filter(
             status__in=open_codes).order_by("-created_on")
+
+        # finally - django_filter
+        tickets_qs = TicketFilter(self.request.GET,
+                                            queryset=tickets)
+        return tickets_qs.qs
 
 
 class BugTicketListView(TicketListViewBase):
@@ -290,8 +307,14 @@ class BugTicketListView(TicketListViewBase):
         return context
 
     def get_queryset(self):
-        return Ticket.objects.filter(
+        tickets =  Ticket.objects.filter(
             ticket_type='bug').order_by("-created_on")
+
+        # finally - django_filter
+        tickets_qs = TicketFilter(self.request.GET,
+                                            queryset=tickets)
+        return tickets_qs.qs
+
 
 
 class FeatureTicketListView(TicketListViewBase):
@@ -321,8 +344,12 @@ class FeatureTicketListView(TicketListViewBase):
         return context
 
     def get_queryset(self):
-        return Ticket.objects.filter(
+        tickets = Ticket.objects.filter(
             ticket_type='feature').order_by("-created_on")
+        # finally - django_filter
+        tickets_qs = TicketFilter(self.request.GET,
+                                            queryset=tickets)
+        return tickets_qs.qs
 
 
 @login_required

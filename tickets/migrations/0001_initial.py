@@ -24,6 +24,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('application', models.CharField(max_length=20)),
+                ('slug', models.SlugField(editable=False, unique=True)),
             ],
         ),
         migrations.CreateModel(
