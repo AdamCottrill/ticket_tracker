@@ -30,6 +30,7 @@ class TestTicketForm(TestCase):
         '''verify that the same data comes out as went in'''
 
         initial = {
+            'title': 'Ticket Title',
             'status': 'new',
             'application': 1,
             'ticket_type': 'bug',
@@ -53,6 +54,7 @@ class TestTicketForm(TestCase):
         '''
 
         initial = {
+            'title': 'Ticket Title',
             'assigned_to': 1,
             'status': 'new',
             'application': 1,
@@ -72,6 +74,7 @@ class TestTicketForm(TestCase):
         '''
 
         initial = {
+            'title': 'Ticket Title',
             'assigned_to': 1,
             #'status': 'new',
             'application': 1,
@@ -90,6 +93,7 @@ class TestTicketForm(TestCase):
         '''
 
         initial = {
+            'title': 'Ticket Title',
             'assigned_to':1,
             'status':'new',
             #'ticket_type':'bug',
@@ -285,12 +289,14 @@ class TestSplitForm(TestCase):
 
         initial = {
             'status1': 'new',
+            'title1': self.ticket.title,
             'ticket_type1': self.ticket.ticket_type,
             'priority1': self.ticket.priority,
             'application1':  self.app.id,
             'assigned_to1': self.ticket.assigned_to,
             'description1': self.ticket.description,
             'status2': 'new',
+            'title2': self.ticket.title,
             'ticket_type2': self.ticket.ticket_type,
             'priority2': self.ticket.priority,
             'application2':  self.app.id,
@@ -316,6 +322,12 @@ class TestSplitForm(TestCase):
                          self.ticket.application)
         self.assertEqual(form.cleaned_data['application2'],
                          self.ticket.application)
+
+
+        self.assertEqual(form.cleaned_data['title1'],
+                         self.ticket.title)
+        self.assertEqual(form.cleaned_data['title2'],
+                         self.ticket.title)
 
 
         self.assertEqual(form.cleaned_data['description1'],
@@ -410,12 +422,14 @@ class TestSplitForm(TestCase):
 
         initial = {
             'status1': 'new',
+            'title1': self.ticket.title,
             'ticket_type1': self.ticket.ticket_type,
             'priority1': self.ticket.priority,
             #'assigned_to1': self.ticket.assigned_to,
             'application1': self.ticket.application.id,
             'description1': self.ticket.description,
             'status2': 'new',
+            'title2': self.ticket.title,
             'ticket_type2': self.ticket.ticket_type,
             'priority2': self.ticket.priority,
             #'assigned_to2': self.ticket.assigned_to,

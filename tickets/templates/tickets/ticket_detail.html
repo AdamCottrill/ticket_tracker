@@ -7,8 +7,9 @@
 {% block content %}
 
 <div class="container">
-  <div class="col-md-6">
-    <h2>Ticket #{{ object.id }} <span> {{ object.status | status_btn:"lg" }}</span></h2>
+    <div class="col-md-6">
+        <h2>Ticket #{{ object.id }} -  {{ ticket.title }} <span> {{ object.status | status_btn:"med" }}</span></h2>
+
 
     <hr />
     <h3>Information</h3>

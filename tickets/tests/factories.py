@@ -39,6 +39,7 @@ class TicketFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Ticket
 
+    title = 'This is my ticket title'
     submitted_by = factory.SubFactory(UserFactory)
     application = factory.SubFactory(ApplicationFactory)
     status = 'new'

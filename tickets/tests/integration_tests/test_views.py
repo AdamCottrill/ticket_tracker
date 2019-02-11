@@ -283,34 +283,46 @@ class TicketListTestCase(TestCase):
         self.ticket1 = TicketFactory(status='new',
                                      submitted_by=self.user1,
                                      ticket_type='feature',
+                                     title=desc,
                                      description=desc)
 
+        desc = "This ticket is accepted."
         self.ticket2 = TicketFactory(status='accepted',
                                      submitted_by=self.user1,
-                                     description="This ticket is accepted.")
+                                     title=desc,
+                                     description=desc)
 
+        desc = "This ticket is assigned."
         self.ticket3 = TicketFactory(status='assigned',
                                      ticket_type='feature',
-                                     description="This ticket is assigned.",
+                                     title=desc,
+                                     description=desc,
                                      assigned_to=self.user1)
 
         desc = "This ticket is reopened. findme."
         self.ticket4 = TicketFactory(status='reopened',
+                                     title=desc,
                                      description=desc)
 
         desc = "This ticket is closed. findme"
         self.ticket5 = TicketFactory(status='closed',
+                                     title=desc,
                                      description=desc)
 
+        desc = "This ticket is a duplicate."
         self.ticket6 = TicketFactory(status='duplicate',
-                                     description="This ticket is a duplicate.")
+                                     title=desc,
+                                     description=desc)
 
+        desc = "This ticket is split."
         self.ticket7 = TicketFactory(status='split',
-                                     description="This ticket is split.")
+                                     title=desc,
+                                     description=desc)
 
         # TODO - activate for inactive:
         desc = "This ticket is inactive. findme"
         self.ticket8 = TicketFactory(active=False,
+                                     title=desc,
                                      description=desc)
 
     def test_ticket_list(self):
@@ -320,15 +332,15 @@ class TicketListTestCase(TestCase):
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
-        self.assertContains(response, self.ticket1.name())
-        self.assertContains(response, self.ticket2.name())
-        self.assertContains(response, self.ticket3.name())
-        self.assertContains(response, self.ticket4.name())
-        self.assertContains(response, self.ticket5.name())
-        self.assertContains(response, self.ticket6.name())
-        self.assertContains(response, self.ticket7.name())
+        self.assertContains(response, self.ticket1.title)
+        self.assertContains(response, self.ticket2.title)
+        self.assertContains(response, self.ticket3.title)
+        self.assertContains(response, self.ticket4.title)
+        self.assertContains(response, self.ticket5.title)
+        self.assertContains(response, self.ticket6.title)
+        self.assertContains(response, self.ticket7.title)
 
-        self.assertNotContains(response, self.ticket8.name())
+        self.assertNotContains(response, self.ticket8.title)
 
     def test_ticket_list_with_q(self):
         '''this view should return all of our tickets that contain q
@@ -341,16 +353,16 @@ class TicketListTestCase(TestCase):
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
 
         # only tickets contain the string 'findme'
-        self.assertContains(response, self.ticket1.name())
-        self.assertContains(response, self.ticket4.name())
-        self.assertContains(response, self.ticket5.name())
+        self.assertContains(response, self.ticket1.title)
+        self.assertContains(response, self.ticket4.title)
+        self.assertContains(response, self.ticket5.title)
 
-        self.assertNotContains(response, self.ticket2.name())
-        self.assertNotContains(response, self.ticket3.name())
-        self.assertNotContains(response, self.ticket6.name())
-        self.assertNotContains(response, self.ticket7.name())
+        self.assertNotContains(response, self.ticket2.title)
+        self.assertNotContains(response, self.ticket3.title)
+        self.assertNotContains(response, self.ticket6.title)
+        self.assertNotContains(response, self.ticket7.title)
 
-        self.assertNotContains(response, self.ticket8.name())
+        self.assertNotContains(response, self.ticket8.title)
 
     def test_my_tickets_list(self):
         '''this view should return only those tickets that belong to
@@ -362,17 +374,17 @@ class TicketListTestCase(TestCase):
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
 
         # ticket 1 and 2 were created by homer and ticket 3 is assiged to him.:
-        self.assertContains(response, self.ticket1.name())
-        self.assertContains(response, self.ticket2.name())
-        self.assertContains(response, self.ticket3.name())
+        self.assertContains(response, self.ticket1.title)
+        self.assertContains(response, self.ticket2.title)
+        self.assertContains(response, self.ticket3.title)
         # these were not:
-        self.assertNotContains(response, self.ticket4.name())
-        self.assertNotContains(response, self.ticket5.name())
-        self.assertNotContains(response, self.ticket6.name())
-        self.assertNotContains(response, self.ticket7.name())
+        self.assertNotContains(response, self.ticket4.title)
+        self.assertNotContains(response, self.ticket5.title)
+        self.assertNotContains(response, self.ticket6.title)
+        self.assertNotContains(response, self.ticket7.title)
 
         # the inactive ticket should not be in the list
-        self.assertNotContains(response, self.ticket8.name())
+        self.assertNotContains(response, self.ticket8.title)
 
 
     def test_my_submitted_tickets_list(self):
@@ -386,18 +398,18 @@ class TicketListTestCase(TestCase):
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
 
         # ticket 1 and 2 were created by homer:
-        self.assertContains(response, self.ticket1.name())
-        self.assertContains(response, self.ticket2.name())
+        self.assertContains(response, self.ticket1.title)
+        self.assertContains(response, self.ticket2.title)
 
         # these were not:
-        self.assertNotContains(response, self.ticket3.name())
-        self.assertNotContains(response, self.ticket4.name())
-        self.assertNotContains(response, self.ticket5.name())
-        self.assertNotContains(response, self.ticket6.name())
-        self.assertNotContains(response, self.ticket7.name())
+        self.assertNotContains(response, self.ticket3.title)
+        self.assertNotContains(response, self.ticket4.title)
+        self.assertNotContains(response, self.ticket5.title)
+        self.assertNotContains(response, self.ticket6.title)
+        self.assertNotContains(response, self.ticket7.title)
 
         # the inactive ticket should not be in the list
-        self.assertNotContains(response, self.ticket8.name())
+        self.assertNotContains(response, self.ticket8.title)
 
 
     def test_my_assigned_tickets_list(self):
@@ -411,17 +423,17 @@ class TicketListTestCase(TestCase):
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
 
         # ticket 3 is the only ticket currently assigned to Homer
-        self.assertContains(response, self.ticket3.name())
+        self.assertContains(response, self.ticket3.title)
         # these were not:
-        self.assertNotContains(response, self.ticket1.name())
-        self.assertNotContains(response, self.ticket2.name())
-        self.assertNotContains(response, self.ticket4.name())
-        self.assertNotContains(response, self.ticket5.name())
-        self.assertNotContains(response, self.ticket6.name())
-        self.assertNotContains(response, self.ticket7.name())
+        self.assertNotContains(response, self.ticket1.title)
+        self.assertNotContains(response, self.ticket2.title)
+        self.assertNotContains(response, self.ticket4.title)
+        self.assertNotContains(response, self.ticket5.title)
+        self.assertNotContains(response, self.ticket6.title)
+        self.assertNotContains(response, self.ticket7.title)
 
         # the inactive ticket should not be in the list
-        self.assertNotContains(response, self.ticket8.name())
+        self.assertNotContains(response, self.ticket8.title)
 
 
     def test_my_tickets_list_with_q(self):
@@ -439,18 +451,18 @@ class TicketListTestCase(TestCase):
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
 
         # only ticket 1 was created by homer and contain 'findme'
-        self.assertContains(response, self.ticket1.name())
+        self.assertContains(response, self.ticket1.title)
 
         # these were not created by homer or do not contain 'findme':
-        self.assertNotContains(response, self.ticket2.name())
-        self.assertNotContains(response, self.ticket3.name())
-        self.assertNotContains(response, self.ticket4.name())
-        self.assertNotContains(response, self.ticket5.name())
-        self.assertNotContains(response, self.ticket6.name())
-        self.assertNotContains(response, self.ticket7.name())
+        self.assertNotContains(response, self.ticket2.title)
+        self.assertNotContains(response, self.ticket3.title)
+        self.assertNotContains(response, self.ticket4.title)
+        self.assertNotContains(response, self.ticket5.title)
+        self.assertNotContains(response, self.ticket6.title)
+        self.assertNotContains(response, self.ticket7.title)
 
         # the inactive ticket should not be in the list
-        self.assertNotContains(response, self.ticket8.name())
+        self.assertNotContains(response, self.ticket8.title)
 
 
     def test_my_tickets_list_nonexistant_user(self):
@@ -463,16 +475,16 @@ class TicketListTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
         self.assertContains(response, "<h4>No Tickets Found.</h4>")
-        self.assertNotContains(response, self.ticket1.name())
-        self.assertNotContains(response, self.ticket2.name())
-        self.assertNotContains(response, self.ticket3.name())
-        self.assertNotContains(response, self.ticket4.name())
-        self.assertNotContains(response, self.ticket5.name())
-        self.assertNotContains(response, self.ticket6.name())
-        self.assertNotContains(response, self.ticket7.name())
+        self.assertNotContains(response, self.ticket1.title)
+        self.assertNotContains(response, self.ticket2.title)
+        self.assertNotContains(response, self.ticket3.title)
+        self.assertNotContains(response, self.ticket4.title)
+        self.assertNotContains(response, self.ticket5.title)
+        self.assertNotContains(response, self.ticket6.title)
+        self.assertNotContains(response, self.ticket7.title)
 
         # the inactive ticket should not be in the list
-        self.assertNotContains(response, self.ticket8.name())
+        self.assertNotContains(response, self.ticket8.title)
 
 
     def test_open_ticket_list(self):
@@ -484,17 +496,17 @@ class TicketListTestCase(TestCase):
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
-        self.assertContains(response, self.ticket1.name())
-        self.assertContains(response, self.ticket2.name())
-        self.assertContains(response, self.ticket3.name())
-        self.assertContains(response, self.ticket4.name())
+        self.assertContains(response, self.ticket1.title)
+        self.assertContains(response, self.ticket2.title)
+        self.assertContains(response, self.ticket3.title)
+        self.assertContains(response, self.ticket4.title)
 
-        self.assertNotContains(response, self.ticket5.name())
-        self.assertNotContains(response, self.ticket6.name())
-        self.assertNotContains(response, self.ticket7.name())
+        self.assertNotContains(response, self.ticket5.title)
+        self.assertNotContains(response, self.ticket6.title)
+        self.assertNotContains(response, self.ticket7.title)
 
         # the inactive ticket should not be in the list
-        self.assertNotContains(response, self.ticket8.name())
+        self.assertNotContains(response, self.ticket8.title)
 
     def test_closed_ticket_list(self):
         '''this view should return only those tickets that have been
@@ -505,17 +517,17 @@ class TicketListTestCase(TestCase):
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
-        self.assertNotContains(response, self.ticket1.name())
-        self.assertNotContains(response, self.ticket2.name())
-        self.assertNotContains(response, self.ticket3.name())
-        self.assertNotContains(response, self.ticket4.name())
+        self.assertNotContains(response, self.ticket1.title)
+        self.assertNotContains(response, self.ticket2.title)
+        self.assertNotContains(response, self.ticket3.title)
+        self.assertNotContains(response, self.ticket4.title)
 
-        self.assertContains(response, self.ticket5.name())
-        self.assertContains(response, self.ticket6.name())
-        self.assertContains(response, self.ticket7.name())
+        self.assertContains(response, self.ticket5.title)
+        self.assertContains(response, self.ticket6.title)
+        self.assertContains(response, self.ticket7.title)
 
         # the inactive ticket should not be in the list
-        self.assertNotContains(response, self.ticket8.name())
+        self.assertNotContains(response, self.ticket8.title)
 
     def test_bug_ticket_list(self):
         '''this view should return only those tickets that are bug
@@ -529,17 +541,17 @@ class TicketListTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
 
-        self.assertNotContains(response, self.ticket1.name())
-        self.assertNotContains(response, self.ticket3.name())
+        self.assertNotContains(response, self.ticket1.title)
+        self.assertNotContains(response, self.ticket3.title)
 
-        self.assertContains(response, self.ticket2.name())
-        self.assertContains(response, self.ticket4.name())
-        self.assertContains(response, self.ticket5.name())
-        self.assertContains(response, self.ticket6.name())
-        self.assertContains(response, self.ticket7.name())
+        self.assertContains(response, self.ticket2.title)
+        self.assertContains(response, self.ticket4.title)
+        self.assertContains(response, self.ticket5.title)
+        self.assertContains(response, self.ticket6.title)
+        self.assertContains(response, self.ticket7.title)
 
         # the inactive ticket should not be in the list
-        self.assertNotContains(response, self.ticket8.name())
+        self.assertNotContains(response, self.ticket8.title)
 
     def test_feature_reqeust_list(self):
         '''this view should return only those tickets that are bug
@@ -553,17 +565,17 @@ class TicketListTestCase(TestCase):
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
 
         # 1 and 3 are the only feature requests
-        self.assertContains(response, self.ticket1.name())
-        self.assertContains(response, self.ticket3.name())
+        self.assertContains(response, self.ticket1.title)
+        self.assertContains(response, self.ticket3.title)
 
-        self.assertNotContains(response, self.ticket2.name())
-        self.assertNotContains(response, self.ticket4.name())
-        self.assertNotContains(response, self.ticket5.name())
-        self.assertNotContains(response, self.ticket6.name())
-        self.assertNotContains(response, self.ticket7.name())
+        self.assertNotContains(response, self.ticket2.title)
+        self.assertNotContains(response, self.ticket4.title)
+        self.assertNotContains(response, self.ticket5.title)
+        self.assertNotContains(response, self.ticket6.title)
+        self.assertNotContains(response, self.ticket7.title)
 
         # the inactive ticket should not be in the list
-        self.assertNotContains(response, self.ticket8.name())
+        self.assertNotContains(response, self.ticket8.title)
 
 
 class VotingTestCase(TestCase):

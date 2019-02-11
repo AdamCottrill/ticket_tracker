@@ -82,7 +82,7 @@ class TicketForm(ModelForm):
 
     class Meta:
         model = Ticket
-        fields = ['ticket_type', 'priority', 'application',
+        fields = ['title', 'ticket_type', 'priority', 'application',
                   'description', 'tags'
                   #          'assigned_to'
         ]
@@ -101,6 +101,8 @@ class SplitTicketForm(Form):
     ticket_type1 = CharField(max_length=20, label="Ticket Type",
                              widget=Select(
                                  choices=Ticket.TICKET_TYPE_CHOICES))
+
+    title1 = CharField(max_length=80, label="Title")
 
     priority1 = CharField(max_length=20, label="Priority",
                           widget=Select(
@@ -124,6 +126,7 @@ class SplitTicketForm(Form):
     ticket_type2 = CharField(max_length=20, label="Ticket Type",
                              widget=Select(
                                  choices=Ticket.TICKET_TYPE_CHOICES))
+    title2 = CharField(max_length=80, label="Title")
 
     priority2 = CharField(max_length=20, label="Priority",
                           widget=Select(
@@ -156,6 +159,7 @@ class SplitTicketForm(Form):
             Div(
                 Div(
                     Fieldset("Ticket 1",
+                             'title1',
                              'status1',
                              'ticket_type1',
                              'priority1',
@@ -165,6 +169,7 @@ class SplitTicketForm(Form):
                     css_class='col-md-6 well'),
                 Div(
                     Fieldset("Ticket 2",
+                             'title2',
                              'status2',
                              'ticket_type2',
                              'priority2',
@@ -183,6 +188,7 @@ class SplitTicketForm(Form):
         original = self.original_ticket
 
         ticket1 = Ticket(status=self.cleaned_data['status1'],
+                         title=self.cleaned_data['title1'],
                          assigned_to=self.cleaned_data.get('assigned_to1'),
                          priority=self.cleaned_data.get('priority1'),
                          application=self.cleaned_data.get('application1'),
@@ -193,6 +199,7 @@ class SplitTicketForm(Form):
         ticket1.save()
 
         ticket2 = Ticket(status=self.cleaned_data.get('status2'),
+                         title=self.cleaned_data['title2'],
                          assigned_to=self.cleaned_data.get('assigned_to2'),
                          priority=self.cleaned_data.get('priority2'),
                          application=self.cleaned_data.get('application2'),

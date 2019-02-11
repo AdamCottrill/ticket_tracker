@@ -192,6 +192,7 @@ class TicketUpdateTestCase(WebTest):
         form = response.forms['ticket']
 
         form['ticket_type'] = 'feature'
+        form['title'] = "New Ticket Title"
         form['description'] = "New Ticket created by UpdateView"
         form['priority'] = 4
         form['application'] = 1
@@ -203,6 +204,7 @@ class TicketUpdateTestCase(WebTest):
 
         self.assertContains(response, 'New</button>')
         self.assertContains(response, 'Feature Request')
+        self.assertContains(response, 'New Ticket Title')
         self.assertContains(response, "New Ticket created by UpdateView")
 
     def test_add_tags_ticket_detail_form(self):

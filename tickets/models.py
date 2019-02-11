@@ -127,6 +127,7 @@ class Ticket(models.Model):
                               choices=TICKET_STATUS_CHOICES, default=True)
     ticket_type = models.CharField(max_length=10,
                               choices=TICKET_TYPE_CHOICES, default=True)
+    title = models.CharField(max_length=80)
     description = models.TextField()
     description_html = models.TextField(editable=False, blank=True)
     priority = models.IntegerField(choices=TICKET_PRIORITY_CHOICES)

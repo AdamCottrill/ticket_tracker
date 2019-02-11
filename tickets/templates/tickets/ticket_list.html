@@ -76,7 +76,7 @@
                     <tr class="ticket" data-category="status-{{ object.status|classify }} type-{{ object.get_ticket_type_display|classify }} priority-{{ object.get_priority_display|classify }} application-{{ object.application|classify }} submitted-by-{{ object.submitted_by|classify }} assigned-to-{{object.assigned_to|classify}}" >
                         <td><a href="{{ object.get_absolute_url }}">{{object.id}}</a></td>
                         <td><a href="?{% query_transform status=object.status %}">{{object.status | status_btn }}</a></td>
-                        <td><a href="{{ object.get_absolute_url }}">{{  object.name }}</a></td>
+                        <td><a href="{{ object.get_absolute_url }}">{{  object.title }}</a></td>
                         <td><a href="?{% query_transform application=object.application.slug %}">{{object.application}}</a></td>
                         <td><a href="{% url 'submitted_by' object.submitted_by.username %}">{{object.submitted_by}}</a></td>
                         <td>{{object.created_on |date:"M d, Y" }}</td>

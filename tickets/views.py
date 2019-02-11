@@ -203,8 +203,8 @@ class TicketListView(TicketListViewBase):
                                                   'submitted_by',
                                                   'assigned_to')
         if q:
-            tickets = tickets.filter(description__icontains=q)
-
+            tickets = tickets.filter(Q(description__icontains=q) |
+                                     Q(title__icontains=q))
         if username:
             if what == 'submitted_by':
                 tickets = tickets.filter(
@@ -317,12 +317,14 @@ def SplitTicketView(request, pk=None,
     # start with the same data in both tickets as the original.
     initial = {
         'status1': 'new',
+        'title1': ticket.title,
         'ticket_type1': ticket.ticket_type,
         'priority1': ticket.priority,
         'application1': ticket.application,
         'assigned_to1': ticket.assigned_to,
         'description1': ticket.description,
         'status2': 'new',
+        'title2': ticket.title,
         'ticket_type2': ticket.ticket_type,
         'priority2': ticket.priority,
         'application2': ticket.application,
