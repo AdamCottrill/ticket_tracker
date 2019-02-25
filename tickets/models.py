@@ -1,4 +1,4 @@
-'''
+"""
 =============================================================
 /home/adam/Documents/djcode/tickettracker/tickets/models.py
 Created: 04 May 2014 21:26:46
@@ -9,8 +9,7 @@ DESCRIPTION:
 
 A. Cottrill
 =============================================================
-'''
-
+"""
 
 from django.db import models
 from django.conf import settings
@@ -19,12 +18,11 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 
-
 from markdown2 import markdown
 
-from .utils import replace_links
-
 from taggit.managers import TaggableManager
+
+from .utils import replace_links
 
 LINK_PATTERNS = getattr(settings, "LINK_PATTERNS", None)
 
@@ -33,36 +31,36 @@ DEMOTE_HEADERS = 2
 
 
 class TicketManager(models.Manager):
-    '''A custom model manager for tickets.
+    """A custom model manager for tickets.   
 
     By default, only active tickets will be returned in any queryset.
-    '''
+    """
 
     def get_queryset(self):
-        '''only those tickets that are active'''
+        """only those tickets that are active"""
         # return self.filter(active=True)
         return super(TicketManager, self).get_queryset().filter(active=True)
 
 
 class CommentManager(models.Manager):
-    '''A custom model manager for comments'''
+    """A custom model manager for comments"""
 
     def get_queryset(self):
-        '''only those comments that are not private'''
-        #return self.filter(private=False)
-        return super(CommentManager,
-                     self).get_queryset().filter(private=False)
+        """only those comments that are not private"""
+        # return self.filter(private=False)
+        return super(CommentManager, self).get_queryset().filter(private=False)
 
 
 class Application(models.Model):
-    '''A model to keep track of which application a ticket is
+    """A model to keep track of which application a ticket is
     associated with.  The ticketTracker applicaton is likely to be
     used to support several differnt application.  This table will
     help us keep track of tickets are associated with which app.
 
     Use the admin to add, update or remove applications.
 
-    '''
+    """
+
     application = models.CharField(max_length=20)
     slug = models.SlugField(unique=True, editable=False)
 
@@ -86,55 +84,59 @@ class Application(models.Model):
 
 
 class Ticket(models.Model):
-    '''A model for ticket objects.
+    """A model for ticket objects.
 
     This model used a custom model manager (TicketManager) to return
     only active tickets by default.  To return all tickets use
     all_tickets.all()
 
-    '''
+    """
 
     TICKET_STATUS_CHOICES = {
-        ('new', 'New'),
-        ('accepted', 'Accepted'),
-        ('assigned', 'Assigned'),
-        ('re-opened', 'Re-Opened'),
-        ('closed', 'Closed'),
-        ('duplicate', 'Closed - Duplicate'),
-        ('split', 'Closed - Split'),
+        ("new", "New"),
+        ("accepted", "Accepted"),
+        ("assigned", "Assigned"),
+        ("re-opened", "Re-Opened"),
+        ("closed", "Closed"),
+        ("duplicate", "Closed - Duplicate"),
+        ("split", "Closed - Split"),
     }
 
     TICKET_TYPE_CHOICES = {
-        ('feature', 'Feature Request'),
-        ('bug', 'Bug Report'),
-        ('task', 'Task'),
+        ("feature", "Feature Request"),
+        ("bug", "Bug Report"),
+        ("task", "Task"),
     }
 
     TICKET_PRIORITY_CHOICES = {
-        (1, 'Critical'),
-        (2, 'High'),
-        (3, 'Normal'),
-        (4, 'Low'),
-        (5, 'Very Low'),
+        (1, "Critical"),
+        (2, "High"),
+        (3, "Normal"),
+        (4, "Low"),
+        (5, "Very Low"),
     }
 
-    assigned_to = models.ForeignKey(User, null=True, blank=True,
-                                    related_name="assigned_tickets")
-    submitted_by = models.ForeignKey(User, null=True, blank=True,
-                                     related_name="submitted_tickets")
+    assigned_to = models.ForeignKey(
+        User, null=True, blank=True, related_name="assigned_tickets"
+    )
+    submitted_by = models.ForeignKey(
+        User, null=True, blank=True, related_name="submitted_tickets"
+    )
     active = models.BooleanField(default=True)
-    status = models.CharField(max_length=20,
-                              choices=TICKET_STATUS_CHOICES, default=True)
-    ticket_type = models.CharField(max_length=10,
-                              choices=TICKET_TYPE_CHOICES, default=True)
+    status = models.CharField(
+        max_length=20, choices=TICKET_STATUS_CHOICES, default=True
+    )
+    ticket_type = models.CharField(
+        max_length=10, choices=TICKET_TYPE_CHOICES, default=True
+    )
     title = models.CharField(max_length=80)
     description = models.TextField()
     description_html = models.TextField(editable=False, blank=True)
     priority = models.IntegerField(choices=TICKET_PRIORITY_CHOICES)
-    created_on = models.DateTimeField('date created', auto_now_add=True)
-    updated_on = models.DateTimeField('date updated', auto_now=True)
+    created_on = models.DateTimeField("date created", auto_now_add=True)
+    updated_on = models.DateTimeField("date updated", auto_now=True)
     votes = models.IntegerField(default=0)
-    parent = models.ForeignKey('self', blank=True, null=True)
+    parent = models.ForeignKey("self", blank=True, null=True)
     application = models.ForeignKey(Application)
 
     tags = TaggableManager(blank=True)
@@ -144,7 +146,6 @@ class Ticket(models.Model):
 
     class Meta:
         ordering = ["-created_on"]
-
 
     def __str__(self):
         name = self.description.split("\n", 1)[0]
@@ -157,62 +158,63 @@ class Ticket(models.Model):
         return name
 
     def get_absolute_url(self):
-        url = reverse('ticket_detail', kwargs={'pk':self.id})
+        url = reverse("ticket_detail", kwargs={"pk": self.id})
         return url
 
     def save(self, *args, **kwargs):
-        self.description_html = markdown(self.description,
-                                         extras={'demote-headers':
-                                                 DEMOTE_HEADERS,})
-        self.description_html = replace_links(self.description_html,
-                                              link_patterns=LINK_PATTERNS)
+        self.description_html = markdown(
+            self.description, extras={"demote-headers": DEMOTE_HEADERS}
+        )
+        self.description_html = replace_links(
+            self.description_html, link_patterns=LINK_PATTERNS
+        )
 
         super(Ticket, self).save(*args, **kwargs)
 
     def up_vote(self):
-        '''A method to increment the number of votes associated with a
-        ticket.'''
+        """A method to increment the number of votes associated with a
+        ticket."""
         self.votes += 1
         self.save()
 
     def down_vote(self):
-        '''A method to decrement the number of votes associated with a
-        ticket.'''
+        """A method to decrement the number of votes associated with a
+        ticket."""
         if self.votes > 0:
             self.votes -= 1
             self.save()
 
     def duplicate_of(self, original_pk):
-        '''a method to flag this ticket as a duplicate of another.
+        """a method to flag this ticket as a duplicate of another.
         Automatically created an appropriate record in TicketDuplicate
         table.
-        '''
+        """
         original = Ticket.objects.get(pk=original_pk)
         duplicate = TicketDuplicate(ticket=self, original=original)
         duplicate.save()
 
     def get_duplicates(self):
-        '''a method to retreive all of the ticket objects that have
+        """a method to retreive all of the ticket objects that have
         been flagged as duplicates of this ticket.
-        '''
+        """
         duplicates = TicketDuplicate.objects.filter(original=self)
         if not duplicates:
             duplicates = None
         return duplicates
 
     def get_originals(self):
-        '''a method to retreive the ticket object that this ticket
+        """a method to retreive the ticket object that this ticket
         duplicates.
-        '''
+        """
         originals = TicketDuplicate.objects.filter(ticket=self)
         if not originals:
             originals = None
         return originals
 
     def get_parent(self):
-        '''a method to return the ticket that this ticket was split
+        """a method to return the ticket that this ticket was split
         out of
-        '''
+        """
         if self.parent:
             try:
                 parent = Ticket.objects.get(id=self.parent.id)
@@ -223,87 +225,89 @@ class Ticket(models.Model):
         return parent
 
     def get_children(self):
-        '''return any tickets that were create by splitting this
+        """return any tickets that were create by splitting this
         ticket
-        '''
+        """
         children = Ticket.objects.filter(parent=self.id)
         if not children:
             children = None
         return children
 
     def is_closed(self):
-        '''a boolean method to indicate if this ticket is open or
+        """a boolean method to indicate if this ticket is open or
         closed.  Makes templating much simpler.
-        '''
-        if self.status in ('closed', 'duplicate', 'split'):
+        """
+        if self.status in ("closed", "duplicate", "split"):
             return True
         else:
             return False
 
 
 class TicketDuplicate(models.Model):
-    '''A simple table to keep track of which tickets are duplicates of
+    """A simple table to keep track of which tickets are duplicates of
     which ticket.
 
-    '''
+    """
 
-    ticket = models.ForeignKey(Ticket,related_name="duplicate")
-    original = models.ForeignKey(Ticket,related_name="original")
-
+    ticket = models.ForeignKey(Ticket, related_name="duplicate")
+    original = models.ForeignKey(Ticket, related_name="original")
 
     def __str__(self):
         string = "Ticket {0} is a duplicate of ticket {1}"
         string = string.format(self.ticket.id, self.original.id)
         return string
 
+
 class UserVoteLog(models.Model):
-    '''A table to keep track of which tickets a user has voted for.
+    """A table to keep track of which tickets a user has voted for.
     Each user can only upvote a ticket once.
-    '''
+    """
+
     user = models.ForeignKey(User)
     ticket = models.ForeignKey(Ticket)
 
 
 class FollowUp(models.Model):
-    '''A model to hold comments and follow-up actions associated with a
+    """A model to hold comments and follow-up actions associated with a
     ticket.
 
     A FollowUp without any action is just a comment.  Valid actions
     for a followup include closed, reopened and split.
 
-    '''
+    """
 
     ACTION_CHOICES = {
-        ('no_action', 'No Action'),
-        ('closed', 'Closed'),
-        ('re-opened', 'Re-Opened'),
-        ('split', 'Split')
+        ("no_action", "No Action"),
+        ("closed", "Closed"),
+        ("re-opened", "Re-Opened"),
+        ("split", "Split"),
     }
 
     ticket = models.ForeignKey(Ticket)
-    parent = models.ForeignKey('self', blank=True, null=True)
+    parent = models.ForeignKey("self", blank=True, null=True)
 
     submitted_by = models.ForeignKey(User)
-    created_on = models.DateTimeField('date created', auto_now_add=True)
+    created_on = models.DateTimeField("date created", auto_now_add=True)
     comment = models.TextField()
 
     comment_html = models.TextField(editable=False, blank=True)
-    #closed = models.BooleanField(default=False)
+    # closed = models.BooleanField(default=False)
 
-    action = models.CharField(max_length=20,
-                              choices=ACTION_CHOICES, default="no_action")
+    action = models.CharField(
+        max_length=20, choices=ACTION_CHOICES, default="no_action"
+    )
     private = models.BooleanField(default=False)
 
     objects = CommentManager()
     all_comments = models.Manager()
 
     def save(self, *args, **kwargs):
-        self.comment_html = markdown(self.comment,
-                                         extras={'demote-headers':
-                                                 DEMOTE_HEADERS})
-        self.comment_html = replace_links(self.comment_html,
-                                              link_patterns=LINK_PATTERNS)
-
+        self.comment_html = markdown(
+            self.comment, extras={"demote-headers": DEMOTE_HEADERS}
+        )
+        self.comment_html = replace_links(
+            self.comment_html, link_patterns=LINK_PATTERNS
+        )
 
         super(FollowUp, self).save(*args, **kwargs)
 
@@ -312,4 +316,4 @@ class TicketAdmin(admin.ModelAdmin):
     date_heirarchy = "created_on"
     list_filter = ("status",)
     list_display = ("id", "name", "status", "assigned_to")
-    search_field = ['description']
+    search_field = ["description"]

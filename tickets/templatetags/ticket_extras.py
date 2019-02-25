@@ -1,4 +1,3 @@
-
 from django import template
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
@@ -51,7 +50,7 @@ def status_btn(status, btn_size='xs'):
         btn_attr[0] = 'danger'
 
     btn = '<button type="button" class="btn btn-{0} btn-{1}">{2}</button>'
-    btn = btn.format(btn_attr[0],  btn_size, btn_attr[1])
+    btn = btn.format(btn_attr[0], btn_size, btn_attr[1])
 
     return mark_safe(btn)
 
@@ -71,7 +70,7 @@ def ticket_type_btn(ticket_type, btn_size="xs"):
 
     btn_attr = btn_map.get(ticket_type.lower())
     btn = '<button type="button" class="btn btn-{0} btn-{1}">{2}</button>'
-    btn = btn.format(btn_attr[0],  btn_size, btn_attr[1])
+    btn = btn.format(btn_attr[0], btn_size, btn_attr[1])
 
     return mark_safe(btn)
 
@@ -95,8 +94,6 @@ def space(string):
     '''A simple little template filter to replace underscores with spaces
     '''
     return mark_safe(string.replace('_', ' '))
-
-
 
 
 @register.filter
@@ -147,7 +144,7 @@ def query_transform(context, include_page=False, **kwargs):
 
     query = context['request'].GET.copy()
     for k, v in kwargs.items():
-            query[k] = v
+        query[k] = v
 
     if query.get('page') and not include_page:
         query.pop('page')

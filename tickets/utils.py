@@ -1,4 +1,4 @@
-'''
+"""
 =============================================================
 /home/adam/Documents/djcode/tickettracker/tickets/utils.py
 Created: 04 May 2014 21:19:37
@@ -10,15 +10,15 @@ DESCRIPTION:
 
 A. Cottrill
 =============================================================
-'''
+"""
 
 
 def is_admin(user):
-    '''return true if the user belongs to the admin group, false otherwise'''
-    if user.groups.filter(name='admin').exists() or user.is_superuser:
-        return(True)
+    """return true if the user belongs to the admin group, false otherwise"""
+    if user.groups.filter(name="admin").exists() or user.is_superuser:
+        return True
     else:
-        return(False)
+        return False
 
 
 def replace_links(text, link_patterns):
@@ -39,6 +39,6 @@ def replace_links(text, link_patterns):
     import re
 
     for pattern in link_patterns:
-        regex = re.compile(pattern.get('pattern'), re.IGNORECASE)
-        text = re.sub(regex, pattern['url'], text)
+        regex = re.compile(pattern.get("pattern"), re.IGNORECASE)
+        text = re.sub(regex, pattern["url"], text)
     return text
