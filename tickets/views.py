@@ -304,7 +304,7 @@ def SplitTicketView(request, pk=None, template_name="tickets/split_ticket_form.h
     try:
         ticket = Ticket.objects.get(id=pk)
     except Ticket.DoesNotExist:
-        url = reverse("ticket_list")
+        url = reverse("tickets:ticket_list")
         return HttpResponseRedirect(url)
 
     if is_admin(request.user) is False:
@@ -370,7 +370,7 @@ def TicketCommentView(request, pk, action="comment"):
     try:
         ticket = Ticket.objects.get(pk=pk)
     except Ticket.DoesNotExist:
-        url = reverse("ticket_list")
+        url = reverse("tickets:ticket_list")
         return HttpResponseRedirect(url)
 
     if not is_admin(request.user) and action != "comment":

@@ -29,7 +29,7 @@
       <tr>
 	<td><b>Priority: </b>{{ object.priority | priority_btn }}</td>
 	<td><b>Votes: </b>{{ object.votes }}
-	  <a href="{% url 'upvote_ticket' object.id %}">
+	  <a href="{% url 'tickets:upvote_ticket' object.id %}">
 	    <button type="button" class="btn btn-default btn-xs">
 	      <span class="glyphicon glyphicon-thumbs-up"></span></button></a></td>
       </tr>
@@ -57,7 +57,7 @@
    <p>
        <b>Tags: </b>
        {%for tag in object.tags.all %}
-       <a href="{% url 'tickets_tagged_with' tag.slug %}">{{tag}}</a>
+       <a href="{% url 'tickets:tickets_tagged_with' tag.slug %}">{{tag}}</a>
        {% if not forloop.last %}, {% endif %}
        {% endfor%}
    </p>
@@ -69,33 +69,33 @@
 	{%  if object.is_closed %}
 	<button type="button" class="btn btn-info btn-sm" disabled="disabled">Edit Details</button>
     	{% if user.is_staff %}
-    	<a href="{% url 'reopen_ticket' object.id %}">
+    	<a href="{% url 'tickets:reopen_ticket' object.id %}">
     	  <button type="button" class="btn btn-info btn-sm">Re-Open</button></a>
     	{% endif %}
   	{% else %}
     	{% if user.is_staff or user == object.submitted_by %}
-	<a href="{% url 'update_ticket' object.id %}">
+	<a href="{% url 'tickets:update_ticket' object.id %}">
 	  <button type="button" class="btn btn-info btn-sm">Edit Details</button></a>
 	{% endif %}
 	{% endif %}
-	<a href="{% url 'comment_ticket' object.id %}">
+	<a href="{% url 'tickets:comment_ticket' object.id %}">
 	    <button type="button" class="btn btn-info btn-sm">Comment</button></a>
 	{%  if object.is_closed == False and user.is_staff %}
         {% if object.status == 'new' %}
-	<a href="{% url 'accept_ticket' object.id %}">
+	<a href="{% url 'tickets:accept_ticket' object.id %}">
 	    <button type="button" class="btn btn-success btn-sm">Accept</button></a>
-	<a href="{% url 'assign_ticket' object.id %}">
+	<a href="{% url 'tickets:assign_ticket' object.id %}">
 	    <button type="button" class="btn btn-success btn-sm">Accept and Assign</button></a>
         {% elif object.status == 'accepted' %}
-	<a href="{% url 'assign_ticket' object.id %}">
+	<a href="{% url 'tickets:assign_ticket' object.id %}">
 	    <button type="button" class="btn btn-success btn-sm">Assign</button></a>
         {% elif object.status == 'assigned' %}
-	<a href="{% url 'assign_ticket' object.id %}">
+	<a href="{% url 'tickets:assign_ticket' object.id %}">
 	    <button type="button" class="btn btn-success btn-sm">Re-assign</button></a>
         {% endif %}
-	<a href="{% url 'split_ticket' object.id %}">
+	<a href="{% url 'tickets:split_ticket' object.id %}">
 	  <button type="button" class="btn btn-warning btn-sm">Split</button></a>
-	<a href="{% url 'close_ticket' object.id %}">
+	<a href="{% url 'tickets:close_ticket' object.id %}">
 	  <button type="button" class="btn btn-danger btn-sm">Close</button></a>
 	{% endif %}
       </div>
@@ -108,7 +108,7 @@
     This ticket duplicates ticket(s):
     <ul>
       {% for object in object.get_originals %}
-      <li>      <a href="{% url 'ticket_detail' object.original.id  %}">
+      <li>      <a href="{% url 'tickets:ticket_detail' object.original.id  %}">
 	{{ object.original }} (ticket #{{ object.original.id }})</a></li>
       {% endfor %}
     </ul>
@@ -119,7 +119,7 @@
     This ticket has been duplicated by the following ticket(s):
     <ul>
       {% for object in object.get_duplicates %}
-      <li><a href="{% url 'ticket_detail' object.ticket.id  %}">
+      <li><a href="{% url 'tickets:ticket_detail' object.ticket.id  %}">
 	{{ object.ticket }} (ticket #{{ object.ticket.id }})</a></li>
       {% endfor %}
     </ul>
@@ -130,7 +130,7 @@
     {% if object.get_parent %}
     <p><b>Parent Ticket:</b></p>
     This ticket was split from a parent ticket:
-    <a href="{% url 'ticket_detail' object.get_parent.id  %}">{{ object.get_parent }}... (ticket #{{ object.get_parent.id }})</a>
+    <a href="{% url 'tickets:ticket_detail' object.get_parent.id  %}">{{ object.get_parent }}... (ticket #{{ object.get_parent.id }})</a>
     {% endif %}
 
     {% if object.get_children %}
@@ -138,7 +138,7 @@
     This ticket has been split into the  following ticket(s):
     <ul>
       {% for child in object.get_children %}
-      <li><a href="{% url 'ticket_detail' child.id  %}">
+      <li><a href="{% url 'tickets:ticket_detail' child.id  %}">
 	{{ child }} (ticket #{{ child.id }})</a></li>
       {% endfor %}
     </ul>

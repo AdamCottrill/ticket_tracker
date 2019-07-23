@@ -42,30 +42,30 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="{% url 'ticket_list' %}">Ticket Tracker</a>
+        <a class="navbar-brand" href="{% url 'tickets:ticket_list' %}">Ticket Tracker</a>
       </div>
 
       <!-- Collect the nav links, forms, and other content for toggling -->
       <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
-          <li><a href="{% url 'ticket_list' %}" class="sel">View Tickets</a></li>
+          <li><a href="{% url 'tickets:ticket_list' %}" class="sel">View Tickets</a></li>
           {% if user.is_staff %}
-          <li><a href="{% url 'new_ticket' %}">New Ticket</a></li>
+          <li><a href="{% url 'tickets:new_ticket' %}">New Ticket</a></li>
           {% endif %}
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Filter <b class="caret"></b></a>
             <ul class="dropdown-menu">
-              <li><a href="{% url 'ticket_list' %}">All Tickets</a></li>
+              <li><a href="{% url 'tickets:ticket_list' %}">All Tickets</a></li>
               {% if user.id %}
-              <li><a href="{% url 'my_ticket_list' user.id|default:-99 %}">My Tickets</a></li>
+              <li><a href="{% url 'tickets:my_ticket_list' user.id|default:-99 %}">My Tickets</a></li>
               {% endif %}
               <li class="divider"></li>
-              <li><a href="{% url 'open_tickets' %}">Open Tickets</a></li>
-              <li><a href="{% url 'closed_tickets' %}">Closed Tickets</a></li>
+              <li><a href="{% url 'tickets:open_tickets' %}">Open Tickets</a></li>
+              <li><a href="{% url 'tickets:closed_tickets' %}">Closed Tickets</a></li>
               <li class="divider"></li>
-              <li><a href="{% url 'bug_reports' %}">Bug Reports</a></li>
-              <li><a href="{% url 'feature_requests' %}">Feature Requests</a></li>
-              <li><a href="{% url 'tasks' %}">Tasks</a></li>
+              <li><a href="{% url 'tickets:bug_reports' %}">Bug Reports</a></li>
+              <li><a href="{% url 'tickets:feature_requests' %}">Feature Requests</a></li>
+              <li><a href="{% url 'tickets:tasks' %}">Tasks</a></li>
             </ul>
 
             {% block navbar_other_apps %}
@@ -89,7 +89,7 @@
           </li>
         </ul>
         <div class="col-sm-3">
-            <form class="navbar-form navbar-left" role="search" action={% url 'ticket_list' %}>
+            <form class="navbar-form navbar-left" role="search" action={% url 'tickets:ticket_list' %}>
               <div class="input-group">
                 <input type="text" class="form-control" name="q" placeholder="Search Tickets">
                   <div class="input-group-btn">

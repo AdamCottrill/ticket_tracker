@@ -11,11 +11,12 @@ A. Cottrill
 =============================================================
 """
 
+
 from django.db import models
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.defaultfilters import slugify
 
 from markdown2 import markdown
@@ -31,7 +32,7 @@ DEMOTE_HEADERS = 2
 
 
 class TicketManager(models.Manager):
-    """A custom model manager for tickets.   
+    """A custom model manager for tickets.
 
     By default, only active tickets will be returned in any queryset.
     """
@@ -117,27 +118,35 @@ class Ticket(models.Model):
     }
 
     assigned_to = models.ForeignKey(
-        User, null=True, blank=True, related_name="assigned_tickets"
+        User,
+        null=True,
+        blank=True,
+        related_name="assigned_tickets",
+        on_delete=models.CASCADE,
     )
     submitted_by = models.ForeignKey(
-        User, null=True, blank=True, related_name="submitted_tickets"
+        User,
+        null=True,
+        blank=True,
+        related_name="submitted_tickets",
+        on_delete=models.CASCADE,
     )
     active = models.BooleanField(default=True)
     status = models.CharField(
-        max_length=20, choices=TICKET_STATUS_CHOICES, default=True
+        max_length=20, choices=TICKET_STATUS_CHOICES, default=True, db_index=True
     )
     ticket_type = models.CharField(
-        max_length=10, choices=TICKET_TYPE_CHOICES, default=True
+        max_length=10, choices=TICKET_TYPE_CHOICES, default=True, db_index=True
     )
     title = models.CharField(max_length=80)
     description = models.TextField()
     description_html = models.TextField(editable=False, blank=True)
-    priority = models.IntegerField(choices=TICKET_PRIORITY_CHOICES)
+    priority = models.IntegerField(choices=TICKET_PRIORITY_CHOICES, db_index=True)
     created_on = models.DateTimeField("date created", auto_now_add=True)
     updated_on = models.DateTimeField("date updated", auto_now=True)
     votes = models.IntegerField(default=0)
-    parent = models.ForeignKey("self", blank=True, null=True)
-    application = models.ForeignKey(Application)
+    parent = models.ForeignKey("self", blank=True, null=True, on_delete=models.CASCADE)
+    application = models.ForeignKey(Application, on_delete=models.CASCADE)
 
     tags = TaggableManager(blank=True)
 
@@ -158,7 +167,7 @@ class Ticket(models.Model):
         return name
 
     def get_absolute_url(self):
-        url = reverse("ticket_detail", kwargs={"pk": self.id})
+        url = reverse("tickets:ticket_detail", kwargs={"pk": self.id})
         return url
 
     def save(self, *args, **kwargs):
@@ -249,8 +258,12 @@ class TicketDuplicate(models.Model):
 
     """
 
-    ticket = models.ForeignKey(Ticket, related_name="duplicate")
-    original = models.ForeignKey(Ticket, related_name="original")
+    ticket = models.ForeignKey(
+        Ticket, related_name="duplicate", on_delete=models.CASCADE
+    )
+    original = models.ForeignKey(
+        Ticket, related_name="original", on_delete=models.CASCADE
+    )
 
     def __str__(self):
         string = "Ticket {0} is a duplicate of ticket {1}"
@@ -263,8 +276,8 @@ class UserVoteLog(models.Model):
     Each user can only upvote a ticket once.
     """
 
-    user = models.ForeignKey(User)
-    ticket = models.ForeignKey(Ticket)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
 
 
 class FollowUp(models.Model):
@@ -283,10 +296,10 @@ class FollowUp(models.Model):
         ("split", "Split"),
     }
 
-    ticket = models.ForeignKey(Ticket)
-    parent = models.ForeignKey("self", blank=True, null=True)
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
+    parent = models.ForeignKey("self", blank=True, null=True, on_delete=models.CASCADE)
 
-    submitted_by = models.ForeignKey(User)
+    submitted_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_on = models.DateTimeField("date created", auto_now_add=True)
     comment = models.TextField()
 
@@ -294,7 +307,7 @@ class FollowUp(models.Model):
     # closed = models.BooleanField(default=False)
 
     action = models.CharField(
-        max_length=20, choices=ACTION_CHOICES, default="no_action"
+        max_length=20, choices=ACTION_CHOICES, default="no_action", db_index=True
     )
     private = models.BooleanField(default=False)
 
