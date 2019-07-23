@@ -21,8 +21,9 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
     url(r'^ticket/', include('tickets.urls')),
+    url(r'^accounts/', include('django.contrib.auth.urls')),
 
-    url(r'^accounts/', include('simple_auth.urls')),
+#    url(r'^accounts/', include('simple_auth.urls')),
 ]
 
 #note - this doesn't work as it should, but we're moving on for now.

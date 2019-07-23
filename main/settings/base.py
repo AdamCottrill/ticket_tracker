@@ -115,7 +115,7 @@ TEMPLATES = [
             # insert your TEMPLATE_DIRS here
             root('templates'),
             root('tickets/templates'),
-            root('simple_auth/templates'),
+            #root('simple_auth/templates'),
 
         ],
         'APP_DIRS': True,
@@ -150,8 +150,8 @@ DJANGO_APPS = (
 )
 
 THIRDPARTY_APPS = (
-    'passwords',
-    'password_reset',
+#    'passwords',
+#    'password_reset',
     'crispy_forms',
     'taggit',
     'django_filters',
@@ -159,7 +159,7 @@ THIRDPARTY_APPS = (
 
 MY_APPS = (
     'tickets',
-    'simple_auth',
+#    'simple_auth',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRDPARTY_APPS + MY_APPS
@@ -207,7 +207,7 @@ LOGGING = {
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 LOGIN_REDIRECT_URL = '/ticket'
-LOGIN_URL = '/accounts/login/'
+#LOGIN_URL = '/accounts/login/'
 
 LINK_PATTERNS = [{'pattern': r'ticket:\s?(\d+)',
                   'url': r'<a href="/ticket/\1">ticket \1</a>'}]
