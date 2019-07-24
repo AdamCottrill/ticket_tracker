@@ -15,7 +15,8 @@ A. Cottrill
 from django.db import models
 from django.conf import settings
 from django.contrib import admin
-from django.contrib.auth.models import User
+
+# from django.contrib.auth.models import User
 from django.urls import reverse
 from django.template.defaultfilters import slugify
 
@@ -118,14 +119,14 @@ class Ticket(models.Model):
     }
 
     assigned_to = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         related_name="assigned_tickets",
         on_delete=models.CASCADE,
     )
     submitted_by = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         related_name="submitted_tickets",
@@ -276,7 +277,7 @@ class UserVoteLog(models.Model):
     Each user can only upvote a ticket once.
     """
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
 
 
@@ -299,7 +300,7 @@ class FollowUp(models.Model):
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
     parent = models.ForeignKey("self", blank=True, null=True, on_delete=models.CASCADE)
 
-    submitted_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_on = models.DateTimeField("date created", auto_now_add=True)
     comment = models.TextField()
 

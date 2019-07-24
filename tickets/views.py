@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db.models import Q, Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -23,6 +23,8 @@ from .forms import (
 )
 from .filters import TicketFilter
 from .utils import is_admin
+
+User = get_user_model()
 
 
 class TagMixin(object):

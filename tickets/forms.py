@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django.forms import (
     Form,
     ModelForm,
@@ -10,6 +9,11 @@ from django.forms import (
     IntegerField,
 )
 from django.forms.widgets import Select, CheckboxInput
+
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, ButtonHolder, Div, Fieldset, Field

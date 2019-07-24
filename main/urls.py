@@ -9,23 +9,20 @@ from tickets.views import TicketListView
 
 
 urlpatterns = [
-    #homepages
-    path('', TicketListView.as_view(), name='home'),
-    path('', TicketListView.as_view(), name='index'),
-
-    path('admin/doc/', include('django.contrib.admindocs.urls')),
-    path('admin/', admin.site.urls),
-
-    path('accounts/', include('django.contrib.auth.urls')),
-
-    path('tickets/', include(('tickets.urls', 'tickets'), 'tickets')),
-
+    # homepages
+    path("", TicketListView.as_view(), name="home"),
+    path("", TicketListView.as_view(), name="index"),
+    path("admin/doc/", include("django.contrib.admindocs.urls")),
+    path("admin/", admin.site.urls),
+    path("accounts/", include("django.contrib.auth.urls")),
+    path("tickets/", include(("tickets.urls", "tickets"), "tickets")),
 ]
 
 if settings.DEBUG:
     import debug_toolbar
 
-    urlpatterns = [
-        path('__debug__/', include(debug_toolbar.urls)),
-
-    ] + urlpatterns + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns = (
+        [path("__debug__/", include(debug_toolbar.urls))]
+        + urlpatterns
+        + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    )
