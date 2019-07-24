@@ -1,5 +1,5 @@
 #helpful development utils
-pip-tools==3.3.2
+pip-tools==3.9.0
 django-debug-toolbar==1.10.1
 django-extensions==2.1.3
 pylint==2.1.1
