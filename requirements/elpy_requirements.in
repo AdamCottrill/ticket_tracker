@@ -1,0 +1,7 @@
+autopep8==1.5
+black==19.10b0
+elpy==1.999
+jedi==0.16.0
+pylint==2.4.4
+rope==0.16.0
+yapf==0.29.0
