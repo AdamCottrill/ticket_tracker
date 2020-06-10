@@ -128,7 +128,7 @@ class Migration(migrations.Migration):
                         max_length=10,
                     ),
                 ),
-                ("title", models.CharField(max_length=80)),
+                ("titleid", models.CharField(max_length=80)),
                 ("description", models.TextField()),
                 ("description_html", models.TextField(blank=True, editable=False)),
                 (

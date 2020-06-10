@@ -10,12 +10,12 @@ class Migration(migrations.Migration):
     dependencies = [("tickets", "0003_auto_20190210_1052")]
 
     operations = [
-        migrations.AddField(
-            model_name="ticket",
-            name="title",
-            field=models.CharField(default="Fake Title", max_length=80),
-            preserve_default=False,
-        ),
+        # migrations.AddField(
+        #    model_name="ticket",
+        #    name="title",
+        #    field=models.CharField(default="Fake Title", max_length=80),
+        #    preserve_default=False,
+        # ),
         migrations.AlterField(
             model_name="followup",
             name="action",
