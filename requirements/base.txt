@@ -5,9 +5,19 @@
 #    pip-compile --output-file=base.txt base.in
 #
 django-crispy-forms==1.8.1
+    # via -r base.in
 django-filter==2.2.0
+    # via -r base.in
 django-taggit==1.2.0
-django==2.2.10
+    # via -r base.in
+django==2.2.18
+    # via
+    #   -r base.in
+    #   django-filter
+    #   django-taggit
 markdown2==2.3.8
-pytz==2019.3              # via django
-sqlparse==0.3.0           # via django
+    # via -r base.in
+pytz==2019.3
+    # via django
+sqlparse==0.3.0
+    # via django
