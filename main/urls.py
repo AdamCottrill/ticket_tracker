@@ -15,7 +15,7 @@ urlpatterns = [
     path("admin/doc/", include("django.contrib.admindocs.urls")),
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
-    path("tickets/", include(("tickets.urls", "tickets"), "tickets")),
+    path("tickets/", include(("tickets.urls", "tickets"), namespace="tickets")),
 ]
 
 if settings.DEBUG:

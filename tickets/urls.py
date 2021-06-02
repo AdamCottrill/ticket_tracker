@@ -3,6 +3,8 @@ from django.urls import path
 
 from .views import *
 
+app_name = "tickets"
+
 urlpatterns = [
     path("<int:pk>/", view=TicketDetailView.as_view(), name="ticket_detail"),
     path("new/", view=TicketUpdateView, name="new_ticket"),

@@ -4,10 +4,20 @@
 #
 #    pip-compile --output-file=base.txt base.in
 #
-django-crispy-forms==1.9.1  # via -r base.in
-django-filter==2.3.0      # via -r base.in
-django-taggit==1.1.0      # via -r base.in
-django==2.2.13            # via -r base.in, django-filter, django-taggit
-markdown2==2.3.9          # via -r base.in
-pytz==2019.1              # via django
-sqlparse==0.3.0           # via django
+django-crispy-forms==1.11.2
+    # via -r base.in
+django-filter==2.4.0
+    # via -r base.in
+django-taggit==1.4.0
+    # via -r base.in
+django==2.2.20
+    # via
+    #   -r base.in
+    #   django-filter
+    #   django-taggit
+markdown2==2.4.0
+    # via -r base.in
+pytz==2021.1
+    # via django
+sqlparse==0.4.1
+    # via django
