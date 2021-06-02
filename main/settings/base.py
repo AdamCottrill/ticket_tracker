@@ -1,9 +1,21 @@
 # Django settings for tickettracker project.
 
+from django.core.exceptions import ImproperlyConfigured
+
 import os
 
-# here = lambda * x: os.path.join(os.path.abspath(os.path.dirname(__file__)), *x)
 
+def get_env_variable(var_name):
+    """Get the environment variable or return exception (from page 39 of
+    2-scoops)"""
+    try:
+        return os.environ[var_name]
+    except KeyError:
+        error_msg = "Set the %s environment variable" % var_name
+        raise ImproperlyConfigured(error_msg)
+
+
+# here = lambda * x: os.path.join(os.path.abspath(os.path.dirname(__file__)), *x)
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 # PROJECT_ROOT = here("..")
@@ -16,13 +28,6 @@ DEBUG = True
 ADMINS = (("Adam Cottrill", "racottrill@bmts.com"),)
 
 MANAGERS = ADMINS
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': '%s/db/tickettracker.db' % PROJECT_ROOT,
-#     }
-# }
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -83,9 +88,6 @@ STATICFILES_FINDERS = (
     #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = "jkb60_2g^-2n(z7nwv(5h)mb44g=qvc1&amp;54ckm6iof0bcg0$)n"
-
 MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -144,26 +146,15 @@ DJANGO_APPS = (
 )
 
 THIRDPARTY_APPS = (
-    #    'passwords',
-    #    'password_reset',
     "crispy_forms",
     "taggit",
     "django_filters",
 )
 
-MY_APPS = (
-    "tickets",
-    #    'simple_auth',
-)
+MY_APPS = ("tickets",)
 
 INSTALLED_APPS = DJANGO_APPS + THIRDPARTY_APPS + MY_APPS
 
-# DEBUG_TOOLBAR_CONFIG = {
-#     'INTERCEPT_REDIRECTS': False,
-#      'HIDE_DJANGO_SQL': False,
-#     'TAG': 'div',
-#     'ENABLE_STACKTRACES' : True,
-# }
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -190,14 +181,9 @@ LOGGING = {
     },
 }
 
-# password criteria
-# PASSWORD_MIN_LENGTH = 8
-# PASSWORD_COMPLEXITY = { "UPPER":  1, "LOWER":  1, "DIGITS": 1 }
-
 CRISPY_TEMPLATE_PACK = "bootstrap3"
 
 LOGIN_REDIRECT_URL = "/ticket"
-# LOGIN_URL = '/accounts/login/'
 
 LINK_PATTERNS = [
     {"pattern": r"ticket:\s?(\d+)", "url": r'<a href="/ticket/\1">ticket \1</a>'}

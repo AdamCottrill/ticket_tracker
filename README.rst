@@ -41,12 +41,12 @@ Detailed documentation is in the "docs" directory.
 Quick start
 -----------
 
-0. > pip install tickets.zip
+1. > pip install tickets.zip
 
-0.5 install associated requirements: django-taggit, django_filter,
-  markdown2, and django-crispy-forms.
+2.  install associated requirements: django-taggit, django_filter,
+     markdown2, and django-crispy-forms.
 
-1. Add "tickets" and assocaited requirements to your INSTALLED_APPS setting like this:
+3. Add "tickets" and associated requirements to your INSTALLED_APPS setting like this:
 
     INSTALLED_APPS = [
         ...
@@ -55,13 +55,13 @@ Quick start
         'tickets',
     ]
 
-2. Include the common URLconf in your project urls.py like this:
+4. Include the common URLconf in your project urls.py like this:
 
     path('tickets/', include(('tickets.urls', 'tickets'), 'tickets')),
 
-3. Run `python manage.py migrate` to create the common models in your database.
+5. Run `python manage.py migrate` to create the common models in your database.
 
-4. Visit http://127.0.0.1:8000/
+6. Visit http://127.0.0.1:8000/
 
 
 For Developers
@@ -74,29 +74,57 @@ and create an associated virtual environment on you computer.
 
    > git clone https://github.com/AdamCottrill/ticket_tracker.git
 
-2. Create a virtual environment:
+2. Navigate into the rood directory of the project and create a
+   virtual environment:
 
+   > cd tickettracker2
    > python -m venv env
+
+   Now activate the virtual environment (note the direction of the
+   slashes - it makes a difference):
+
+   > venv\scripts\activate.bat
+   (venv)>
 
 3. Install the required dependencies in the virtual env you just created:
 
-   (venv)> pip install -r ./requirements/local.txt
+   (venv)> pip install -r requirements/local.txt
 
-4. Run migrations to create database and update all of the migrations
+4. Django uses a secret key to create secure CSRF tokens (among other
+   things). This key that is used in production should never be
+   shared. For development purposes, an simple string will suffice,
+   but to avoid accidentally sharing your production secret, the local
+   and test settings files have a function that reads the value from
+   and environment variable and raises and error if it is not defined.
+   This practice is recommended in 2-Scoops of django for any secret
+   configuration settings such as data base configuration
+   credentials.  There are a number of ways to set environment
+   variables, for now we will just set it in the command prompt for
+   the current session:
+
+   (venv)> set SECRET_KEY=<something-long-complex-and-hard-to-guess>
+
+   As a more permanent alternative, you can hard-code something in the
+   main/setting/local.py and main/setting/tests.py and add those files
+   to your .gitignore file so they don't get included in subsequent
+   commits.
+
+
+5. Run migrations to create database and update all of the migrations
    associated with installed apps:
 
    (venv)> python manage.py migrate
 
    If you are going to use an existing copy of the ticket tracker data
-   base with exsisting tickets, be sure to place a copy of it here:
+   base with existing tickets, be sure to place a copy of it here:
    ~/db/tickettracker.db before running the migrate command.
 
-5. Verify that all of the requirements have been installed and that
+6. Verify that all of the requirements have been installed and that
    everything is where it should be:
 
    (venv)> python manage.py check
 
-6. Run the tests with pytest.
+7. Run the tests with pytest.
 
    I typically select a single models file to verify that the testing
    environment is set up correctly to limit the length of the error
@@ -108,7 +136,7 @@ and create an associated virtual environment on you computer.
 
    (venv)> pytest
 
-7. Start the developement server:
+8. Start the development server:
 
    (venv)> python manage.py runserver
 
@@ -118,8 +146,8 @@ and create an associated virtual environment on you computer.
 Rebuilding the Distributable App.
 ---------------------------------
 
-Ticket Tracker was built as a standard applicaiton can be rebuilt for
-distrubition following the instructions found here:
+Ticket Tracker was built as a standard application can be rebuilt for
+distribution following the instructions found here:
 
 https://docs.djangoproject.com/en/2.2/intro/reusable-apps/
 
@@ -142,7 +170,7 @@ Running the tests
 -----------------
 
 Ticket Tracker contains a number of unit tests that verify that the
-application works as expected and that any regregressions are caught
+application works as expected and that any regressions are caught
 early. The package uses pytest to run all of the tests, which can be
 run by issuing the command:
 

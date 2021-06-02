@@ -94,7 +94,7 @@ class Ticket(models.Model):
 
     """
 
-    TICKET_STATUS_CHOICES = {
+    TICKET_STATUS_CHOICES = [
         ("new", "New"),
         ("accepted", "Accepted"),
         ("assigned", "Assigned"),
@@ -102,21 +102,21 @@ class Ticket(models.Model):
         ("closed", "Closed"),
         ("duplicate", "Closed - Duplicate"),
         ("split", "Closed - Split"),
-    }
+    ]
 
-    TICKET_TYPE_CHOICES = {
+    TICKET_TYPE_CHOICES = [
         ("feature", "Feature Request"),
         ("bug", "Bug Report"),
         ("task", "Task"),
-    }
+    ]
 
-    TICKET_PRIORITY_CHOICES = {
+    TICKET_PRIORITY_CHOICES = [
         (1, "Critical"),
         (2, "High"),
         (3, "Normal"),
         (4, "Low"),
         (5, "Very Low"),
-    }
+    ]
 
     assigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -290,12 +290,12 @@ class FollowUp(models.Model):
 
     """
 
-    ACTION_CHOICES = {
+    ACTION_CHOICES = [
         ("no_action", "No Action"),
         ("closed", "Closed"),
         ("re-opened", "Re-Opened"),
         ("split", "Split"),
-    }
+    ]
 
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
     parent = models.ForeignKey("self", blank=True, null=True, on_delete=models.CASCADE)
