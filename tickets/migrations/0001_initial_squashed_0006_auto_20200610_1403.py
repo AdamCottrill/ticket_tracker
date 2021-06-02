@@ -9,77 +9,276 @@ import taggit.managers
 
 class Migration(migrations.Migration):
 
-    replaces = [('tickets', '0001_initial'), ('tickets', '0002_auto_20190209_2214'), ('tickets', '0003_auto_20190210_1052'), ('tickets', '0004_auto_20190210_1942'), ('tickets', '0005_auto_20190723_1134'), ('tickets', '0006_auto_20200610_1403')]
+    replaces = [
+        ("tickets", "0001_initial"),
+        ("tickets", "0002_auto_20190209_2214"),
+        ("tickets", "0003_auto_20190210_1052"),
+        ("tickets", "0004_auto_20190210_1942"),
+        ("tickets", "0005_auto_20190723_1134"),
+        ("tickets", "0006_auto_20200610_1403"),
+    ]
 
     dependencies = [
-        ('taggit', '0003_taggeditem_add_unique_index'),
+        ("taggit", "0003_taggeditem_add_unique_index"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Application',
+            name="Application",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('application', models.CharField(max_length=20)),
-                ('slug', models.SlugField(editable=False, unique=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("application", models.CharField(max_length=20)),
+                ("slug", models.SlugField(editable=False, unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Ticket',
+            name="Ticket",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('active', models.BooleanField(default=True)),
-                ('status', models.CharField(choices=[('duplicate', 'Closed - Duplicate'), ('re-opened', 'Re-Opened'), ('new', 'New'), ('accepted', 'Accepted'), ('closed', 'Closed'), ('assigned', 'Assigned'), ('split', 'Closed - Split')], db_index=True, default=True, max_length=20)),
-                ('ticket_type', models.CharField(choices=[('task', 'Task'), ('feature', 'Feature Request'), ('bug', 'Bug Report')], db_index=True, default=True, max_length=10)),
-                ('title', models.CharField(max_length=80)),
-                ('description', models.TextField()),
-                ('description_html', models.TextField(blank=True, editable=False)),
-                ('priority', models.IntegerField(choices=[(1, 'Critical'), (5, 'Very Low'), (2, 'High'), (4, 'Low'), (3, 'Normal')], db_index=True)),
-                ('created_on', models.DateTimeField(auto_now_add=True, verbose_name='date created')),
-                ('updated_on', models.DateTimeField(auto_now=True, verbose_name='date updated')),
-                ('votes', models.IntegerField(default=0)),
-                ('application', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='tickets.Application')),
-                ('assigned_to', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='assigned_tickets', to=settings.AUTH_USER_MODEL)),
-                ('parent', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='tickets.Ticket')),
-                ('submitted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='submitted_tickets', to=settings.AUTH_USER_MODEL)),
-                ('tags', taggit.managers.TaggableManager(blank=True, help_text='A comma-separated list of tags.', through='taggit.TaggedItem', to='taggit.Tag', verbose_name='Tags')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("active", models.BooleanField(default=True)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("new", "New"),
+                            ("accepted", "Accepted"),
+                            ("assigned", "Assigned"),
+                            ("re-opened", "Re-Opened"),
+                            ("closed", "Closed"),
+                            ("duplicate", "Closed - Duplicate"),
+                            ("split", "Closed - Split"),
+                        ],
+                        db_index=True,
+                        default=True,
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "ticket_type",
+                    models.CharField(
+                        choices=[
+                            ("feature", "Feature Request"),
+                            ("bug", "Bug Report"),
+                            ("task", "Task"),
+                        ],
+                        db_index=True,
+                        default=True,
+                        max_length=10,
+                    ),
+                ),
+                ("title", models.CharField(max_length=80)),
+                ("description", models.TextField()),
+                ("description_html", models.TextField(blank=True, editable=False)),
+                (
+                    "priority",
+                    models.IntegerField(
+                        choices=[
+                            (1, "Critical"),
+                            (2, "High"),
+                            (3, "Normal"),
+                            (4, "Low"),
+                            (5, "Very Low"),
+                        ],
+                        db_index=True,
+                    ),
+                ),
+                (
+                    "created_on",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="date created"
+                    ),
+                ),
+                (
+                    "updated_on",
+                    models.DateTimeField(auto_now=True, verbose_name="date updated"),
+                ),
+                ("votes", models.IntegerField(default=0)),
+                (
+                    "application",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="tickets.Application",
+                    ),
+                ),
+                (
+                    "assigned_to",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="assigned_tickets",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "parent",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="tickets.Ticket",
+                    ),
+                ),
+                (
+                    "submitted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="submitted_tickets",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "tags",
+                    taggit.managers.TaggableManager(
+                        blank=True,
+                        help_text="A comma-separated list of tags.",
+                        through="taggit.TaggedItem",
+                        to="taggit.Tag",
+                        verbose_name="Tags",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_on'],
+                "ordering": ["-created_on"],
             },
             managers=[
-                ('all_tickets', django.db.models.manager.Manager()),
+                ("all_tickets", django.db.models.manager.Manager()),
             ],
         ),
         migrations.CreateModel(
-            name='TicketDuplicate',
+            name="TicketDuplicate",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('original', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='original', to='tickets.Ticket')),
-                ('ticket', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='duplicate', to='tickets.Ticket')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "original",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="original",
+                        to="tickets.Ticket",
+                    ),
+                ),
+                (
+                    "ticket",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="duplicate",
+                        to="tickets.Ticket",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='UserVoteLog',
+            name="UserVoteLog",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('ticket', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='tickets.Ticket')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "ticket",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="tickets.Ticket"
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='FollowUp',
+            name="FollowUp",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_on', models.DateTimeField(auto_now_add=True, verbose_name='date created')),
-                ('comment', models.TextField()),
-                ('comment_html', models.TextField(blank=True, editable=False)),
-                ('action', models.CharField(choices=[('split', 'Split'), ('no_action', 'No Action'), ('re-opened', 'Re-Opened'), ('closed', 'Closed')], db_index=True, default='no_action', max_length=20)),
-                ('private', models.BooleanField(default=False)),
-                ('parent', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='tickets.FollowUp')),
-                ('submitted_by', models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('ticket', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='tickets.Ticket')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_on",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="date created"
+                    ),
+                ),
+                ("comment", models.TextField()),
+                ("comment_html", models.TextField(blank=True, editable=False)),
+                (
+                    "action",
+                    models.CharField(
+                        choices=[
+                            ("no_action", "No Action"),
+                            ("closed", "Closed"),
+                            ("re-opened", "Re-Opened"),
+                            ("split", "Split"),
+                        ],
+                        db_index=True,
+                        default="no_action",
+                        max_length=20,
+                    ),
+                ),
+                ("private", models.BooleanField(default=False)),
+                (
+                    "parent",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="tickets.FollowUp",
+                    ),
+                ),
+                (
+                    "submitted_by",
+                    models.ForeignKey(
+                        default=1,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "ticket",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="tickets.Ticket"
+                    ),
+                ),
             ],
         ),
     ]
