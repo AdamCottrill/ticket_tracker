@@ -10,7 +10,7 @@ django-filter==2.4.0
     # via -r base.in
 django-taggit==1.4.0
     # via -r base.in
-django==2.2.20
+django==2.2.22
     # via
     #   -r base.in
     #   django-filter

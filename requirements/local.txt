@@ -10,8 +10,6 @@ appdirs==1.4.3
     # via black
 astroid==2.5.6
     # via pylint
-atomicwrites==1.3.0
-    # via pytest
 attrs==21.2.0
     # via pytest
 babel==2.7.0
@@ -28,35 +26,20 @@ click==8.0.1
     # via
     #   black
     #   pip-tools
-colorama==0.3.6
-    # via
-    #   click
-    #   pylint
-    #   pytest
-    #   sphinx
 coverage==5.5
     # via
     #   -r local.in
     #   pytest-cov
-django-crispy-forms==1.11.2
-    # via -r base.in
 django-debug-toolbar==3.2.1
     # via -r local.in
 django-extensions==3.1.3
     # via -r local.in
-django-filter==2.4.0
-    # via -r base.in
-django-taggit==1.4.0
-    # via -r base.in
 django-webtest==1.9.7
     # via -r local.in
-django==2.2.20
+django==2.2.22
     # via
-    #   -r base.in
     #   django-debug-toolbar
     #   django-extensions
-    #   django-filter
-    #   django-taggit
 docutils==0.17.1
     # via
     #   -r local.in
@@ -70,11 +53,7 @@ idna==2.8
 imagesize==1.1.0
     # via sphinx
 importlib-metadata==0.18
-    # via
-    #   click
-    #   pep517
-    #   pluggy
-    #   pytest
+    # via pluggy
 iniconfig==1.1.1
     # via pytest
 isort==4.3.21
@@ -83,8 +62,6 @@ jinja2==2.10.1
     # via sphinx
 lazy-object-proxy==1.4.1
     # via astroid
-markdown2==2.4.0
-    # via -r base.in
 markupsafe==1.1.1
     # via jinja2
 mccabe==0.6.1
@@ -170,12 +147,6 @@ toml==0.10.2
     #   pylint
     #   pytest
     #   pytest-cov
-typed-ast==1.4.3
-    # via
-    #   astroid
-    #   black
-typing-extensions==3.10.0.0
-    # via black
 urllib3==1.25.3
     # via requests
 waitress==0.9.0
@@ -189,9 +160,8 @@ webtest==2.0.35
 wrapt==1.11.2
     # via astroid
 zipp==0.5.2
-    # via
-    #   importlib-metadata
-    #   pep517
+    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
+# setuptools
