@@ -77,13 +77,13 @@ and create an associated virtual environment on you computer.
 2. Navigate into the rood directory of the project and create a
    virtual environment:
 
-   > cd tickettracker2
-   > python -m venv env
+   > cd ticket_tracker
+   > python -m venv venv
 
    Now activate the virtual environment (note the direction of the
    slashes - it makes a difference):
 
-   > venv\scripts\activate.bat
+   > venv\\scripts\\activate.bat
    (venv)>
 
 3. Install the required dependencies in the virtual env you just created:
@@ -130,7 +130,7 @@ and create an associated virtual environment on you computer.
    environment is set up correctly to limit the length of the error
    report if something goes wrong:
 
-   (venv)> pytest tickets\tests\test_models.py
+   (venv)> pytest tickets/tests/test_models.py
 
    If all of the tests pass, go ahead and run the whole test suite:
 
