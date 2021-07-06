@@ -4,13 +4,13 @@
 #
 #    pip-compile --output-file=base.txt base.in
 #
-django-crispy-forms==1.11.2
+django-crispy-forms==1.12.0
     # via -r base.in
 django-filter==2.4.0
     # via -r base.in
-django-taggit==1.4.0
+django-taggit==1.5.1
     # via -r base.in
-django==2.2.20
+django==2.2.24
     # via
     #   -r base.in
     #   django-filter
