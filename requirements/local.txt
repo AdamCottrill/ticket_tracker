@@ -168,7 +168,7 @@ toml==0.10.2
     #   pytest-cov
 urllib3==1.25.11
     # via requests
-waitress==1.4.2
+waitress==1.4.3
     # via webtest
 webob==1.6.1
     # via webtest
