@@ -1,8 +1,8 @@
 # Django settings for tickettracker project.
 
-from django.core.exceptions import ImproperlyConfigured
-
 import os
+
+from django.core.exceptions import ImproperlyConfigured
 
 
 def get_env_variable(var_name):
@@ -146,7 +146,6 @@ DJANGO_APPS = (
 )
 
 THIRDPARTY_APPS = (
-    "crispy_forms",
     "taggit",
     "django_filters",
 )
@@ -181,7 +180,6 @@ LOGGING = {
     },
 }
 
-CRISPY_TEMPLATE_PACK = "bootstrap3"
 
 LOGIN_REDIRECT_URL = "/ticket"
 

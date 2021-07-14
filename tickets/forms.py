@@ -1,26 +1,23 @@
-from django.forms import (
-    Form,
-    ModelForm,
-    CharField,
-    Textarea,
-    BooleanField,
-    ValidationError,
-    ModelChoiceField,
-    IntegerField,
-)
-from django.forms.widgets import Select, CheckboxInput
-
 from django.contrib.auth import get_user_model
+from django.forms import (
+    BooleanField,
+    CharField,
+    Form,
+    IntegerField,
+    ModelChoiceField,
+    ModelForm,
+    Textarea,
+    TextInput,
+    ValidationError,
+)
+from django.forms.widgets import CheckboxInput, Select
 
 User = get_user_model()
 
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, ButtonHolder, Div, Fieldset, Field
-
 from taggit.forms import TagWidget
 
-from .models import Ticket, FollowUp, TicketDuplicate, Application
+from .models import Application, FollowUp, Ticket, TicketDuplicate
 from .utils import is_admin
 
 
@@ -54,40 +51,10 @@ class TicketForm(ModelForm):
     - tickets can then be accepted or accepted and assigned by an
       admin depending on whether or not the assinged to field is
       filled out by the admin
+    """
 
-"""
-
-    description = CharField(widget=Textarea(attrs={"class": "input-xxlarge"}))
-
-    #    # assigned_to should only be available to admin
-    #    assigned_to = UserModelChoiceField(
-    #        queryset=User.objects.filter(groups__name='admin'),
-    #        label="Assigned To",
-    #        required=False)
-    #
     def __init__(self, *args, **kwargs):
         super(TicketForm, self).__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.form_id = "ticket"
-        self.helper.form_class = "blueForms"
-        self.helper.form_method = "post"
-        self.helper.add_input(Submit("submit", "Submit"))
-
-        priorities = sorted(
-            self.base_fields["priority"].choices, key=lambda x: str(x[0]), reverse=True
-        )
-
-        self.fields["priority"].choices = priorities
-
-        # status should not be included in this form. It is updated as the
-        # ticket is processed.
-
-        #  filter the choice available in the form to only those that do
-        #  not start with 'Closed'
-        # status_choices = self.base_fields['status'].choices
-        # status_choices = [x for x in status_choices if x[1][:6] != 'Closed']
-        # self.fields['status'].choices = status_choices
 
     class Meta:
         model = Ticket
@@ -97,11 +64,23 @@ class TicketForm(ModelForm):
             "priority",
             "application",
             "description",
-            "tags"
-            #          'assigned_to'
+            "tags",
         ]
 
-        widgets = {"tags": TagWidget()}
+        widgets = {
+            "title": TextInput(attrs={"class": "form-control"}),
+            "ticket_type": Select(attrs={"class": "form-control"}),
+            "priority": Select(attrs={"class": "form-control"}),
+            "application": Select(attrs={"class": "form-control"}),
+            "description": Textarea(attrs={"class": "form-control", "rows": 10}),
+            "tags": TextInput(attrs={"class": "form-control"}),
+            "tags": TagWidget(
+                attrs={
+                    "class": "form-control",
+                    "help_text": "<em>A comma separated list of tags.</em>",
+                }
+            ),
+        }
 
 
 class SplitTicketForm(Form):
@@ -179,47 +158,8 @@ class SplitTicketForm(Form):
         self.original_ticket = original_ticket
         self.user = user
         super(SplitTicketForm, self).__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.form_id = "splitticket"
-        self.helper.form_class = "blueForms"
-        self.helper.form_method = "post"
-
-        self.helper.layout = Layout(
-            Div(
-                Div(
-                    Fieldset(
-                        "Ticket 1",
-                        "title1",
-                        "status1",
-                        "ticket_type1",
-                        "priority1",
-                        "application1",
-                        "assigned_to1",
-                        "description1",
-                    ),
-                    css_class="col-md-6 well",
-                ),
-                Div(
-                    Fieldset(
-                        "Ticket 2",
-                        "title2",
-                        "status2",
-                        "ticket_type2",
-                        "priority2",
-                        "application2",
-                        "assigned_to2",
-                        "description2",
-                    ),
-                    css_class="col-md-6 well",
-                ),
-                css_class="row",
-            ),
-            "comment",
-            ButtonHolder(
-                Submit("submit", "Split Ticket", css_class="btn btn-danger pull-right")
-            ),
-        )
+        for visible in self.visible_fields():
+            visible.field.widget.attrs["class"] = "form-control"
 
     def save(self):
 
@@ -276,41 +216,14 @@ class CloseTicketForm(ModelForm):
         self.action = kwargs.pop("action", "no_action")
         self.ticket = kwargs.pop("ticket")
         self.user = kwargs.pop("user")
-        super(CloseTicketForm, self).__init__(*args, **kwargs)
 
-        self.helper = FormHelper()
-        self.helper.form_id = "comment"
-        self.helper.form_class = "blueForms"
-        self.helper.form_method = "post"
+        super(CloseTicketForm, self).__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs["class"] = "form-control"
 
         if self.action == "closed":
             self.fields["duplicate"] = BooleanField(required=False)
             self.fields["same_as_ticket"] = IntegerField(required=False, label="")
-            self.helper.layout = Layout(
-                Div(
-                    "comment",
-                    Div(
-                        Field("duplicate", css_class="col-md-3"),
-                        Field(
-                            "same_as_ticket",
-                            css_class="col-md-6",
-                            placeholder="Same as ticket #",
-                        ),
-                        css_class="form-group form-inline",
-                    ),
-                    css_class="row",
-                ),
-                ButtonHolder(
-                    Submit("submit", "Close", css_class="btn btn-danger pull-right")
-                ),
-            )
-        else:
-            self.helper.layout = Layout(
-                "comment",
-                ButtonHolder(
-                    Submit("submit", "Re-Open", css_class="btn btn-default pull-right")
-                ),
-            )
 
     def clean_same_as_ticket(self):
         """make sure that we're not duplicating ourselves"""
@@ -385,83 +298,6 @@ class CloseTicketForm(ModelForm):
         fields = ["comment"]
 
 
-# class CommentForm(ModelForm):
-#    """the comment form is used to provide comments on tickets, accept
-#    tickets, assign and re-assign tickets."""
-#
-#    comment = CharField(
-#        widget=Textarea(
-#            attrs={'class': 'input-xxlarge'}),
-#    )
-#
-#    # assigned_to should only be available to admin and only if action was not
-#    # 'accept'
-#    assigned_to = UserModelChoiceField(
-#        queryset=User.objects.filter(groups__name='admin'),
-#        label="Assigned To",
-#        required=False)
-#
-#    def __init__(self, *args, **kwargs):
-#
-#        self.ticket = kwargs.pop('ticket')
-#        self.user = kwargs.pop('user')
-#        self.action = kwargs.pop('action')
-#        super(CommentForm, self).__init__(*args, **kwargs)
-#
-#        self.helper = FormHelper()
-#        self.helper.form_id = 'comment'
-#        self.helper.form_class = 'blueForms'
-#        self.helper.form_method = 'post'
-#
-#        if is_admin(self.user) or self.user == self.ticket.submitted_by:
-#
-#            self.fields['private'] = BooleanField(required=False)
-#
-#            if self.action == 'accept':
-#                self.helper.layout = Layout(
-#                    'comment',
-#                    ButtonHolder(Submit('accept', 'Accept',
-#                                        css_class='btn btn-success pull-right'
-#                    ))
-#                )
-#            elif self.action == 'assign':
-#                self.helper.layout = Layout(
-#                    'comment',
-#                    'assigned_to',
-#                    ButtonHolder(Submit('assign', 'Assign Ticket',
-#                                        css_class='btn btn-success pull-right'
-#                    ))
-#                )
-#            else:
-#                self.helper.layout = Layout(
-#                    'comment',
-#                    'private',
-#                    ButtonHolder(Submit('comment', 'Post Comment',
-#                                        css_class='btn btn-success pull-right'
-#                    ))
-#                )
-#        else:
-#            self.helper.layout = Layout(
-#                'comment',
-#                ButtonHolder(Submit('submit', 'Post Comment',
-#                                    css_class='btn btn-default pull-right'))
-#            )
-#
-#    def save(self, *args, **kwargs):
-#        followUp = FollowUp(
-#            ticket=self.ticket,
-#            submitted_by=self.user,
-#            private=self.cleaned_data.get('private', False),
-#            comment=self.cleaned_data['comment']
-#        )
-#
-#        followUp.save()
-#
-#    class Meta:
-#        model = FollowUp
-#        fields = ['comment']
-#
-#
 class CommentTicketForm(ModelForm):
     """Make comment on a ticket without changing its status or who it is
     assigned to .

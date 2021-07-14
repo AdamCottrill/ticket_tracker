@@ -2,25 +2,195 @@
 
 {% block title %} Split Ticket {% endblock %}
 
-{% load crispy_forms_tags %}
+
 
 {% block content %}
 
 <div class="container">
-  <div class="col-md-6">
+
+  <h2>Split Ticket #{{ticket.id}} - {{ticket.title}}</h2>
+
+
+  <form class="form" id="splitticket" method="post" action=".">
+    {% csrf_token %}
     {% if form.errors %}
     <div class="alert alert-danger">
-      <button type="button" class="close" data-dismiss="alert">×</button>
-      <ul>
-        {% for error in form.errors.values %}
-        <li>{{ error|striptags }}</li>
-        {% endfor %}
-      </ul>
+      Please fix the errors in the form below.
+      {% for error in form.non_field_errors %}
+      <p class="error">{{ error }}</p>
+      {% endfor %}
+      {% for error in form.errors %}
+      <p class="error">{{ error }}</p>
+      {% endfor %}
     </div>
     {% endif %}
+    {% if msg %}
+    <div class="alert alert-danger">{{ msg }}</div>
+    {% endif %}
 
-    {% crispy form form.helper 'bootstrap3' %}
-  </div>
+
+      <div class="row">
+        <div class="col-md-6">
+
+<div class="panel panel-default">
+  <div class="panel-heading">New Ticket A</div>
+    <div class="panel-body">
+
+
+
+        <div class="form-group{% if form.title1.errors %} has-error {% endif %}">
+          {{ form.title1.label_tag }} {{ form.title1 }}
+          {% if form.title1.errors %}
+          {% for error in form.title1.errors %}
+          <div class="has-error help-block text-danger">{{ error }}</div>
+          {% endfor %}
+          {% endif %}
+        </div>
+
+        <div class="form-group{% if form.status1.errors %} has-error {% endif %}">
+          {{ form.status1.label_tag }} {{ form.status1 }}
+          {% if form.status1.errors %}
+          {% for error in form.status1.errors %}
+          <div class="has-error help-block text-danger">{{ error }}</div>
+          {% endfor %}
+          {% endif %}
+        </div>
+
+        <div class="form-group{% if form.ticket_type1.errors %} has-error {% endif %}">
+          {{ form.ticket_type1.label_tag }} {{ form.ticket_type1 }}
+          {% if form.ticket_type1.errors %}
+          {% for error in form.ticket_type1.errors %}
+          <div class="has-error help-block text-danger">{{ error }}</div>
+          {% endfor %}
+          {% endif %}
+        </div>
+
+        <div class="form-group{% if form.priority1.errors %} has-error {% endif %}">
+          {{ form.priority1.label_tag }} {{ form.priority1 }}
+          {% if form.priority1.errors %}
+          {% for error in form.priority1.errors %}
+          <div class="has-error help-block text-danger">{{ error }}</div>
+          {% endfor %}
+          {% endif %}
+        </div>
+
+        <div class="form-group{% if form.application1.errors %} has-error {% endif %}">
+          {{ form.application1.label_tag }} {{ form.application1 }}
+          {% if form.application1.errors %}
+          {% for error in form.application1.errors %}
+          <div class="has-error help-block text-danger">{{ error }}</div>
+          {% endfor %}
+          {% endif %}
+        </div>
+
+
+        <div class="form-group{% if form.assigned_to1.errors %} has-error {% endif %}">
+          {{ form.assigned_to1.label_tag }} {{ form.assigned_to1 }}
+          {% if form.assigned_to1.errors %}
+          {% for error in form.assigned_to1.errors %}
+          <div class="has-error help-block text-danger">{{ error }}</div>
+          {% endfor %}
+          {% endif %}
+        </div>
+
+
+        <div class="form-group{% if form.description1.errors %} has-error {% endif %}">
+          {{ form.description1.label_tag }} {{ form.description1 }}
+          {% if form.description1.errors %}
+          {% for error in form.description1.errors %}
+          <div class="has-error help-block text-danger">{{ error }}</div>
+          {% endfor %}
+          {% endif %}
+        </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">New Ticket B</div>
+          <div class="panel-body">
+              <div class="form-group{% if form.title2.errors %} has-error {% endif %}">
+                {{ form.title2.label_tag }} {{ form.title2 }}
+                {% if form.title2.errors %}
+                {% for error in form.title2.errors %}
+                <div class="has-error help-block text-danger">{{ error }}</div>
+                {% endfor %}
+                {% endif %}
+              </div>
+
+              <div class="form-group{% if form.status2.errors %} has-error {% endif %}">
+                {{ form.status2.label_tag }} {{ form.status2 }}
+                {% if form.status2.errors %}
+                {% for error in form.status2.errors %}
+                <div class="has-error help-block text-danger">{{ error }}</div>
+                {% endfor %}
+                {% endif %}
+              </div>
+
+              <div class="form-group{% if form.ticket_type2.errors %} has-error {% endif %}">
+                {{ form.ticket_type2.label_tag }} {{ form.ticket_type2 }}
+                {% if form.ticket_type2.errors %}
+                {% for error in form.ticket_type2.errors %}
+                <div class="has-error help-block text-danger">{{ error }}</div>
+                {% endfor %}
+                {% endif %}
+              </div>
+
+              <div class="form-group{% if form.priority2.errors %} has-error {% endif %}">
+                {{ form.priority2.label_tag }} {{ form.priority2 }}
+                {% if form.priority2.errors %}
+                {% for error in form.priority2.errors %}
+                <div class="has-error help-block text-danger">{{ error }}</div>
+                {% endfor %}
+                {% endif %}
+              </div>
+
+              <div class="form-group{% if form.application2.errors %} has-error {% endif %}">
+                {{ form.application2.label_tag }} {{ form.application2 }}
+                {% if form.application2.errors %}
+                {% for error in form.application2.errors %}
+                <div class="has-error help-block text-danger">{{ error }}</div>
+                {% endfor %}
+                {% endif %}
+              </div>
+
+              <div class="form-group{% if form.assigned_to2.errors %} has-error {% endif %}">
+                {{ form.assigned_to2.label_tag }} {{ form.assigned_to2 }}
+                {% if form.assigned_to2.errors %}
+                {% for error in form.assigned_to2.errors %}
+                <div class="has-error help-block text-danger">{{ error }}</div>
+                {% endfor %}
+                {% endif %}
+              </div>
+
+
+              <div class="form-group{% if form.description2.errors %} has-error {% endif %}">
+                {{ form.description2.label_tag }} {{ form.description2 }}
+                {% if form.description2.errors %}
+                {% for error in form.description2.errors %}
+                <div class="has-error help-block text-danger">{{ error }}</div>
+                {% endfor %}
+                {% endif %}
+              </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="form-group{% if form.comment.errors %} has-error {% endif %}">
+        {{ form.comment.label_tag }} {{ form.comment }}
+        {% if form.comment.errors %}
+        {% for error in form.comment.errors %}
+        <div class="has-error help-block text-danger">{{ error }}</div>
+        {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+    <input class="btn btn-danger pull-right" type="submit" value="Split Ticket" />
+  </form>
+
+
+
 </div>
 
 <br />
