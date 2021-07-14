@@ -1,15 +1,12 @@
 from django.contrib.auth.models import Group
 from django.urls import reverse
 from django_webtest import WebTest
-
-from tickets.tests.factories import UserFactory, TicketFactory
-
-from tickets.models import Ticket, FollowUp
+from tickets.models import FollowUp, Ticket
+from tickets.tests.factories import TicketFactory, UserFactory
 
 
 class TicketUpdateTestCase(WebTest):
-    """
-    """
+    """ """
 
     def setUp(self):
 
@@ -84,6 +81,9 @@ class TicketUpdateTestCase(WebTest):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_form.html")
+
+        self.assertContains(response, f"<h1>Update Ticket # {self.ticket.id}</h1>")
+        self.assertContains(response, f"<h2>{self.ticket.title}</h2>")
 
         # verify that the form does not contain closed, split or duplicate
         # these ticket status values are implemented else where.
@@ -176,6 +176,8 @@ class TicketUpdateTestCase(WebTest):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_form.html")
 
+        self.assertContains(response, "Open New Ticket")
+
         # verify that the form does not contain closed, split or duplicate
         # these ticket status values are implemented else where.
         # self.assertNotContains(response, 'close') "closed" in menu!
@@ -233,8 +235,7 @@ class TicketUpdateTestCase(WebTest):
 
 
 class SplitTicketTestCase(WebTest):
-    """
-    """
+    """ """
 
     def setUp(self):
 
@@ -471,9 +472,7 @@ class CommentTicketTestCase(WebTest):
         self.assertNotIn("private", form.fields.keys())
 
     def test_private_comment_logged_in_admin(self):
-        """you can leave a private comment if you are an admin
-
-        """
+        """you can leave a private comment if you are an admin"""
         myuser = self.user2
         login = self.client.login(username=myuser, password="Abcdef12")
         self.assertTrue(login)
@@ -836,8 +835,7 @@ class CommentTicketTestCase(WebTest):
 
 
 class CloseTicketTestCase(WebTest):
-    """
-    """
+    """ """
 
     def setUp(self):
 

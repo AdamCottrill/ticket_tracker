@@ -2,12 +2,111 @@
 
 {% block title %} Ticket Form {% endblock %}
 
-{% load crispy_forms_tags %}
-
 {% block content %}
 
+
 <div class="container">
-  {% crispy form form.helper 'bootstrap3' %}
+
+{%if ticket.pk %}
+  <h1>Update Ticket # {{ticket.id}}</h1>
+  <h2>{{ticket.title}}</h2>
+{% else %}
+  <h1>Open New Ticket</h1>
+{% endif %}
+
+
+  <form class="form" id="ticket" method="post" action=".">
+    {% csrf_token %}
+    {% if form.errors %}
+    <div class="alert alert-danger">
+      Please fix the errors in the form below.
+      {% for error in form.non_field_errors %}
+      <p class="error">{{ error }}</p>
+      {% endfor %}
+      {% for error in form.errors %}
+      <p class="error">{{ error }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% if msg %}
+    <div class="alert alert-danger">{{ msg }}</div>
+    {% endif %}
+
+
+
+      <div class="form-group{% if form.title.errors %} has-error {% endif %}">
+        {{ form.title.label_tag }} {{ form.title }}
+        {% if form.title.errors %}
+        {% for error in form.title.errors %}
+        <div class="has-error help-block text-danger">{{ error }}</div>
+        {% endfor %}
+        {% endif %}
+      </div>
+
+
+
+      <div
+        class="form-group{% if form.ticket_type.errors %} has-error {% endif %}">
+        {{ form.ticket_type.label_tag }} {{ form.ticket_type }}
+        {% if form.ticket_type.errors %}
+        {% for error in form.ticket_type.errors %}
+        <div class="has-error help-block text-danger">{{ error }}</div>
+        {% endfor %}
+        {% endif %}
+      </div>
+
+
+      <div class="form-group{% if form.priority.errors %} has-error {% endif %}">
+        {{ form.priority.label_tag }} {{ form.priority }}
+         {% if form.priority.errors %}
+         {% for error in form.priority.errors %}
+        <div class="has-error help-block text-danger">{{ error }}</div>
+        {% endfor %}
+        {% endif %}
+      </div>
+
+
+
+      <div
+        class="form-group{% if form.application.errors %} has-error {% endif %}">
+        {{ form.application.label_tag }} {{ form.application }}
+        {% if form.application.errors %}
+        {% for error in form.application.errors %}
+        <div class="has-error help-block text-danger">{{ error }}</div>
+        {% endfor %}
+        {% endif %}
+      </div>
+
+
+
+      <div
+        class="form-group{% if form.description.errors %} has-error {% endif %}">
+        {{ form.description.label_tag }} {{ form.description }}
+        {% if form.description.errors %}
+        {% for error in form.description.errors %}
+        <div class="has-error help-block text-danger">{{ error }}</div>
+        {% endfor %}
+        {% endif %}
+      </div>
+
+
+
+      <div class="form-group{% if form.tags.errors %} has-error {% endif %}">
+        {{ form.tags.label_tag }} {{ form.tags }}
+        {% if form.tags.errors %}
+        {% for error in form.tags.errors %}
+        <div class="has-error help-block text-danger">{{ error }}</div>
+        {% endfor %}
+        {% endif %}
+      </div>
+
+
+    <input class="btn btn-primary pull-right" type="submit" value="Submit" />
+  </form>
+
+
 </div>
 
 {% endblock %}
+
+

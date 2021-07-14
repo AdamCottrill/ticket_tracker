@@ -1,26 +1,25 @@
-from django.forms import (
-    Form,
-    ModelForm,
-    CharField,
-    Textarea,
-    BooleanField,
-    ValidationError,
-    ModelChoiceField,
-    IntegerField,
-)
-from django.forms.widgets import Select, CheckboxInput
-
 from django.contrib.auth import get_user_model
+from django.forms import (
+    BooleanField,
+    CharField,
+    Form,
+    IntegerField,
+    ModelChoiceField,
+    ModelForm,
+    Textarea,
+    TextInput,
+    ValidationError,
+)
+from django.forms.widgets import CheckboxInput, Select
 
 User = get_user_model()
 
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, ButtonHolder, Div, Fieldset, Field
-
+from crispy_forms.layout import ButtonHolder, Div, Field, Fieldset, Layout, Submit
 from taggit.forms import TagWidget
 
-from .models import Ticket, FollowUp, TicketDuplicate, Application
+from .models import Application, FollowUp, Ticket, TicketDuplicate
 from .utils import is_admin
 
 
@@ -54,40 +53,10 @@ class TicketForm(ModelForm):
     - tickets can then be accepted or accepted and assigned by an
       admin depending on whether or not the assinged to field is
       filled out by the admin
+    """
 
-"""
-
-    description = CharField(widget=Textarea(attrs={"class": "input-xxlarge"}))
-
-    #    # assigned_to should only be available to admin
-    #    assigned_to = UserModelChoiceField(
-    #        queryset=User.objects.filter(groups__name='admin'),
-    #        label="Assigned To",
-    #        required=False)
-    #
     def __init__(self, *args, **kwargs):
         super(TicketForm, self).__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.form_id = "ticket"
-        self.helper.form_class = "blueForms"
-        self.helper.form_method = "post"
-        self.helper.add_input(Submit("submit", "Submit"))
-
-        priorities = sorted(
-            self.base_fields["priority"].choices, key=lambda x: str(x[0]), reverse=True
-        )
-
-        self.fields["priority"].choices = priorities
-
-        # status should not be included in this form. It is updated as the
-        # ticket is processed.
-
-        #  filter the choice available in the form to only those that do
-        #  not start with 'Closed'
-        # status_choices = self.base_fields['status'].choices
-        # status_choices = [x for x in status_choices if x[1][:6] != 'Closed']
-        # self.fields['status'].choices = status_choices
 
     class Meta:
         model = Ticket
@@ -97,11 +66,23 @@ class TicketForm(ModelForm):
             "priority",
             "application",
             "description",
-            "tags"
-            #          'assigned_to'
+            "tags",
         ]
 
-        widgets = {"tags": TagWidget()}
+        widgets = {
+            "title": TextInput(attrs={"class": "form-control"}),
+            "ticket_type": Select(attrs={"class": "form-control"}),
+            "priority": Select(attrs={"class": "form-control"}),
+            "application": Select(attrs={"class": "form-control"}),
+            "description": Textarea(attrs={"class": "form-control", "rows": 10}),
+            "tags": TextInput(attrs={"class": "form-control"}),
+            "tags": TagWidget(
+                attrs={
+                    "class": "form-control",
+                    "help_text": "<em>A comma separated list of tags.</em>",
+                }
+            ),
+        }
 
 
 class SplitTicketForm(Form):

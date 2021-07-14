@@ -1,27 +1,25 @@
 from collections import OrderedDict
 
-from django.urls import reverse
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-from django.db.models import Q, Count
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count, Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic.list import ListView
+from django.urls import reverse
 from django.views.generic import DetailView
-
+from django.views.generic.list import ListView
 from taggit.models import Tag
 
-from .models import Ticket, UserVoteLog, FollowUp
-from .forms import (
-    TicketForm,
-    CloseTicketForm,
-    SplitTicketForm,
-    # CommentForm,
-    AcceptTicketForm,
-    AssignTicketForm,
-    CommentTicketForm,
-)
 from .filters import TicketFilter
+from .forms import AssignTicketForm  # CommentForm,
+from .forms import (
+    AcceptTicketForm,
+    CloseTicketForm,
+    CommentTicketForm,
+    SplitTicketForm,
+    TicketForm,
+)
+from .models import FollowUp, Ticket, UserVoteLog
 from .utils import is_admin
 
 User = get_user_model()
@@ -278,7 +276,7 @@ def TicketUpdateView(request, pk=None, template_name="tickets/ticket_form.html")
     else:
         form = TicketForm(instance=ticket)
 
-    return render(request, template_name, {"form": form})
+    return render(request, template_name, {"ticket": ticket, "form": form})
 
 
 @login_required
@@ -350,22 +348,22 @@ def SplitTicketView(request, pk=None, template_name="tickets/split_ticket_form.h
 def TicketCommentView(request, pk, action="comment"):
 
     """
-    Add a comment to a ticket. If the user is an administrator,
-    this view is also used to close and re-open tickets.
-    (i.e. create a new :model:FollowUp
-    object).  No actions are associated with the new FollowUp object.
+     Add a comment to a ticket. If the user is an administrator,
+     this view is also used to close and re-open tickets.
+     (i.e. create a new :model:FollowUp
+     object).  No actions are associated with the new FollowUp object.
 
-   **Context:**
+    **Context:**
 
-    ``ticket``
-        a :model:`ticket.Ticket` object.
+     ``ticket``
+         a :model:`ticket.Ticket` object.
 
-    ``form``
-        an instance of a CommentForm
+     ``form``
+         an instance of a CommentForm
 
-    **Template:**
-            template = 'tickets/close_repopen_ticket_form.html'
-    :template:`/tickets/comment_form.html`
+     **Template:**
+             template = 'tickets/close_repopen_ticket_form.html'
+     :template:`/tickets/comment_form.html`
 
     """
 
