@@ -340,7 +340,7 @@ def SplitTicketView(request, pk=None, template_name="tickets/split_ticket_form.h
             initial=initial, user=request.user, original_ticket=ticket
         )
 
-    return render(request, template_name, {"form": form})
+    return render(request, template_name, {"ticket": ticket, "form": form})
 
 
 # ==============================

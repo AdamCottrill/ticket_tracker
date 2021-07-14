@@ -16,7 +16,7 @@ User = get_user_model()
 
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import ButtonHolder, Div, Field, Fieldset, Layout, Submit
+from crispy_forms.layout import ButtonHolder, Div, Field, Layout, Submit
 from taggit.forms import TagWidget
 
 from .models import Application, FollowUp, Ticket, TicketDuplicate
@@ -160,47 +160,8 @@ class SplitTicketForm(Form):
         self.original_ticket = original_ticket
         self.user = user
         super(SplitTicketForm, self).__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.form_id = "splitticket"
-        self.helper.form_class = "blueForms"
-        self.helper.form_method = "post"
-
-        self.helper.layout = Layout(
-            Div(
-                Div(
-                    Fieldset(
-                        "Ticket 1",
-                        "title1",
-                        "status1",
-                        "ticket_type1",
-                        "priority1",
-                        "application1",
-                        "assigned_to1",
-                        "description1",
-                    ),
-                    css_class="col-md-6 well",
-                ),
-                Div(
-                    Fieldset(
-                        "Ticket 2",
-                        "title2",
-                        "status2",
-                        "ticket_type2",
-                        "priority2",
-                        "application2",
-                        "assigned_to2",
-                        "description2",
-                    ),
-                    css_class="col-md-6 well",
-                ),
-                css_class="row",
-            ),
-            "comment",
-            ButtonHolder(
-                Submit("submit", "Split Ticket", css_class="btn btn-danger pull-right")
-            ),
-        )
+        for visible in self.visible_fields():
+            visible.field.widget.attrs["class"] = "form-control"
 
     def save(self):
 
@@ -366,83 +327,6 @@ class CloseTicketForm(ModelForm):
         fields = ["comment"]
 
 
-# class CommentForm(ModelForm):
-#    """the comment form is used to provide comments on tickets, accept
-#    tickets, assign and re-assign tickets."""
-#
-#    comment = CharField(
-#        widget=Textarea(
-#            attrs={'class': 'input-xxlarge'}),
-#    )
-#
-#    # assigned_to should only be available to admin and only if action was not
-#    # 'accept'
-#    assigned_to = UserModelChoiceField(
-#        queryset=User.objects.filter(groups__name='admin'),
-#        label="Assigned To",
-#        required=False)
-#
-#    def __init__(self, *args, **kwargs):
-#
-#        self.ticket = kwargs.pop('ticket')
-#        self.user = kwargs.pop('user')
-#        self.action = kwargs.pop('action')
-#        super(CommentForm, self).__init__(*args, **kwargs)
-#
-#        self.helper = FormHelper()
-#        self.helper.form_id = 'comment'
-#        self.helper.form_class = 'blueForms'
-#        self.helper.form_method = 'post'
-#
-#        if is_admin(self.user) or self.user == self.ticket.submitted_by:
-#
-#            self.fields['private'] = BooleanField(required=False)
-#
-#            if self.action == 'accept':
-#                self.helper.layout = Layout(
-#                    'comment',
-#                    ButtonHolder(Submit('accept', 'Accept',
-#                                        css_class='btn btn-success pull-right'
-#                    ))
-#                )
-#            elif self.action == 'assign':
-#                self.helper.layout = Layout(
-#                    'comment',
-#                    'assigned_to',
-#                    ButtonHolder(Submit('assign', 'Assign Ticket',
-#                                        css_class='btn btn-success pull-right'
-#                    ))
-#                )
-#            else:
-#                self.helper.layout = Layout(
-#                    'comment',
-#                    'private',
-#                    ButtonHolder(Submit('comment', 'Post Comment',
-#                                        css_class='btn btn-success pull-right'
-#                    ))
-#                )
-#        else:
-#            self.helper.layout = Layout(
-#                'comment',
-#                ButtonHolder(Submit('submit', 'Post Comment',
-#                                    css_class='btn btn-default pull-right'))
-#            )
-#
-#    def save(self, *args, **kwargs):
-#        followUp = FollowUp(
-#            ticket=self.ticket,
-#            submitted_by=self.user,
-#            private=self.cleaned_data.get('private', False),
-#            comment=self.cleaned_data['comment']
-#        )
-#
-#        followUp.save()
-#
-#    class Meta:
-#        model = FollowUp
-#        fields = ['comment']
-#
-#
 class CommentTicketForm(ModelForm):
     """Make comment on a ticket without changing its status or who it is
     assigned to .
