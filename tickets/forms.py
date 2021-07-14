@@ -15,8 +15,6 @@ from django.forms.widgets import CheckboxInput, Select
 User = get_user_model()
 
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import ButtonHolder, Div, Field, Layout, Submit
 from taggit.forms import TagWidget
 
 from .models import Application, FollowUp, Ticket, TicketDuplicate
@@ -218,41 +216,14 @@ class CloseTicketForm(ModelForm):
         self.action = kwargs.pop("action", "no_action")
         self.ticket = kwargs.pop("ticket")
         self.user = kwargs.pop("user")
-        super(CloseTicketForm, self).__init__(*args, **kwargs)
 
-        self.helper = FormHelper()
-        self.helper.form_id = "comment"
-        self.helper.form_class = "blueForms"
-        self.helper.form_method = "post"
+        super(CloseTicketForm, self).__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs["class"] = "form-control"
 
         if self.action == "closed":
             self.fields["duplicate"] = BooleanField(required=False)
             self.fields["same_as_ticket"] = IntegerField(required=False, label="")
-            self.helper.layout = Layout(
-                Div(
-                    "comment",
-                    Div(
-                        Field("duplicate", css_class="col-md-3"),
-                        Field(
-                            "same_as_ticket",
-                            css_class="col-md-6",
-                            placeholder="Same as ticket #",
-                        ),
-                        css_class="form-group form-inline",
-                    ),
-                    css_class="row",
-                ),
-                ButtonHolder(
-                    Submit("submit", "Close", css_class="btn btn-danger pull-right")
-                ),
-            )
-        else:
-            self.helper.layout = Layout(
-                "comment",
-                ButtonHolder(
-                    Submit("submit", "Re-Open", css_class="btn btn-default pull-right")
-                ),
-            )
 
     def clean_same_as_ticket(self):
         """make sure that we're not duplicating ourselves"""

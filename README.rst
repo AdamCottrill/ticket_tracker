@@ -43,14 +43,13 @@ Quick start
 
 1. > pip install tickets.zip
 
-2.  install associated requirements: django-taggit, django_filter,
-     markdown2, and django-crispy-forms.
+2.  install associated requirements: django-taggit, django_filter, and
+     markdown2
 
 3. Add "tickets" and associated requirements to your INSTALLED_APPS setting like this:
 
     INSTALLED_APPS = [
         ...
-        'crispy_forms',
         'taggit',
         'tickets',
     ]

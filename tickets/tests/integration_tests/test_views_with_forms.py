@@ -914,6 +914,7 @@ class CloseTicketTestCase(WebTest):
 
         msg = "This ticket needs to be reopened"
         form["comment"] = msg
+
         response = form.submit().follow()
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_detail.html")
