@@ -1,14 +1,13 @@
 # from django.conf import settings
 # from django.contrib.auth.models import User, Group
 # from django.core.urlresolvers import reverse
-from django.urls import reverse
+from django.contrib.auth.models import Group
 
 # from django.test.client import Client
 from django.test import TestCase
-from django.contrib.auth.models import Group
-
-from tickets.tests.factories import UserFactory, FollowUpFactory, TicketFactory
+from django.urls import reverse
 from tickets.models import Ticket
+from tickets.tests.factories import FollowUpFactory, TicketFactory, UserFactory
 
 
 class TestTicketComments(TestCase):
@@ -351,13 +350,17 @@ class TicketListTestCase(TestCase):
         """this view should return only those tickets that belong to
         our user - they are either submitted by him or assinged to him
         """
-        url = reverse(
-            "tickets:my_ticket_list", kwargs={"username": self.user1.username}
-        )
+
+        username = self.user1.username
+
+        url = reverse("tickets:my_ticket_list", kwargs={"username": username})
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
 
+        # make sure the appropriate message is rendered:
+        message = f"Tickets associated with {username} (n=3):"
+        self.assertContains(response, message)
         # ticket 1 and 2 were created by homer and ticket 3 is assiged to him.:
         self.assertContains(response, self.ticket1.title)
         self.assertContains(response, self.ticket2.title)
@@ -561,8 +564,7 @@ class TicketListTestCase(TestCase):
 
 
 class VotingTestCase(TestCase):
-    """
-    """
+    """ """
 
     def setUp(self):
 
@@ -599,8 +601,7 @@ class VotingTestCase(TestCase):
         self.assertEqual(ticket.votes, 1)
 
     def test_vote_twice_logged_in(self):
-        """you can only vote for ticket once.
-        """
+        """you can only vote for ticket once."""
 
         login = self.client.login(username=self.user.username, password="abc")
         self.assertTrue(login)
