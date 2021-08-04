@@ -295,7 +295,7 @@ class SplitTicketTestCase(WebTest):
         self.assertEqual(response.status_code, 200)
 
     def test_split_logged_admin(self):
-        """if you're an administator, you should be able to split a
+        """if you're an administrator, you should be able to split a
         ticket
         """
         # verify that a comment was created on the original ticket and
@@ -304,8 +304,9 @@ class SplitTicketTestCase(WebTest):
         # verify that two new tickets where created
         # TODO
 
-        # if a ticket is assiged to someone already, assigned to is a
-        # manditory field
+        # if a ticket is assigned to someone already, assigned to is a
+        # mandatory field
+
         self.ticket.assigned_to = None
 
         myuser = self.user2
@@ -345,38 +346,6 @@ class SplitTicketTestCase(WebTest):
         self.assertQuerysetEqual(
             children, [msg1, msg2], lambda a: a.__str__(), ordered=False
         )
-
-    def test_split_logged_only_assingto_admin(self):
-        """if you're an administator, you should be able to split a ticket,
-        but only administrators should be listed as a choice to assign
-        tickets too.
-
-        """
-        myuser = self.user2
-        login = self.client.login(username=myuser.username, password="Abcdef12")
-        self.assertTrue(login)
-
-        url = reverse("tickets:split_ticket", kwargs=({"pk": self.ticket.id}))
-        response = self.app.get(url, user=myuser)
-
-        self.assertTemplateUsed(response, "tickets/split_ticket_form.html")
-        self.assertEqual(response.status_code, 200)
-
-        form = response.forms["splitticket"]
-
-        # Only admin users should be on list of choices for assing_to
-        choices = form["assigned_to1"].options
-        choices = [x[0] for x in choices]
-
-        assert str(self.user.id) not in choices
-        assert str(self.user2.id) in choices  # the only admin.
-
-        # Only admin users should be on list of choices for assing_to
-        choices = form["assigned_to2"].options
-        choices = [x[0] for x in choices]
-
-        assert str(self.user.id) not in choices
-        assert str(self.user2.id) in choices  # the only admin.
 
 
 class CommentTicketTestCase(WebTest):
@@ -692,9 +661,10 @@ class CommentTicketTestCase(WebTest):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_detail.html")
 
-        # our user should now be assigned to this ticket.
+        # verify that our ticket is now accepted, but has not been assigned to
+        # anyone yet
         ticket = Ticket.objects.get(id=self.ticket.id)
-        assert ticket.assigned_to is None
+        assert ticket.assigned_to == None
         assert ticket.status == "accepted"
 
     def test_assign_ticket_user(self):

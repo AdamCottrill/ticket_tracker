@@ -1,27 +1,11 @@
-"""
-=============================================================
-/home/adam/Documents/djcode/tickettracker/tickets/models.py
-Created: 04 May 2014 21:26:46
-
-DESCRIPTION:
-
-
-
-A. Cottrill
-=============================================================
-"""
-
-
-from django.db import models
 from django.conf import settings
 from django.contrib import admin
+from django.db import models
+from django.template.defaultfilters import slugify
 
 # from django.contrib.auth.models import User
 from django.urls import reverse
-from django.template.defaultfilters import slugify
-
 from markdown2 import markdown
-
 from taggit.managers import TaggableManager
 
 from .utils import replace_links
@@ -33,7 +17,8 @@ DEMOTE_HEADERS = 2
 
 
 class TicketManager(models.Manager):
-    """A custom model manager for tickets.
+    """
+    A custom model manager for tickets.
 
     By default, only active tickets will be returned in any queryset.
     """
@@ -45,7 +30,10 @@ class TicketManager(models.Manager):
 
 
 class CommentManager(models.Manager):
-    """A custom model manager for comments"""
+    """
+    A custom model manager for comments
+
+    """
 
     def get_queryset(self):
         """only those comments that are not private"""
@@ -54,9 +42,10 @@ class CommentManager(models.Manager):
 
 
 class Application(models.Model):
-    """A model to keep track of which application a ticket is
-    associated with.  The ticketTracker applicaton is likely to be
-    used to support several differnt application.  This table will
+    """
+    A model to keep track of which application a ticket is
+    associated with.  The ticketTracker application is likely to be
+    used to support several different application.  This table will
     help us keep track of tickets are associated with which app.
 
     Use the admin to add, update or remove applications.
@@ -86,7 +75,8 @@ class Application(models.Model):
 
 
 class Ticket(models.Model):
-    """A model for ticket objects.
+    """
+    A model for ticket objects.
 
     This model used a custom model manager (TicketManager) to return
     only active tickets by default.  To return all tickets use
@@ -254,8 +244,9 @@ class Ticket(models.Model):
 
 
 class TicketDuplicate(models.Model):
-    """A simple table to keep track of which tickets are duplicates of
-    which ticket.
+    """
+    A simple table to keep track of which tickets are duplicates of which
+    ticket.
 
     """
 
@@ -273,8 +264,10 @@ class TicketDuplicate(models.Model):
 
 
 class UserVoteLog(models.Model):
-    """A table to keep track of which tickets a user has voted for.
-    Each user can only upvote a ticket once.
+    """
+    A table to keep track of which tickets a user has voted for. Each user can
+    only upvote a ticket once.
+
     """
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -282,7 +275,8 @@ class UserVoteLog(models.Model):
 
 
 class FollowUp(models.Model):
-    """A model to hold comments and follow-up actions associated with a
+    """
+    A model to hold comments and follow-up actions associated with a
     ticket.
 
     A FollowUp without any action is just a comment.  Valid actions

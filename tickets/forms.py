@@ -11,19 +11,17 @@ from django.forms import (
     ValidationError,
 )
 from django.forms.widgets import CheckboxInput, Select
-
-User = get_user_model()
-
-
 from taggit.forms import TagWidget
 
 from .models import Application, FollowUp, Ticket, TicketDuplicate
 from .utils import is_admin
 
+User = get_user_model()
+
 
 class UserModelChoiceField(ModelChoiceField):
     """a custom model choice widget for user objects.  It will
-    displace user first and last name in list of available choices
+    display user first and last name in list of available choices
     (rather than their official user name). modified from
     https://docs.djangoproject.com/en/dev/ref/forms/fields/#modelchoicefield.
     """
@@ -49,7 +47,7 @@ class TicketForm(ModelForm):
     - freshly created tickets will be 'New' by default.
 
     - tickets can then be accepted or accepted and assigned by an
-      admin depending on whether or not the assinged to field is
+      admin depending on whether or not the assigned to field is
       filled out by the admin
     """
 
@@ -84,6 +82,13 @@ class TicketForm(ModelForm):
 
 
 class SplitTicketForm(Form):
+    """
+    This form is used to split an existing ticket into two separate tickets.
+    Values from the first ticket are autopopulated with the values from the
+    original.  This form is only accessible to admin users.
+
+    Args: Form (django.forms.Form): django form class
+    """
 
     status1 = CharField(
         max_length=20,
@@ -106,7 +111,8 @@ class SplitTicketForm(Form):
     )
 
     assigned_to1 = UserModelChoiceField(
-        queryset=User.objects.filter(groups__name="admin"),
+        # queryset=User.objects.filter(groups__name="admin"),
+        queryset=User.objects.all(),
         label="Assigned To",
         required=False,
     )
@@ -139,7 +145,8 @@ class SplitTicketForm(Form):
     )
 
     assigned_to2 = UserModelChoiceField(
-        queryset=User.objects.filter(groups__name="admin"),
+        # queryset=User.objects.filter(groups__name="admin"),
+        queryset=User.objects.all(),
         label="Assigned To",
         required=False,
     )
@@ -204,7 +211,8 @@ class SplitTicketForm(Form):
 
 
 class CloseTicketForm(ModelForm):
-    """This form will be used to close tickets either outright or as a
+    """
+    This form will be used to close tickets either outright or as a
     duplicate.  It is also used to re-open closed tickets.  In each
     case a comment is required.
 
@@ -236,12 +244,13 @@ class CloseTicketForm(ModelForm):
             return same_as_ticket
 
     def clean(self):
-        """if duplicate is True, we need to make sure that
+        """
+        If duplicate is True, we need to make sure that
         "same_as_ticket" is populated with a legitimate ticket number.
         Return validation errors if duplicate is checked but ticket
-        number is blank, a ticket is provided but duplicat is
+        number is blank, a ticket is provided but duplicate is
         unchecked, or if a ticket is provided but does not appear to
-        be associated with an existing ticket..
+        be associated with an existing ticket.
         """
 
         if self.cleaned_data.get("same_as_ticket") and not self.cleaned_data.get(
@@ -299,8 +308,9 @@ class CloseTicketForm(ModelForm):
 
 
 class CommentTicketForm(ModelForm):
-    """Make comment on a ticket without changing its status or who it is
-    assigned to .
+    """
+    Make comment on a ticket without changing its status or who it is
+    assigned to.
     """
 
     comment = CharField(widget=Textarea(attrs={"class": "form-control"}))
@@ -351,7 +361,8 @@ class AcceptTicketForm(ModelForm):
             comment=self.cleaned_data["comment"],
         )
 
-        self.ticket.assiged_to = self.user
+        if not is_admin(self.user):
+            self.ticket.assigned_to = self.user
         self.ticket.status = "accepted"
         self.ticket.save()
         followUp.save()

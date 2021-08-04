@@ -8,8 +8,10 @@ register = template.Library()
 @register.filter
 @stringfilter
 def priority_btn(priority, btn_size="xs"):
-    """given a ticket priority and button size, return a colour-coded
-    bootstrap button with an appropriate label.
+    """
+    Given a ticket priority and button size, return a colour-coded bootstrap
+    button with an appropriate label.
+
     """
 
     btn_map = {
@@ -30,8 +32,9 @@ def priority_btn(priority, btn_size="xs"):
 @register.filter
 @stringfilter
 def status_btn(status, btn_size="xs"):
-    """given a ticket status and button size, return a colour-coded
-    bootstrap button with an appropriate label.
+    """
+    Given a ticket status and button size, return a colour-coded bootstrap
+    button with an appropriate label.
     """
 
     btn_map = {
@@ -91,8 +94,7 @@ def classify(ticket_attribute):
 @register.filter
 @stringfilter
 def space(string):
-    """A simple little template filter to replace underscores with spaces
-    """
+    """A simple little template filter to replace underscores with spaces"""
     return mark_safe(string.replace("_", " "))
 
 
@@ -121,7 +123,9 @@ def format_action(string):
 
 @register.simple_tag(takes_context=True)
 def query_transform(context, include_page=False, **kwargs):
-    """Returns the URL-encoded querystring for the current page,
+    """
+
+    Returns the URL-encoded querystring for the current page,
     updating the params with the key/value pairs passed to the tag.
 
     E.g: given the querystring ?foo=1&bar=2

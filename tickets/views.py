@@ -11,9 +11,9 @@ from django.views.generic.list import ListView
 from taggit.models import Tag
 
 from .filters import TicketFilter
-from .forms import AssignTicketForm  # CommentForm,
 from .forms import (
     AcceptTicketForm,
+    AssignTicketForm,
     CloseTicketForm,
     CommentTicketForm,
     SplitTicketForm,
@@ -137,25 +137,27 @@ def get_ticket_filters():
 
 
 class TicketListView(TicketListViewBase):
-    """A view to render a list of tickets. If a query string and/or a
+    """
+    A view to render a list of tickets. If a query string and/or a
     user is provided, they will be used to filter the queryset,
     otherwise all tickets are returned in reverse chronological
     order.
 
-    **Context:**
+    **Context**
 
     ``object_list``
-        a list of :model:`ticket.Ticket` objects.
+        a list of :model:`tickets.Ticket` objects.
 
     ``query``
-        the query search string used to filter tickets. submitted via
+        The query search string used to filter tickets. Submitted via
         the quick seach bar.
 
     ``user``
+        The logged in user, or None.
 
     **Template:**
 
-    :template:`/tickets/ticket_list.html`
+    :template:`tickets/ticket_list.html`
 
     """
 
@@ -257,7 +259,7 @@ def TicketUpdateView(request, pk=None, template_name="tickets/ticket_form.html")
 
     **Template:**
 
-    :template:`/tickets/ticket_form.html`
+    :template: `/tickets/ticket_form.html`
 
     """
 
@@ -362,7 +364,7 @@ def TicketCommentView(request, pk, action="comment"):
          an instance of a CommentForm
 
      **Template:**
-             template = 'tickets/close_repopen_ticket_form.html'
+
      :template:`/tickets/comment_form.html`
 
     """

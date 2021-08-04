@@ -1,20 +1,7 @@
-"""
-=============================================================
-/home/adam/Documents/djcode/tickettracker/tickets/utils.py
-Created: 04 May 2014 21:19:37
-
-
-DESCRIPTION:
-
-
-
-A. Cottrill
-=============================================================
-"""
-
-
 def is_admin(user):
-    """return true if the user belongs to the admin group, false otherwise"""
+    """
+    return true if the user belongs to the admin group, false otherwise
+    """
     if user.groups.filter(name="admin").exists() or user.is_superuser:
         return True
     else:
@@ -22,10 +9,11 @@ def is_admin(user):
 
 
 def replace_links(text, link_patterns):
-    """a little function that will replace sstring patterns in text with
+    """
+    A little function that will replace string patterns in text with
     supplied hyperlinks.  'text' is just a string, most often a field
     in a django or flask model.  link patter is a list of two element
-    dictionaries.  Each dicationary must have keys 'pattern' and
+    dictionaries.  Each dictionary must have keys 'pattern' and
     'url'.  'pattern' the regular expression to apply to the text
     while url is the text to be used as its replacement.  Regular
     expression call backs are supported.  See the python documentation

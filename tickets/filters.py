@@ -4,7 +4,8 @@ from .models import Ticket
 
 
 class TicketFilter(django_filters.FilterSet):
-    """A filter class that will allow us to find tickets using url
+    """
+    A filter class that will allow us to find tickets using url
     parameters.
 
     TODO - implement - recently opened and recently closed (in the

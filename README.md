@@ -163,3 +163,15 @@ run by issuing the command:
 
 After the tests have completed, coverage reports can be found in the `~/htmlcov`
 directory.
+
+## Making the Documentation
+
+Most of the models, views, forms, utility functions have been documented. You
+can build the documentation locally with sphinx with:
+
+    (venv)> .\tickets\docs\make html
+
+Alternatively, you can use sphinx-autobuild to continually update the
+documentation during development using:
+
+    (venv)> sphinx-autobuild tickets/docs tickets/docs/_build/html

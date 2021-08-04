@@ -18,8 +18,11 @@ django-webtest>=1.9.7
 
 #for documentation:
 docutils==0.17.1
-Sphinx==4.0.3
+Sphinx==4.1.2
+sphinxcontrib-django2==1.1.1
+sphinx-autobuild==2021.3.14
+
 
 # dependabot alerts:
-urllib3==1.26.6
+urllib3==1.25.11
 waitress==1.4.3
