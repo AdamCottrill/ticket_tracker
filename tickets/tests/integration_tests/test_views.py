@@ -120,7 +120,7 @@ class TestTicketComments(TestCase):
 
 class TicketTestCase(TestCase):
     """Verify that the ticket detail view renders all of the required
-    information inlcuding links to parent and child tickets as well as
+    information including links to parent and child tickets as well as
     any duplicates/original.
     """
 
@@ -571,6 +571,33 @@ class VotingTestCase(TestCase):
         self.user = UserFactory(username="hsimpson", password="abc")
         self.ticket = TicketFactory()
 
+    def test_vote_button_enabled_disabled(self):
+        """The vote button should be disabled if the user is not logged in, or
+        has already voted for this ticket.  It should only be enabled for users
+        who are logged in and have not voted for it yet."""
+
+        # detail view - not logged in -> disabled
+
+        url = reverse("tickets:ticket_detail", kwargs={"pk": self.ticket.id})
+        response = self.client.get(url, follow=True)
+        # the vote button should be disabled for anonymous users:
+        html = 'id="vote-button" disabled>'
+        self.assertContains(response, html)
+
+        login = self.client.login(username=self.user.username, password="abc")
+        self.assertTrue(login)
+
+        # logged in, but has not voted -> enabled
+        response = self.client.get(url, follow=True)
+        html = 'id="vote-button" >'
+        self.assertContains(response, html)
+
+        # logged in, and has voted -> disabled
+        url = reverse("tickets:upvote_ticket", kwargs={"pk": self.ticket.id})
+        response = self.client.get(url, follow=True)
+        html = 'id="vote-button" disabled>'
+        self.assertContains(response, html)
+
     def test_vote_not_logged_in(self):
         """if you're not logged in you shouldn't be able to vote for a
         ticket
@@ -601,6 +628,10 @@ class VotingTestCase(TestCase):
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
 
+        # the vote button is disabled - we just voted:
+        html = 'id="vote-button" disabled>'
+        self.assertContains(response, html)
+
         ticket = Ticket.objects.get(id=self.ticket.id)
         self.assertEqual(ticket.votes, 1)
 
@@ -620,6 +651,10 @@ class VotingTestCase(TestCase):
         url = reverse("tickets:upvote_ticket", kwargs={"pk": self.ticket.id})
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
+
+        # the vote button should be enabled because we just voted for the ticket:
+        html = 'id="vote-button" disabled>'
+        self.assertContains(response, html)
 
         ticket = Ticket.objects.get(id=self.ticket.id)
         self.assertEqual(ticket.votes, 1)
