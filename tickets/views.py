@@ -2,12 +2,14 @@ from collections import OrderedDict
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.db.models import Count, Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import DetailView
 from django.views.generic.list import ListView
+
 from taggit.models import Tag
 
 from .filters import TicketFilter
@@ -439,4 +441,6 @@ def upvote_ticket(request, pk):
         p, created = UserVoteLog.objects.get_or_create(ticket=ticket, user=user)
         if ticket and created:
             ticket.up_vote()
+            msg = "Your vote was successfully registered!"
+            messages.add_message(request, messages.SUCCESS, msg)
     return HttpResponseRedirect(ticket.get_absolute_url())

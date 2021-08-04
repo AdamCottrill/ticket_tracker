@@ -582,6 +582,10 @@ class VotingTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.ticket.votes, 0)
 
+        # verify that our confirmation message does not appear:
+        msg = "Your vote was successfully registered!"
+        self.assertNotContains(response, msg)
+
     def test_vote_logged_in(self):
         """if you're  logged in you should be able to vote for a
         ticket once
@@ -600,6 +604,10 @@ class VotingTestCase(TestCase):
         ticket = Ticket.objects.get(id=self.ticket.id)
         self.assertEqual(ticket.votes, 1)
 
+        # verify that our confirmation message appears:
+        msg = "Your vote was successfully registered!"
+        self.assertContains(response, msg)
+
     def test_vote_twice_logged_in(self):
         """you can only vote for ticket once."""
 
@@ -616,6 +624,10 @@ class VotingTestCase(TestCase):
         ticket = Ticket.objects.get(id=self.ticket.id)
         self.assertEqual(ticket.votes, 1)
 
+        # verify that our confirmation message does appears the first time:
+        msg = "Your vote was successfully registered!"
+        self.assertContains(response, msg)
+
         # homer tries to vote a second time for the same ticket
         url = reverse("tickets:upvote_ticket", kwargs={"pk": self.ticket.id})
         response = self.client.get(url, follow=True)
@@ -623,6 +635,10 @@ class VotingTestCase(TestCase):
 
         ticket = Ticket.objects.get(id=self.ticket.id)
         self.assertEqual(ticket.votes, 1)
+
+        # verify that our confirmation message does not appear:
+        msg = "Your vote was successfully registered!"
+        self.assertNotContains(response, msg)
 
 
 ##class TicketUpdateTestCase(TestCase):

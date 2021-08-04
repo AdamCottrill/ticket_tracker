@@ -7,13 +7,19 @@
 {% block content %}
 
 <div class="container">
+
+    {% if messages %}
+        {% for msg in messages %}
+        <div class="alert alert-{{msg.level_tag}} " role="alert">
+            {{msg.message}}
+        </div>
+        {% endfor %}
+    {% endif %}
+
     <div class="col-md-6">
         <h2>Ticket #{{ object.id }} -  {{ ticket.title }} <span> {{ object.status | status_btn:"med" }}</span></h2>
-
-
     <hr />
     <h3>Information</h3>
-
 
     <table cellspacing="0" class="table">
       <tr>
@@ -33,7 +39,6 @@
 	    <button type="button" class="btn btn-default btn-xs">
 	      <span class="glyphicon glyphicon-thumbs-up"></span></button></a></td>
       </tr>
-
 
       <tr>
 	<td><b>Submitted by: </b> {{ object.submitted_by }}</td>
