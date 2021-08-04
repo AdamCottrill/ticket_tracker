@@ -640,6 +640,9 @@ class VotingTestCase(TestCase):
         msg = "Your vote was successfully registered!"
         self.assertNotContains(response, msg)
 
+        msg = "It Looks like you already vote for this ticket!"
+        self.assertContains(response, msg)
+
 
 ##class TicketUpdateTestCase(TestCase):
 ##    '''

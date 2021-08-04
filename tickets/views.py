@@ -1,26 +1,19 @@
 from collections import OrderedDict
 
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.db.models import Count, Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import DetailView
 from django.views.generic.list import ListView
-
 from taggit.models import Tag
 
 from .filters import TicketFilter
-from .forms import (
-    AcceptTicketForm,
-    AssignTicketForm,
-    CloseTicketForm,
-    CommentTicketForm,
-    SplitTicketForm,
-    TicketForm,
-)
+from .forms import (AcceptTicketForm, AssignTicketForm, CloseTicketForm,
+                    CommentTicketForm, SplitTicketForm, TicketForm)
 from .models import FollowUp, Ticket, UserVoteLog
 from .utils import is_admin
 
@@ -83,6 +76,15 @@ class TicketDetailView(DetailView):
         else:
             comments = FollowUp.objects.filter(ticket__pk=pk).order_by("-created_on")
         context["comments"] = comments
+
+        if ticket and user:
+            voter_ids = [x[0] for x in ticket.uservotelog_set.values_list('user_id')]
+            has_voted = user.id in voter_ids
+        else:
+            has_voted = False
+
+        context["has_voted"] = has_voted
+
         return context
 
 
@@ -438,9 +440,13 @@ def upvote_ticket(request, pk):
         user = None
 
     if user:
-        p, created = UserVoteLog.objects.get_or_create(ticket=ticket, user=user)
+        item, created = UserVoteLog.objects.get_or_create(ticket=ticket, user=user)
         if ticket and created:
             ticket.up_vote()
             msg = "Your vote was successfully registered!"
             messages.add_message(request, messages.SUCCESS, msg)
+        if ticket and created is False:
+            msg = "It Looks like you already vote for this ticket!"
+            messages.add_message(request, messages.WARNING, msg)
+
     return HttpResponseRedirect(ticket.get_absolute_url())

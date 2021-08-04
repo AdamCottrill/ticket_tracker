@@ -36,10 +36,9 @@
 	<td><b>Priority: </b>{{ object.priority | priority_btn }}</td>
 	<td><b>Votes: </b>{{ object.votes }}
 	  <a href="{% url 'tickets:upvote_ticket' object.id %}">
-	    <button type="button" class="btn btn-default btn-xs">
+	    <button type="button" class="btn btn-default btn-xs" id="vote-button" {% if has_voted%}disabled{% endif %}>
 	      <span class="glyphicon glyphicon-thumbs-up"></span></button></a></td>
       </tr>
-
       <tr>
 	<td><b>Submitted by: </b> {{ object.submitted_by }}</td>
 	<td>	<b>Assigned to: </b>

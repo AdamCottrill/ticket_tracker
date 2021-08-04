@@ -268,6 +268,9 @@ class UserVoteLog(models.Model):
     A table to keep track of which tickets a user has voted for. Each user can
     only upvote a ticket once.
 
+    TODO: consider adding a time stamp to this table so that we can report when
+    a user voted for a ticket.
+
     """
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
