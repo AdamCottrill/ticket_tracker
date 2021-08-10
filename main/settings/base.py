@@ -181,7 +181,7 @@ LOGGING = {
 }
 
 
-LOGIN_REDIRECT_URL = "/ticket"
+LOGIN_REDIRECT_URL = "/tickets"
 
 LINK_PATTERNS = [
     {"pattern": r"ticket:\s?(\d+)", "url": r'<a href="/ticket/\1">ticket \1</a>'}
