@@ -79,15 +79,15 @@
                         <td><a href="{{ object.get_absolute_url }}">{{  object.title }}</a></td>
                         <td><a href="?{% query_transform application=object.application.slug %}">{{object.application}}</a></td>
                         <td><a href="{% url 'tickets:submitted_by' object.submitted_by.username %}">{{object.submitted_by}}</a></td>
-                        <td>{{object.created_on |date:"M d, Y" }}</td>
+                        <td tabindex="0">{{object.created_on |date:"M d, Y" }}</td>
                         <td><a href="?{% query_transform ticket_type=object.ticket_type %}">{{object.ticket_type | ticket_type_btn }}</a></td>
 
                         <td><a href="?{% query_transform priority=object.priority %}">{{object.priority | priority_btn }}</a></td>
-                        <td>{{object.votes}}</td>
+                        <td  tabindex="0">{{object.votes}}</td>
                         {% if object.assigned_to %}
-                        <td><a href="{% url 'tickets:assigned_to' object.assigned_to.username %}">{{object.assigned_to}}</a></td>
+                            <td><a href="{% url 'tickets:assigned_to' object.assigned_to.username %}">{{object.assigned_to}}</a></td>
 
-                        {% else %} <td>Nobody (yet)</td> {% endif %}
+                        {% else %} <td  tabindex="0">Nobody (yet)</td> {% endif %}
 
                     </tr>
                     {% endfor %}
