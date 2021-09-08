@@ -1,112 +1,159 @@
 {% extends "tickets/tickets_base.html" %}
 
-{% block title %} Ticket Form {% endblock %}
+{% block title %}
 
-{% block content %}
-
-
-<div class="container">
-
-{%if ticket.pk %}
-  <h1>Update Ticket # {{ticket.id}}</h1>
-  <h2>{{ticket.title}}</h2>
-{% else %}
-  <h1>Open New Ticket</h1>
-{% endif %}
-
-
-  <form class="form" id="ticket" method="post" action=".">
-    {% csrf_token %}
-    {% if form.errors %}
-    <div class="alert alert-danger">
-      Please fix the errors in the form below.
-      {% for error in form.non_field_errors %}
-      <p class="error">{{ error }}</p>
-      {% endfor %}
-      {% for error in form.errors %}
-      <p class="error">{{ error }}</p>
-      {% endfor %}
-    </div>
+    {%if ticket.pk %}
+        Edit Ticket # {{ticket.id}}
+    {% else %}
+        New Ticket
     {% endif %}
-    {% if msg %}
-    <div class="alert alert-danger">{{ msg }}</div>
-    {% endif %}
-
-
-
-      <div class="form-group{% if form.title.errors %} has-error {% endif %}">
-        {{ form.title.label_tag }} {{ form.title }}
-        {% if form.title.errors %}
-        {% for error in form.title.errors %}
-        <div class="has-error help-block text-danger">{{ error }}</div>
-        {% endfor %}
-        {% endif %}
-      </div>
-
-
-
-      <div
-        class="form-group{% if form.ticket_type.errors %} has-error {% endif %}">
-        {{ form.ticket_type.label_tag }} {{ form.ticket_type }}
-        {% if form.ticket_type.errors %}
-        {% for error in form.ticket_type.errors %}
-        <div class="has-error help-block text-danger">{{ error }}</div>
-        {% endfor %}
-        {% endif %}
-      </div>
-
-
-      <div class="form-group{% if form.priority.errors %} has-error {% endif %}">
-        {{ form.priority.label_tag }} {{ form.priority }}
-         {% if form.priority.errors %}
-         {% for error in form.priority.errors %}
-        <div class="has-error help-block text-danger">{{ error }}</div>
-        {% endfor %}
-        {% endif %}
-      </div>
-
-
-
-      <div
-        class="form-group{% if form.application.errors %} has-error {% endif %}">
-        {{ form.application.label_tag }} {{ form.application }}
-        {% if form.application.errors %}
-        {% for error in form.application.errors %}
-        <div class="has-error help-block text-danger">{{ error }}</div>
-        {% endfor %}
-        {% endif %}
-      </div>
-
-
-
-      <div
-        class="form-group{% if form.description.errors %} has-error {% endif %}">
-        {{ form.description.label_tag }} {{ form.description }}
-        {% if form.description.errors %}
-        {% for error in form.description.errors %}
-        <div class="has-error help-block text-danger">{{ error }}</div>
-        {% endfor %}
-        {% endif %}
-      </div>
-
-
-
-      <div class="form-group{% if form.tags.errors %} has-error {% endif %}">
-        {{ form.tags.label_tag }} {{ form.tags }}
-        {% if form.tags.errors %}
-        {% for error in form.tags.errors %}
-        <div class="has-error help-block text-danger">{{ error }}</div>
-        {% endfor %}
-        {% endif %}
-      </div>
-
-
-    <input class="btn btn-primary pull-right" type="submit" value="Submit" />
-  </form>
-
-
-</div>
 
 {% endblock %}
 
 
+{% block extra_head %}
+
+    <style>
+     .required:after{
+         content:"*\00a0";
+         color:red;
+     }
+
+    </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container">
+        <div class="card my-3">
+            <div class="card-header">
+                {%if ticket.pk %}
+                    <h1 class="my-1">Update Ticket # {{ticket.id}}:</h1>
+                    <h3 class="my-2">{{ticket.title}}</h3>
+                {% else %}
+                    <h1 class="my-2">New Ticket</h1>
+                {% endif %}
+            </div>
+            <div class="card-body">
+
+                <form class="form" id="ticket" method="post" action=".">
+                    {% csrf_token %}
+                    {% if form.errors %}
+                        <div class="alert alert-danger" role="altert">
+                            Please fix the errors in the form below.
+                            {% for error in form.non_field_errors %}
+                                <p class="error">{{ error }}</p>
+                            {% endfor %}
+                            {% for error in form.errors %}
+                                <p class="error">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if msg %}
+                        <div class="alert alert-danger">{{ msg }}</div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label {% if form.title.field.required %} required {% endif %}"
+                               for="id_{{ form.title.name }}"
+                               aria-describedby="{{form.title.name}}help">{{ form.title.label }}:</label>
+                        {{ form.title }}
+                        {% if form.title.help_text %}
+                            <div id="{{form.title.help}}help" class="form-text">{{form.title.help_text}}</div>
+                        {% endif %}
+                        {% if not form.title.errors %}
+                            <div id="validation{{form.title.name}}" class="invalid-feedback">
+                                {% for error in  form.title.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label {% if form.ticket_type.field.required %} required {% endif %}"
+                               for="id_{{ form.ticket_type.name }}"
+                               aria-describedby="{{form.ticket_type.name}}help">{{ form.ticket_type.label }}:</label>
+                        {{ form.ticket_type }}
+                        {% if form.ticket_type.help_text %}
+                            <div id="{{form.ticket_type.help}}help" class="form-text">{{form.ticket_type.help_text}}</div>
+                        {% endif %}
+                        {% if not form.ticket_type.errors %}
+                            <div id="validation{{form.ticket_type.name}}" class="invalid-feedback">
+                                {% for error in  form.ticket_type.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label {% if form.priority.field.required %} required {% endif %}"
+                               for="id_{{ form.priority.name }}"
+                               aria-describedby="{{form.priority.name}}help">{{ form.priority.label }}:</label>
+                        {{ form.priority }}
+                        {% if form.priority.help_text %}
+                            <div id="{{form.priority.help}}help" class="form-text">{{form.priority.help_text}}</div>
+                        {% endif %}
+                        {% if not form.priority.errors %}
+                            <div id="validation{{form.priority.name}}" class="invalid-feedback">
+                                {% for error in  form.priority.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label {% if form.application.field.required %} required {% endif %}"
+                               for="id_{{ form.application.name }}"
+                               aria-describedby="{{form.application.name}}help">{{ form.application.label }}:</label>
+                        {{ form.application }}
+                        {% if form.application.help_text %}
+                            <div id="{{form.application.help}}help" class="form-text">{{form.application.help_text}}</div>
+                        {% endif %}
+                        {% if not form.application.errors %}
+                            <div id="validation{{form.application.name}}" class="invalid-feedback">
+                                {% for error in  form.application.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label {% if form.description.field.required %} required {% endif %}"
+                               for="id_{{ form.description.name }}"
+                               aria-describedby="{{form.description.name}}help">{{ form.description.label }}:</label>
+                        {{ form.description }}
+                        {% if form.description.help_text %}
+                            <div id="{{form.description.help}}help" class="form-text">{{form.description.help_text}}</div>
+                        {% endif %}
+                        {% if not form.description.errors %}
+                            <div id="validation{{form.description.name}}" class="invalid-feedback">
+                                {% for error in  form.description.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label {% if form.tags.field.required %} required {% endif %}"
+                               for="id_{{ form.tags.name }}"
+                               aria-describedby="{{form.tags.name}}help">{{ form.tags.label }}:</label>
+                        {{ form.tags }}
+                        {% if form.tags.help_text %}
+                            <div id="{{form.tags.help}}help" class="form-text">{{form.tags.help_text}}</div>
+                        {% endif %}
+                        {% if not form.tags.errors %}
+                            <div id="validation{{form.tags.name}}" class="invalid-feedback">
+                                {% for error in  form.tags.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row my-3">
+                        <div class="col-sm-12 text-center">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

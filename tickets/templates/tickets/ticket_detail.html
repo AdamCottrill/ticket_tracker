@@ -15,7 +15,7 @@
 
     {% if messages %}
         {% for msg in messages %}
-        <div class="alert alert-{{msg.level_tag}} " role="alert">
+        <div class="my-3 alert alert-{{msg.level_tag}}" role="alert">
             {{msg.message}}
         </div>
         {% endfor %}

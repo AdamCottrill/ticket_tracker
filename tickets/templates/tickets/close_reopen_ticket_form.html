@@ -2,84 +2,126 @@
 
 {% load ticket_extras %}
 
-
 {% block title %} {{ action | format_action }} Ticket #{{ ticket.id }} {% endblock %}
+
+
+{% block extra_head %}
+
+    <style>
+     .required:after{
+         content:"*\00a0";
+         color:red;
+     }
+    </style>
+
+{% endblock %}
+
 
 {% block content %}
 
-<div class="container">
-    <h2>{{ action | format_action }} Ticket #{{ ticket.id }} - {{ ticket.title }}</h2>
-    <br />
-    <div  class="row" >
-        <div class="col-md-6">
-            <b>Ticket Description:</b>
-            <div class="row well">
-                {{ ticket.description_html | safe }}
+    <div class="container">
+
+        <div class="col-md-8">
+
+            <h1 class="my-1">{{ action | format_action }} Ticket # {{ticket.id}}:</h1>
+            <h3 class="my-2">{{ticket.title}}</h3>
+
+
+            <div class="card my-5">
+                <h5 class="card-header">
+                    Ticket Description:
+                </h5>
+                <div class="card-body">
+                    {{ ticket.description_html|safe }}
+                </div>
             </div>
 
-  <form class="form" id="comment" method="post" action=".">
-    {% csrf_token %}
-    {% if form.errors %}
-    <div class="alert alert-danger">
-      Please fix the errors in the form below.
-      {% for error in form.non_field_errors %}
-      <p class="error">{{ error }}</p>
-      {% endfor %}
-      {% for error in form.errors %}
-      <p class="error">{{ error }}</p>
-      {% endfor %}
-    </div>
-    {% endif %}
-    {% if msg %}
-    <div class="alert alert-danger">{{ msg }}</div>
-    {% endif %}
 
-      <div class="form-group{% if form.comment.errors %} has-error {% endif %}">
-        {{ form.comment.label_tag }} {{ form.comment }}
-        {% if form.comment.errors %}
-        {% for error in form.comment.errors %}
-        <div class="has-error help-block text-danger">{{ error }}</div>
-        {% endfor %}
-        {% endif %}
-      </div>
+            <form class="form" id="comment" method="post" action=".">
+                {% csrf_token %}
+                {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        Please fix the errors in the form below.
+                        {% for error in form.non_field_errors %}
+                            <p class="error">{{ error }}</p>
+                        {% endfor %}
+                        {% for error in form.errors %}
+                            <p class="error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% if msg %}
+                    <div class="alert alert-danger" role="alert">{{ msg }}</div>
+                {% endif %}
 
-    {% if action == "closed" %}
-    <div class="row">
-    <div class="col-md-3">
-      <div class="form-group{% if form.duplicate.errors %} has-error {% endif %}">
-        {{ form.duplicate.label_tag }} {{ form.duplicate }}
-        {% if form.duplicate.errors %}
-        {% for error in form.duplicate.errors %}
-        <div class="has-error help-block text-danger">{{ error }}</div>
-        {% endfor %}
-        {% endif %}
-      </div>
 
-    </div>
-    <div class="col-md-9">
-      <div class="form-group{% if form.same_as_ticket.errors %} has-error {% endif %}">
-        {{ form.same_as_ticket.label_tag }} {{ form.same_as_ticket }}
-        {% if form.same_as_ticket.errors %}
-        {% for error in form.same_as_ticket.errors %}
-        <div class="has-error help-block text-danger">{{ error }}</div>
-        {% endfor %}
-        {% endif %}
-      </div>
-    </div>
-    <div>
-    {% endif %}
-
-    <div class="row">
-        <input class="btn btn-primary pull-right" type="submit" value="Submit" />
-    </div
-
-  </form>
+                <div class="mb-3">
+                    <label class="form-label {% if form.comment.field.required %} required {% endif %}"
+                           for="id_{{ form.comment.name }}"
+                           aria-describedby="{{form.comment.name}}help">{{ form.comment.label }}:</label>
+                    {{ form.comment }}
+                    {% if form.comment.help_text %}
+                        <div id="{{form.comment.help}}help" class="form-text">{{form.comment.help_text}}</div>
+                    {% endif %}
+                    {% if not form.comment.errors %}
+                        <div id="validation{{form.comment.name}}" class="invalid-feedback">
+                            {% for error in  form.comment.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
 
 
 
 
+                {% if action == "closed" %}
+                    <div class="row">
+                        <div class="col-md-3">
+
+                            <div class="mb-3">
+                                <label class="form-label {% if form.duplicate.field.required %} required {% endif %}"
+                                       for="id_{{ form.duplicate.name }}"
+                                       aria-describedby="{{form.duplicate.name}}help">{{ form.duplicate.label }}:</label>
+                                {{ form.duplicate }}
+                                {% if form.duplicate.help_text %}
+                                    <div id="{{form.duplicate.help}}help" class="form-text">{{form.duplicate.help_text}}</div>
+                                {% endif %}
+                                {% if not form.duplicate.errors %}
+                                    <div id="validation{{form.duplicate.name}}" class="invalid-feedback">
+                                        {% for error in  form.duplicate.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+
+                        </div>
+                        <div class="col-md-9">
+
+                            <div class="mb-3">
+                                <label class="form-label {% if form.same_as_ticket.field.required %} required {% endif %}"
+                                       for="id_{{ form.same_as_ticket.name }}"
+                                       aria-describedby="{{form.same_as_ticket.name}}help">{{ form.same_as_ticket.label }}:</label>
+                                {{ form.same_as_ticket }}
+                                {% if form.same_as_ticket.help_text %}
+                                    <div id="{{form.same_as_ticket.help}}help" class="form-text">{{form.same_as_ticket.help_text}}</div>
+                                {% endif %}
+                                {% if not form.same_as_ticket.errors %}
+                                    <div id="validation{{form.same_as_ticket.name}}" class="invalid-feedback">
+                                        {% for error in  form.same_as_ticket.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="row my-3">
+                    <div class="col-sm-12 text-center">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+
+            </form>
         </div>
     </div>
-</div>
-
 {% endblock %}

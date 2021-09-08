@@ -4,83 +4,112 @@
 
 {% block title %} {{ action | format_action }} Ticket #{{ ticket.id }}{% endblock %}
 
+{% block extra_head %}
+
+    <style>
+     .required:after{
+         content:"*\00a0";
+         color:red;
+     }
+
+    </style>
+
+{% endblock %}
+
 
 {% block content %}
 
-<div class="container">
+    <div class="container">
 
-    <h2>{{ action | format_action }} Ticket #{{ ticket.id }} - {{ ticket.title }}</h2>
-
-    <div class="col-md-6">
-        <b>Ticket Description:</b>
-        <div class="row well">
-            {{ ticket.description_html|safe }}
-        </div>
-
-        <form method="post" novalidate id="comment">
-            {% csrf_token %}
-
-            {% if form.errors %}
-            <div class="alert alert-danger">
-
-                Please fix the errors in the form below.
-                {% for error in form.non_field_errors %}
-                <p class="error">{{ error }}</p>
-                {% endfor %}
-
-                {% for hidden_field in form.hidden_fields %}
-                <p class="error">{{ hidden_field.errors }}</p>
-                <p class="error">{{ hidden_field }}</p>
-                {% endfor %}
-
-            </div>
-            {% endif %}
-
-            {{ form.comment.label_tag }}
-            <div class="form-group {% if form.comment.errors %}has-error{% endif %}">
-                {{ form.comment }}
-                {% if form.comment.errors %}
-                {% for error in form.comment.errors %}
-                <div class="has-error help-block text-danger">{{ error }}</div>
-                {% endfor %}
-                {% endif %}
-            </div>
-
-            {% if form.assigned_to %}
-            {{ form.assigned_to.label_tag }}
-            <div class="form-group {% if form.assigned_to.errors %}has-error{% endif %}">
-                {{ form.assigned_to }}
-                {% if form.assigned_to.errors %}
-                {% for error in form.assigned_to.errors %}
-                <div class="has-error help-block text-danger">{{ error }}</div>
-                {% endfor %}
-                {% endif %}
-            </div>
-            {% endif %}
+        <div class="col-md-8">
 
 
-            {% if form.private %}
-            <div class="form-group {% if form.private.errors %}has-error{% endif %}">
-                <div class="checkbox">
-                    <label>
-                        {{ form.private }}
-                        {{ form.private.label_tag }}
-                    </label>
+        <h1 class="my-1">{{ action | format_action }} Ticket # {{ticket.id}}:</h1>
+        <h3 class="my-2">{{ticket.title}}</h3>
+
+
+            <div class="card my-5">
+                <h5 class="card-header">
+                    Ticket Description:
+                </h5>
+                <div class="card-body">
+                    {{ ticket.description_html|safe }}
                 </div>
-                {% if form.private.errors %}
-                {% for error in form.private.errors %}
-                <div class="has-error help-block text-danger">{{ error }}</div>
-                {% endfor %}
-                {% endif %}
             </div>
-            {% endif %}
 
+            <form method="post" novalidate id="comment">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        Please fix the errors in the form below.
+                        {% for error in form.non_field_errors %}
+                            <p class="error">{{ error }}</p>
+                        {% endfor %}
+                        {% for hidden_field in form.hidden_fields %}
+                            <p class="error">{{ hidden_field.errors }}</p>
+                            <p class="error">{{ hidden_field }}</p>
+                        {% endfor %}
+
+                    </div>
+                {% endif %}
+
+
+                <div class="mb-3">
+                    <label class="form-label {% if form.comment.field.required %} required {% endif %}"
+                           for="id_{{ form.comment.name }}"
+                           aria-describedby="{{form.comment.name}}help">{{ form.comment.label }}:</label>
+                    {{ form.comment }}
+                    {% if form.comment.help_text %}
+                        <div id="{{form.comment.help}}help" class="form-text">{{form.comment.help_text}}</div>
+                    {% endif %}
+                    {% if not form.comment.errors %}
+                        <div id="validation{{form.comment.name}}" class="invalid-feedback">
+                            {% for error in  form.comment.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if form.assigned_to %}
+                    <div class="mb-3">
+                        <label class="form-label {% if form.assigned_to.field.required %} required {% endif %}"
+                               for="id_{{ form.assigned_to.name }}"
+                               aria-describedby="{{form.assigned_to.name}}help">{{ form.assigned_to.label }}:</label>
+                        {{ form.assigned_to }}
+                        {% if form.assigned_to.help_text %}
+                            <div id="{{form.assigned_to.help}}help" class="form-text">{{form.assigned_to.help_text}}</div>
+                        {% endif %}
+                        {% if not form.assigned_to.errors %}
+                            <div id="validation{{form.assigned_to.name}}" class="invalid-feedback">
+                                {% for error in  form.assigned_to.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+
+                {% if form.private %}
+                    <div class="mb-3">
+                        <label class="form-label {% if form.private.field.required %} required {% endif %}"
+                               for="id_{{ form.private.name }}"
+                               aria-describedby="{{form.private.name}}help">{{ form.private.label }}</label>
+                        {{ form.private }}
+                        {% if form.private.help_text %}
+                            <div id="{{form.private.help}}help" class="form-text">{{form.private.help_text}}</div>
+                        {% endif %}
+                        {% if not form.private.errors %}
+                            <div id="validation{{form.private.name}}" class="invalid-feedback">
+                                {% for error in  form.private.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
 
             <button type="submit" class="btn btn-primary pull-right" >{{ action | format_action }}</button>
-        </form>
+            </form>
 
-  </div>
+    </div>
 
-</div>
+    </div>
 
 {% endblock %}

@@ -231,7 +231,9 @@ class CloseTicketForm(ModelForm):
 
         if self.action == "closed":
             self.fields["duplicate"] = BooleanField(required=False)
-            self.fields["same_as_ticket"] = IntegerField(required=False, label="")
+            self.fields["same_as_ticket"] = IntegerField(
+                required=False, label="Same as Ticket"
+            )
 
     def clean_same_as_ticket(self):
         """make sure that we're not duplicating ourselves"""
@@ -325,7 +327,7 @@ class CommentTicketForm(ModelForm):
             self.fields["private"] = BooleanField(
                 required=False,
                 label="Private (only visible to logged in users).",
-                widget=CheckboxInput(attrs={"class": "checkbox"}),
+                widget=CheckboxInput(attrs={"class": "form-check-input"}),
             )
 
     def save(self, *args, **kwargs):
@@ -383,7 +385,7 @@ class AssignTicketForm(ModelForm):
         queryset=User.objects.filter(is_staff=True),
         label="Assign To",
         required=True,
-        widget=Select(attrs={"class": "form-control"}),
+        widget=Select(attrs={"class": "form-select"}),
     )
 
     def __init__(self, *args, **kwargs):
