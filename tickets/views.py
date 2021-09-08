@@ -12,8 +12,14 @@ from django.views.generic.list import ListView
 from taggit.models import Tag
 
 from .filters import TicketFilter
-from .forms import (AcceptTicketForm, AssignTicketForm, CloseTicketForm,
-                    CommentTicketForm, SplitTicketForm, TicketForm)
+from .forms import (
+    AcceptTicketForm,
+    AssignTicketForm,
+    CloseTicketForm,
+    CommentTicketForm,
+    SplitTicketForm,
+    TicketForm,
+)
 from .models import FollowUp, Ticket, UserVoteLog
 from .utils import is_admin
 
@@ -78,7 +84,7 @@ class TicketDetailView(DetailView):
         context["comments"] = comments
 
         if ticket and user:
-            voter_ids = [x[0] for x in ticket.uservotelog_set.values_list('user_id')]
+            voter_ids = [x[0] for x in ticket.uservotelog_set.values_list("user_id")]
             has_voted = user.id in voter_ids
         else:
             has_voted = False

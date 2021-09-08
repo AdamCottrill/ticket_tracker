@@ -54,7 +54,6 @@
                     </div>
                 {% endif %}
 
-
                 <div class="mb-3">
                     <label class="form-label {% if form.comment.field.required %} required {% endif %}"
                            for="id_{{ form.comment.name }}"
@@ -63,7 +62,7 @@
                     {% if form.comment.help_text %}
                         <div id="{{form.comment.help}}help" class="form-text">{{form.comment.help_text}}</div>
                     {% endif %}
-                    {% if not form.comment.errors %}
+                    {% if form.comment.errors %}
                         <div id="validation{{form.comment.name}}" class="invalid-feedback">
                             {% for error in  form.comment.errors %}{{ error }}{% endfor %}
                         </div>
@@ -79,7 +78,7 @@
                         {% if form.assigned_to.help_text %}
                             <div id="{{form.assigned_to.help}}help" class="form-text">{{form.assigned_to.help_text}}</div>
                         {% endif %}
-                        {% if not form.assigned_to.errors %}
+                        {% if form.assigned_to.errors %}
                             <div id="validation{{form.assigned_to.name}}" class="invalid-feedback">
                                 {% for error in  form.assigned_to.errors %}{{ error }}{% endfor %}
                             </div>
@@ -97,7 +96,7 @@
                         {% if form.private.help_text %}
                             <div id="{{form.private.help}}help" class="form-text">{{form.private.help_text}}</div>
                         {% endif %}
-                        {% if not form.private.errors %}
+                        {% if form.private.errors %}
                             <div id="validation{{form.private.name}}" class="invalid-feedback">
                                 {% for error in  form.private.errors %}{{ error }}{% endfor %}
                             </div>

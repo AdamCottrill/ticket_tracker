@@ -70,7 +70,13 @@ class TicketForm(ModelForm):
             "ticket_type": Select(attrs={"class": "form-control"}),
             "priority": Select(attrs={"class": "form-control"}),
             "application": Select(attrs={"class": "form-control"}),
-            "description": Textarea(attrs={"class": "form-control", "rows": 10}),
+            "description": Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 10,
+                    "help_text": "Ticket description accepts markdown that will be converted to html.",
+                }
+            ),
             "tags": TextInput(attrs={"class": "form-control"}),
             "tags": TagWidget(
                 attrs={
@@ -218,7 +224,10 @@ class CloseTicketForm(ModelForm):
 
     """
 
-    comment = CharField(widget=Textarea(attrs={"class": "input-xxlarge"}))
+    comment = CharField(
+        widget=Textarea(attrs={"class": "input-xxlarge"}),
+        help_text="Text in markdown will be rendered as html.",
+    )
 
     def __init__(self, *args, **kwargs):
         self.action = kwargs.pop("action", "no_action")
@@ -315,7 +324,10 @@ class CommentTicketForm(ModelForm):
     assigned to.
     """
 
-    comment = CharField(widget=Textarea(attrs={"class": "form-control"}))
+    comment = CharField(
+        widget=Textarea(attrs={"class": "form-control"}),
+        help_text="Comment field accepts markdown that will be converted to html.",
+    )
 
     def __init__(self, *args, **kwargs):
 
@@ -348,7 +360,10 @@ class CommentTicketForm(ModelForm):
 class AcceptTicketForm(ModelForm):
     """Accept a ticket and provide a comment."""
 
-    comment = CharField(widget=Textarea(attrs={"class": "form-control"}))
+    comment = CharField(
+        widget=Textarea(attrs={"class": "form-control"}),
+        help_text="Comment field accepts markdown that will be converted to html.",
+    )
 
     def __init__(self, *args, **kwargs):
 
@@ -378,7 +393,10 @@ class AssignTicketForm(ModelForm):
     """Accept and Assign or re-assign a ticket and provide a
     comment."""
 
-    comment = CharField(widget=Textarea(attrs={"class": "form-control"}))
+    comment = CharField(
+        widget=Textarea(attrs={"class": "form-control"}),
+        help_text="Comment field accepts markdown that will be converted to html.",
+    )
 
     assigned_to = UserModelChoiceField(
         # queryset=User.objects.filter(groups__name='admin'),

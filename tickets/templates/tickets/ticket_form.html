@@ -63,7 +63,7 @@
                         {% if form.title.help_text %}
                             <div id="{{form.title.help}}help" class="form-text">{{form.title.help_text}}</div>
                         {% endif %}
-                        {% if not form.title.errors %}
+                        {% if form.title.errors %}
                             <div id="validation{{form.title.name}}" class="invalid-feedback">
                                 {% for error in  form.title.errors %}{{ error }}{% endfor %}
                             </div>
@@ -78,7 +78,7 @@
                         {% if form.ticket_type.help_text %}
                             <div id="{{form.ticket_type.help}}help" class="form-text">{{form.ticket_type.help_text}}</div>
                         {% endif %}
-                        {% if not form.ticket_type.errors %}
+                        {% if form.ticket_type.errors %}
                             <div id="validation{{form.ticket_type.name}}" class="invalid-feedback">
                                 {% for error in  form.ticket_type.errors %}{{ error }}{% endfor %}
                             </div>
@@ -93,7 +93,7 @@
                         {% if form.priority.help_text %}
                             <div id="{{form.priority.help}}help" class="form-text">{{form.priority.help_text}}</div>
                         {% endif %}
-                        {% if not form.priority.errors %}
+                        {% if form.priority.errors %}
                             <div id="validation{{form.priority.name}}" class="invalid-feedback">
                                 {% for error in  form.priority.errors %}{{ error }}{% endfor %}
                             </div>
@@ -108,7 +108,7 @@
                         {% if form.application.help_text %}
                             <div id="{{form.application.help}}help" class="form-text">{{form.application.help_text}}</div>
                         {% endif %}
-                        {% if not form.application.errors %}
+                        {% if form.application.errors %}
                             <div id="validation{{form.application.name}}" class="invalid-feedback">
                                 {% for error in  form.application.errors %}{{ error }}{% endfor %}
                             </div>
@@ -123,7 +123,7 @@
                         {% if form.description.help_text %}
                             <div id="{{form.description.help}}help" class="form-text">{{form.description.help_text}}</div>
                         {% endif %}
-                        {% if not form.description.errors %}
+                        {% if form.description.errors %}
                             <div id="validation{{form.description.name}}" class="invalid-feedback">
                                 {% for error in  form.description.errors %}{{ error }}{% endfor %}
                             </div>
@@ -138,7 +138,7 @@
                         {% if form.tags.help_text %}
                             <div id="{{form.tags.help}}help" class="form-text">{{form.tags.help_text}}</div>
                         {% endif %}
-                        {% if not form.tags.errors %}
+                        {% if form.tags.errors %}
                             <div id="validation{{form.tags.name}}" class="invalid-feedback">
                                 {% for error in  form.tags.errors %}{{ error }}{% endfor %}
                             </div>

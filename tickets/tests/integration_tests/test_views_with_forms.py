@@ -82,8 +82,10 @@ class TicketUpdateTestCase(WebTest):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_form.html")
 
-        self.assertContains(response, f"<h1>Update Ticket # {self.ticket.id}</h1>")
-        self.assertContains(response, f"<h2>{self.ticket.title}</h2>")
+        self.assertContains(
+            response, f'<h1 class="my-1">Update Ticket # {self.ticket.id}:</h1>'
+        )
+        self.assertContains(response, f'<h3 class="my-2">{self.ticket.title}</h3>')
 
         # verify that the form does not contain closed, split or duplicate
         # these ticket status values are implemented else where.
@@ -102,7 +104,7 @@ class TicketUpdateTestCase(WebTest):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_detail.html")
 
-        self.assertContains(response, "New</button>")
+        self.assertContains(response, "New</span>")
         self.assertContains(response, "Feature Request")
         self.assertContains(response, "Nevermind it is OK.")
 
@@ -129,7 +131,7 @@ class TicketUpdateTestCase(WebTest):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_detail.html")
 
-        self.assertContains(response, "New</button>")
+        self.assertContains(response, "New</span>")
         self.assertContains(response, "Feature Request")
         self.assertContains(response, "Nevermind it is OK.")
 
@@ -176,7 +178,7 @@ class TicketUpdateTestCase(WebTest):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_form.html")
 
-        self.assertContains(response, "Open New Ticket")
+        self.assertContains(response, "New Ticket")
 
         # verify that the form does not contain closed, split or duplicate
         # these ticket status values are implemented else where.
@@ -197,7 +199,7 @@ class TicketUpdateTestCase(WebTest):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/ticket_detail.html")
 
-        self.assertContains(response, "New</button>")
+        self.assertContains(response, "New</span>")
         self.assertContains(response, "Feature Request")
         self.assertContains(response, "New Ticket Title")
         self.assertContains(response, "New Ticket created by UpdateView")

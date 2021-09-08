@@ -359,7 +359,9 @@ class TicketListTestCase(TestCase):
         self.assertTemplateUsed(response, "tickets/ticket_list.html")
 
         # make sure the appropriate message is rendered:
-        message = f"Tickets associated with {username} (n=3):"
+        message = (
+            f'Tickets associated with {username} (n=<span id="ticket-count">3</span>):'
+        )
         self.assertContains(response, message)
         # ticket 1 and 2 were created by homer and ticket 3 is assiged to him.:
         self.assertContains(response, self.ticket1.title)

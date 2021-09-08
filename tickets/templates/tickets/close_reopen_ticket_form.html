@@ -63,7 +63,7 @@
                     {% if form.comment.help_text %}
                         <div id="{{form.comment.help}}help" class="form-text">{{form.comment.help_text}}</div>
                     {% endif %}
-                    {% if not form.comment.errors %}
+                    {% if form.comment.errors %}
                         <div id="validation{{form.comment.name}}" class="invalid-feedback">
                             {% for error in  form.comment.errors %}{{ error }}{% endfor %}
                         </div>
@@ -85,7 +85,7 @@
                                 {% if form.duplicate.help_text %}
                                     <div id="{{form.duplicate.help}}help" class="form-text">{{form.duplicate.help_text}}</div>
                                 {% endif %}
-                                {% if not form.duplicate.errors %}
+                                {% if form.duplicate.errors %}
                                     <div id="validation{{form.duplicate.name}}" class="invalid-feedback">
                                         {% for error in  form.duplicate.errors %}{{ error }}{% endfor %}
                                     </div>
@@ -104,7 +104,7 @@
                                 {% if form.same_as_ticket.help_text %}
                                     <div id="{{form.same_as_ticket.help}}help" class="form-text">{{form.same_as_ticket.help_text}}</div>
                                 {% endif %}
-                                {% if not form.same_as_ticket.errors %}
+                                {% if form.same_as_ticket.errors %}
                                     <div id="validation{{form.same_as_ticket.name}}" class="invalid-feedback">
                                         {% for error in  form.same_as_ticket.errors %}{{ error }}{% endfor %}
                                     </div>
