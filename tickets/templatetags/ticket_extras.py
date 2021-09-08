@@ -5,16 +5,14 @@ from django.utils.safestring import mark_safe
 register = template.Library()
 
 
-@register.filter
-@stringfilter
-def priority_btn(priority, btn_size="xs"):
+def priority_widget(priority, size="xs", type="button"):
     """
     Given a ticket priority and button size, return a colour-coded bootstrap
     button with an appropriate label.
 
     """
 
-    btn_map = {
+    priority_map = {
         "1": ["danger", "Critical"],
         "2": ["warning", "High"],
         "3": ["success", "Normal"],
@@ -22,22 +20,47 @@ def priority_btn(priority, btn_size="xs"):
         "5": ["secondary", "Very Low"],
     }
 
-    btn_attr = btn_map.get(priority)
-    btn = '<button type="button" class="btn btn-{0} btn-{1}">{2}</button>'
-    btn = btn.format(btn_attr[0], btn_size, btn_attr[1])
-
-    return mark_safe(btn)
+    attr = priority_map.get(priority)
+    if type == "button":
+        html = '<button type="button" class="btn btn-{0} btn-{1}">{2}</button>'
+        html = html.format(attr[0], size, attr[1])
+    else:
+        html = '<span class="badge bg-{}">{}</span>'
+        html = html.format(attr[0], attr[1])
+    return html
 
 
 @register.filter
 @stringfilter
-def status_btn(status, btn_size="xs"):
+def priority_badge(priority):
+    """
+    Given a ticket priority and badge size, return a colour-coded bootstrap
+    badge with an appropriate label.
+    """
+
+    html = priority_widget(priority, type="badge")
+    return mark_safe(html)
+
+
+@register.filter
+@stringfilter
+def priority_btn(priority, size="xs"):
+    """
+    Given a ticket priority and button size, return a colour-coded bootstrap
+    button with an appropriate label.
+    """
+
+    html = priority_widget(priority, size, type="button")
+    return mark_safe(html)
+
+
+def status_widget(status, size="xs", type="button"):
     """
     Given a ticket status and button size, return a colour-coded bootstrap
     button with an appropriate label.
     """
 
-    btn_map = {
+    status_map = {
         "new": ["success", "New"],
         "accepted": ["info", "Accepted"],
         "assigned": ["primary", "Assigned"],
@@ -47,35 +70,86 @@ def status_btn(status, btn_size="xs"):
         "split": ["secondary", "Closed - Split"],
     }
 
-    btn_attr = btn_map.get(status.lower(), ["secondary", status])
+    attr = status_map.get(status.lower(), ["secondary", status])
 
-    if btn_size == "lg" and status in ("closed", "duplicate", "split"):
-        btn_attr[0] = "danger"
+    if size == "lg" and status in ("closed", "duplicate", "split"):
+        attr[0] = "danger"
 
-    btn = '<button type="button" class="btn btn-{0} btn-{1}">{2}</button>'
-    btn = btn.format(btn_attr[0], btn_size, btn_attr[1])
+    if type == "button":
+        html = '<button type="button" class="btn btn-{0} btn-{1}">{2}</button>'
+        html = html.format(attr[0], size, attr[1])
+    else:
+        html = '<span class="badge bg-{}">{}</span>'
+        html = html.format(attr[0], attr[1])
 
-    return mark_safe(btn)
+    return html
 
 
 @register.filter
 @stringfilter
-def ticket_type_btn(ticket_type, btn_size="xs"):
+def status_btn(status, size="xs"):
+    """
+    Given a ticket status and button size, return a colour-coded bootstrap
+    button with an appropriate label.
+    """
+
+    html = status_widget(status, size, type="button")
+    return mark_safe(html)
+
+
+@register.filter
+@stringfilter
+def status_badge(status, size="xs"):
+    """
+    Given a ticket status and button size, return a colour-coded bootstrap
+    badge with an appropriate label.
+    """
+
+    html = status_widget(status, size, type="badge")
+    return mark_safe(html)
+
+
+def ticket_type_widget(ticket_type, size="xs", type="button"):
     """given a ticket type and button size, return a colour-coded
     bootstrap button with an appropriate label.
     """
 
-    btn_map = {
+    type_map = {
         "bug": ["danger", "Bug Report"],
         "feature": ["secondary", "Feature Request"],
         "task": ["primary", "Task"],
     }
 
-    btn_attr = btn_map.get(ticket_type.lower())
-    btn = '<button type="button" class="btn btn-{0} btn-{1}">{2}</button>'
-    btn = btn.format(btn_attr[0], btn_size, btn_attr[1])
+    attr = type_map.get(ticket_type.lower())
+    if type == "button":
+        html = '<button type="button" class="btn btn-{0} btn-{1}">{2}</button>'
+        html = html.format(attr[0], size, attr[1])
+    else:
+        html = '<span class="badge bg-{}">{}</span>'
+        html = html.format(attr[0], attr[1])
+    return html
 
-    return mark_safe(btn)
+
+@register.filter
+@stringfilter
+def ticket_type_btn(ticket_type, size="xs"):
+    """given a ticket type and button size, return a colour-coded
+    bootstrap button with an appropriate label.
+    """
+
+    html = ticket_type_widget(ticket_type, size, type="button")
+    return mark_safe(html)
+
+
+@register.filter
+@stringfilter
+def ticket_type_badge(ticket_type, size="xs"):
+    """given a ticket type and button size, return a colour-coded
+    bootstrap button with an appropriate label.
+    """
+
+    html = ticket_type_widget(ticket_type, type="badge")
+    return mark_safe(html)
 
 
 @register.filter

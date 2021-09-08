@@ -4,6 +4,11 @@
 
 {% load ticket_extras %}
 
+
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+{% endblock %}
+
 {% block content %}
 
 <div class="container">
@@ -16,14 +21,14 @@
         {% endfor %}
     {% endif %}
 
-    <div class="col-md-6">
-        <h2>Ticket #{{ object.id }} -  {{ ticket.title }} <span> {{ object.status | status_btn:"med" }}</span></h2>
-    <hr />
-    <h3>Information</h3>
+    <div class="col-md-10">
+        <h2 class="my-5">Ticket #{{ object.id }} -  {{ ticket.title }} {{ object.status | status_badge:"med" }}</h2>
+
+        <h3 class="my-3">Information</h3>
 
     <table cellspacing="0" class="table">
       <tr>
-	<td><b>Ticket Type: </b> {{ object.ticket_type | ticket_type_btn }}</td>
+	<td><b>Ticket Type: </b> {{ object.ticket_type | ticket_type_badge }}</td>
 	<td><b>Application:</b> {{object.application}} </td>
       </tr>
 
@@ -33,11 +38,13 @@
       </tr>
 
       <tr>
-	<td><b>Priority: </b>{{ object.priority | priority_btn }}</td>
+	<td><b>Priority: </b>{{ object.priority | priority_badge }}</td>
 	<td><b>Votes: </b>{{ object.votes }}
 	  <a href="{% url 'tickets:upvote_ticket' object.id %}">
-	    <button type="button" class="btn btn-default btn-xs" id="vote-button" {% if user.id is None or has_voted%}disabled{% endif %}>
-	      <span class="glyphicon glyphicon-thumbs-up"></span></button>
+	      <button type="button" class="btn btn-outline-secondary btn-sm" id="vote-button" {% if user.id is None or has_voted%}disabled{% endif %}>
+                  Vote
+                  <i class="fa fa-thumbs-up" aria-label="Vote for this ticket."></i>
+              </button>
         </a>
         </td>
       </tr>
@@ -51,13 +58,15 @@
 
     </table>
 
+    <div class="card my-3">
+        <div class="card-header">
+            Description:
+        </div>
+        <div class="card-body">
+            {{ object.description_html|safe }}
+        </div>
+    </div>
 
-    <hr />
-
-   <b>Description: </b>
-   <div class="row well">
-       <br /> {{ object.description_html|safe }}
-   </div>
 
    {% if object.tags.all %}
    <p>
@@ -159,33 +168,33 @@
 
     {% if comment.action == 'closed'  %}
 
-    <div class="panel panel-danger">
-        <div class="panel-heading">
-            On {{ comment.created_on }} this ticket was <button class="btn btn-danger btn-xs" type="submit">closed</button> by {{ comment.submitted_by }}
+    <div class="card my-3 border-danger">
+        <div class="card-header">
+            On {{ comment.created_on }} this ticket was <span class="badge bg-danger">closed</span> by {{ comment.submitted_by }}
         </div>
-        <div class="panel-body">
+        <div class="card-body">
             {{ comment.comment_html|safe }}
         </div>
     </div>
     {% elif comment.action == 'reopened'  %}
-    <div class="panel panel-warning">
-        <div class="panel-heading">
-            On {{ comment.created_on }} this ticket was <button class="btn btn-warning btn-xs" type="submit">re-opened</button> by {{ comment.submitted_by }}
+    <div class="card my-3 boarder-warning">
+        <div class="card-header">
+            On {{ comment.created_on }} this ticket was <span class="badge bg-danger">re-opened</span>  by {{ comment.submitted_by }}
         </div>
-        <div class="panel-body">
+        <div class="card-body">
             {{ comment.comment_html|safe }}
         </div>
     </div>
 
     {% else %}
-    <div class="panel panel-default">
-        <div class="panel-heading">
+    <div class="card my-3">
+        <div class="card-header">
             {% if comment.private %}
 	    <button class="btn btn-warning btn-xs" type="submit">private</button>
 	    {% endif %}
 	    On {{ comment.created_on }} {{ comment.submitted_by }} wrote:
         </div>
-        <div class="panel-body">
+        <div class="card-body">
             {{ comment.comment_html|safe }}
         </div>
     </div>
