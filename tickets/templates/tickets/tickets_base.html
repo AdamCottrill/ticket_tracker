@@ -11,7 +11,16 @@
 
         <title>{% block title %}Ticket Tracker{% endblock %}</title>
 
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/stickyfooter.css">
+        <style>
+
+         .btn-group-xs > .btn, .btn-xs {
+             padding: 1px 5px;
+             font-size: 10px;
+             line-height: 1.5;
+             border-radius: 3px;
+         }
+
+        </style>
 
         {% block extra_head %}
         {% endblock %}

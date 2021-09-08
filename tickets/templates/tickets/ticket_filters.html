@@ -1,31 +1,28 @@
 {% load ticket_extras %}
 
-<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 
+
+<div class="accordion" id="ticket-filter-accordion">
     {% for filter, values in filters.items %}
-
-    <div class="panel panel-default">
-        <div class="panel-heading" role="tab" id="heading{{ forloop.counter }}">
-            <h6 class="panel-title">
-                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading{{filter}}">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{filter}}" aria-expanded="false" aria-controls="collapse{{filter}}">
                     {{ filter | space | title }}
-                </a>
-            </h6>
-        </div>
-        <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
-            <div class="panel-body">
-                <form id="{{ filter }}-checkboxes">
-                    {% for value in values %}
-                    <div class="form-check">
-                        <label>
-                            <input type="checkbox" name="check" value="{{ filter|classify }}-{{ value|classify }}"> <span class="label-text">{{ value|title }}</span>
-                        </label>
-                    </div>
-                    {% endfor %}
-                </form>
-
+                </button>
+            </h2>
+            <div id="collapse{{filter}}" class="accordion-collapse collapse" aria-labelledby="heading{{filter}}" data-bs-parent="#ticket-filter-accordion">
+                <div class="accordion-body">
+                    <form id="{{ filter }}-checkboxes">
+                        {% for value in values %}
+                            <div class="form-check">
+                                <label>
+                                    <input type="checkbox" name="check" value="{{ filter|classify }}-{{ value|classify }}"> <span class="label-text">{{ value|title }}</span>
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
-    {% endfor %}  <!-- filter loop -->
+    {% endfor %}
 </div>

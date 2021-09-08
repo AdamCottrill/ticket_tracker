@@ -19,7 +19,7 @@ def priority_btn(priority, btn_size="xs"):
         "2": ["warning", "High"],
         "3": ["success", "Normal"],
         "4": ["info", "Low"],
-        "5": ["default", "Very Low"],
+        "5": ["secondary", "Very Low"],
     }
 
     btn_attr = btn_map.get(priority)
@@ -42,12 +42,12 @@ def status_btn(status, btn_size="xs"):
         "accepted": ["info", "Accepted"],
         "assigned": ["primary", "Assigned"],
         "re-opened": ["warning", "Re-Opened"],
-        "closed": ["default", "Closed"],
-        "duplicate": ["default", "Closed - Duplicate"],
-        "split": ["default", "Closed - Split"],
+        "closed": ["secondary", "Closed"],
+        "duplicate": ["secondary", "Closed - Duplicate"],
+        "split": ["secondary", "Closed - Split"],
     }
 
-    btn_attr = btn_map.get(status.lower(), ["default", status])
+    btn_attr = btn_map.get(status.lower(), ["secondary", status])
 
     if btn_size == "lg" and status in ("closed", "duplicate", "split"):
         btn_attr[0] = "danger"
@@ -67,7 +67,7 @@ def ticket_type_btn(ticket_type, btn_size="xs"):
 
     btn_map = {
         "bug": ["danger", "Bug Report"],
-        "feature": ["default", "Feature Request"],
+        "feature": ["secondary", "Feature Request"],
         "task": ["primary", "Task"],
     }
 
