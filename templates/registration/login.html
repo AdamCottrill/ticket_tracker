@@ -4,56 +4,45 @@
 
 {% block content %}
 
-
-<div id="Login">
-  <div class="row">
-    <!-- Alignment -->
-    <div class="col-sm-offset-4 col-sm-3">
-
-      <!-- Form itself -->
-      <form method="POST" action="" class="well">
-        {% csrf_token %}
-        <legend>Login</legend>
-
-        {% if form.errors %}
-        <div class="alert alert-danger">
-          <button type="button" class="close" data-dismiss="alert">×</button>
-          <ul>
-            {% for error in form.errors.values %}
-            <li>{{ error|striptags }}</li>
-            {% endfor %}
-          </ul>
+    <div class="container" >
+        <div class="row justify-content-md-center">
+            <!-- Alignment -->
+            <div class="col-sm-3">
+                <div class="card mt-5">
+                    <div class="card-header">
+                        Login
+                    </div>
+                    <div class="card-body">
+                        <!-- Form itself -->
+                        <form method="POST" action="">
+                            {% csrf_token %}
+                            {% if form.errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    <ul>
+                                        {% for error in form.errors.values %}
+                                            <li>{{ error|striptags }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username</label>
+                                <input name="username" type="text" class="form-control" id="username" aria-describedby="username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input name="password" type="password" class="form-control" id="password" required>
+                            </div>
+                            <div class="row my-3">
+                                <div class="col-sm-12 text-center">
+                                    <button type="submit" class="btn btn-primary pull-right">Login</button><br /></p>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-        {% endif %}
-
-        <!-- Full Name -->
-        <div class="form-group">
-          <div class="controls">
-            <input type="text" class="form-control" name="username"
-                   placeholder="User Name" id="username" required
-                   data-validation-required-message="Please enter your user name" />
-            <p class="help-block"></p>
-          </div>
-        </div>
-
-        <!-- Password -->
-        <div class="form-group">
-          <div class="controls">
-            <input type="password" class="form-control" placeholder="password"
-                   name="password" id="password" required />
-          </div>
-        </div>
-
-        <div class="row">
-          <p>Not registered? <a href="#" tabindex="-1">Create an account here.</a>
-            <button type="submit" class="btn btn-primary pull-right">Login</button><br /></p>
-        </div>
-
-      </form>
     </div>
-  </div>
-</div>
-
-
 
 {% endblock %}
