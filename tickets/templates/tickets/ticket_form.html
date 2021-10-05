@@ -55,6 +55,11 @@
                         <div class="alert alert-danger">{{ msg }}</div>
                     {% endif %}
 
+                    <div class="row text-end">
+                            <p>Required fields are identified by an <span style="color:red">*</span></p>
+                    </div>
+
+
                     <div class="mb-3">
                         <label class="form-label {% if form.title.field.required %} required {% endif %}"
                                for="id_{{ form.title.name }}"
