@@ -10,7 +10,7 @@
     <div class="container-fluid">
 
         <div class="grid">
-            <div  class="row" >
+            <div  class="row">
                 <div id="filter-column" class="col-2" >
                     {% include 'tickets/ticket_filters.html' %}
                     {% if related_tags %}
@@ -28,80 +28,82 @@
                         </div>
                     {% endif %}
                 </div>
-                <div id="ticket-table-column" class="col-10" >
-                    {% if tag %}
-                        <h3 class="my-3">Tickets Tagged with '{{ tag }}' (n=<span id="ticket-count">{{ object_list|length }}</span>):</h3>
-                    {% elif status %}
-                        <h3 class="my-3">{{ status }} Tickets (n=<span id="ticket-count">{{ object_list|length }}</span>)</h3>
-                    {% elif type %}
-                        <h3 class="my-3">{{ type  }}s</h3>
-                    {% elif query %}
-                        <h3 class="my-3">Tickets that contain '{{ query }}' (n=<span id="ticket-count">{{ object_list|length }}</span>):</h3>
-                    {% elif username %}
-                        {% if what %}
-                            <h3 class="my-3">Tickets {{ what }} {{ username }} (n=<span id="ticket-count">{{ object_list|length }}</span>):</h3>
+                <div id="ticket-table-column" class="col-10">
+                    <div id="main-content"> 
+                        {% if tag %}
+                            <h3 class="my-3">Tickets Tagged with '{{ tag }}' (n=<span id="ticket-count">{{ object_list|length }}</span>):</h3>
+                        {% elif status %}
+                            <h3 class="my-3">{{ status }} Tickets (n=<span id="ticket-count">{{ object_list|length }}</span>)</h3>
+                        {% elif type %}
+                            <h3 class="my-3">{{ type  }}s</h3>
+                        {% elif query %}
+                            <h3 class="my-3">Tickets that contain '{{ query }}' (n=<span id="ticket-count">{{ object_list|length }}</span>):</h3>
+                        {% elif username %}
+                            {% if what %}
+                                <h3 class="my-3">Tickets {{ what }} {{ username }} (n=<span id="ticket-count">{{ object_list|length }}</span>):</h3>
+                            {% else %}
+                                <h3 class="my-3">Tickets associated with {{ username }} (n=<span id="ticket-count">{{ object_list|length }}</span>):</h3>
+                            {% endif %}
                         {% else %}
-                            <h3 class="my-3">Tickets associated with {{ username }} (n=<span id="ticket-count">{{ object_list|length }}</span>):</h3>
+                            <h3 class="my-3">Tickets (n=<span id="ticket-count">{{ object_list|length }}</span>)</h3>
                         {% endif %}
-                    {% else %}
-                        <h3 class="my-3">Tickets (n=<span id="ticket-count">{{ object_list|length }}</span>)</h3>
-                    {% endif %}
-                    {% if object_list %}
-                        <table cellspacing="0" class="tablesorter">
-                            <thead>
-                                <tr>
-                                    <th>Ticket</th>
-                                    <th style="text-align:center" >Status</th>
-                                    <th>Description</th>
-                                    <th>Application</th>
-                                    <th>Submitted By</th>
-                                    <th>Submitted On</th>
-                                    <th>Ticket Type</th>
-                                    <th>Priority</th>
-                                    <th>Votes</th>
-                                    <th>Assigned to</th>
-                                </tr>
-                            </thead>
-                            <tbody id="ticket-list" >
-                                {% for object in object_list %}
-                                    <tr class="ticket"
-                                        data-category="status-{{ object.status|classify }} type-{{ object.get_ticket_type_display|classify }} priority-{{ object.get_priority_display|classify }} application-{{ object.application|classify }} submitted-by-{{ object.submitted_by|classify }} assigned-to-{{object.assigned_to|classify}}" >
-                                        <td><a href="{{ object.get_absolute_url }}">{{object.id}}</a></td>
-                                        <td style="text-align:center">
-                                            <a href="?{% query_transform status=object.status %}">{{object.status | status_btn }}</a>
-                                        </td>
-                                        <td><a href="{{ object.get_absolute_url }}">{{  object.title }}</a></td>
-                                        <td>
-                                            <a href="?{% query_transform application=object.application.slug %}">{{object.application}}</a>
-                                        </td>
-                                        <td>
-                                            <a href="{% url 'tickets:submitted_by' object.submitted_by.username %}">{{object.submitted_by}}</a>
-                                        </td>
-                                        <td tabindex="0">
-                                            {{object.created_on |date:"M d, Y" }}
-                                        </td>
-                                        <td>
-                                            <a href="?{% query_transform ticket_type=object.ticket_type %}">{{object.ticket_type | ticket_type_btn }}</a>
-                                        </td>
-                                        <td>
-                                            <a href="?{% query_transform priority=object.priority %}">{{object.priority | priority_btn }}
-                                            </a></td>
-                                        <td  tabindex="0">
-                                            {{object.votes}}
-                                        </td>
-                                        {% if object.assigned_to %}
-                                            <td>
-                                                <a href="{% url 'tickets:assigned_to' object.assigned_to.username %}">{{object.assigned_to}}</a>
-                                            </td>
-                                        {% else %} <td  tabindex="0">Nobody (yet)</td> {% endif %}
+                        {% if object_list %}
+                            <table cellspacing="0" class="tablesorter">
+                                <thead>
+                                    <tr>
+                                        <th>Ticket</th>
+                                        <th style="text-align:center" >Status</th>
+                                        <th>Description</th>
+                                        <th>Application</th>
+                                        <th>Submitted By</th>
+                                        <th>Submitted On</th>
+                                        <th>Ticket Type</th>
+                                        <th>Priority</th>
+                                        <th>Votes</th>
+                                        <th>Assigned to</th>
                                     </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    {% else %}
-                        <h4>No Tickets Found.</h4>
-                </div>
-                    {% endif %}
+                                </thead>
+                                <tbody id="ticket-list" >
+                                    {% for object in object_list %}
+                                        <tr class="ticket"
+                                            data-category="status-{{ object.status|classify }} type-{{ object.get_ticket_type_display|classify }} priority-{{ object.get_priority_display|classify }} application-{{ object.application|classify }} submitted-by-{{ object.submitted_by|classify }} assigned-to-{{object.assigned_to|classify}}" >
+                                            <td><a href="{{ object.get_absolute_url }}">{{object.id}}</a></td>
+                                            <td style="text-align:center">
+                                                <a href="?{% query_transform status=object.status %}">{{object.status | status_btn }}</a>
+                                            </td>
+                                            <td><a href="{{ object.get_absolute_url }}">{{  object.title }}</a></td>
+                                            <td>
+                                                <a href="?{% query_transform application=object.application.slug %}">{{object.application}}</a>
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'tickets:submitted_by' object.submitted_by.username %}">{{object.submitted_by}}</a>
+                                            </td>
+                                            <td tabindex="0">
+                                                {{object.created_on |date:"M d, Y" }}
+                                            </td>
+                                            <td>
+                                                <a href="?{% query_transform ticket_type=object.ticket_type %}">{{object.ticket_type | ticket_type_btn }}</a>
+                                            </td>
+                                            <td>
+                                                <a href="?{% query_transform priority=object.priority %}">{{object.priority | priority_btn }}
+                                                </a></td>
+                                            <td  tabindex="0">
+                                                {{object.votes}}
+                                            </td>
+                                            {% if object.assigned_to %}
+                                                <td>
+                                                    <a href="{% url 'tickets:assigned_to' object.assigned_to.username %}">{{object.assigned_to}}</a>
+                                                </td>
+                                            {% else %} <td  tabindex="0">Nobody (yet)</td> {% endif %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <h4>No Tickets Found.</h4>
+                    </div>
+                        {% endif %}
+                </div>        
             </div>
         </div>
     </div>

@@ -19,7 +19,13 @@
              line-height: 1.5;
              border-radius: 3px;
          }
-
+         .big-badge
+        {
+            padding-x: .65em !important;
+            padding-y: .35em !important;
+            font-weight: bold !important;
+            color: white !important;
+        }
         </style>
 
         {% block extra_head %}
@@ -29,15 +35,19 @@
     </head>
     <body>
 
-
+        <a href="#main-content" class="visually-hidden-focusable"><button class="bg-danger big-badge">Skip To Main Content</button></a>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container-fluid">
+            <div class="container-fluid">  
                 <a class="navbar-brand" href="{% url 'tickets:ticket_list' %}">Ticket Tracker</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="">GL Home</a>
+                        </li>
 
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'tickets:ticket_list' %}" class="sel">View Tickets</a>
@@ -124,8 +134,8 @@
 
 
         {% block content %}
+        
         {% endblock%}
-
 
         <!-- Optional JavaScript; choose one of the two! -->
 
