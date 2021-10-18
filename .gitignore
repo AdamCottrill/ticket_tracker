@@ -13,4 +13,4 @@ coverage/*
 fixtures/*
 tickets/docs/_build/
 ticket_tracker.egg-info/*
-
+venv/*
