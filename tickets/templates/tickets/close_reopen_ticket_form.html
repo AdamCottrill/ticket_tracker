@@ -54,11 +54,15 @@
                     <div class="alert alert-danger" role="alert">{{ msg }}</div>
                 {% endif %}
 
+                    <div class="row text-end">
+                        <p>Required fields are identified by an <span style="color:red">*</span></p>
+                    </div>
+
+
 
                 <div class="mb-3">
                     <label class="form-label {% if form.comment.field.required %} required {% endif %}"
-                           for="id_{{ form.comment.name }}"
-                           aria-describedby="{{form.comment.name}}help">{{ form.comment.label }}:</label>
+                           for="id_{{ form.comment.name }}">{{ form.comment.label }}:</label>
                     {{ form.comment }}
                     {% if form.comment.help_text %}
                         <div id="{{form.comment.help}}help" class="form-text">{{form.comment.help_text}}</div>
@@ -70,17 +74,13 @@
                     {% endif %}
                 </div>
 
-
-
-
                 {% if action == "closed" %}
                     <div class="row">
                         <div class="col-md-3">
 
                             <div class="mb-3">
                                 <label class="form-label {% if form.duplicate.field.required %} required {% endif %}"
-                                       for="id_{{ form.duplicate.name }}"
-                                       aria-describedby="{{form.duplicate.name}}help">{{ form.duplicate.label }}:</label>
+                                       for="id_{{ form.duplicate.name }}">{{ form.duplicate.label }}:</label>
                                 {{ form.duplicate }}
                                 {% if form.duplicate.help_text %}
                                     <div id="{{form.duplicate.help}}help" class="form-text">{{form.duplicate.help_text}}</div>
@@ -91,15 +91,12 @@
                                     </div>
                                 {% endif %}
                             </div>
-
-
                         </div>
                         <div class="col-md-9">
 
                             <div class="mb-3">
                                 <label class="form-label {% if form.same_as_ticket.field.required %} required {% endif %}"
-                                       for="id_{{ form.same_as_ticket.name }}"
-                                       aria-describedby="{{form.same_as_ticket.name}}help">{{ form.same_as_ticket.label }}:</label>
+                                       for="id_{{ form.same_as_ticket.name }}">{{ form.same_as_ticket.label }}:</label>
                                 {{ form.same_as_ticket }}
                                 {% if form.same_as_ticket.help_text %}
                                     <div id="{{form.same_as_ticket.help}}help" class="form-text">{{form.same_as_ticket.help_text}}</div>
@@ -110,11 +107,9 @@
                                     </div>
                                 {% endif %}
                             </div>
-
                         </div>
                     </div>
                 {% endif %}
-
                 <div class="row my-3">
                     <div class="col-sm-12 text-center">
                         <button type="submit" class="btn btn-primary">Submit</button>

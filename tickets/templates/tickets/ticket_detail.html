@@ -40,11 +40,11 @@
       <tr>
 	<td><b>Priority: </b>{{ object.priority | priority_badge }}</td>
 	<td><b>Votes: </b>{{ object.votes }}
-	  <a href="{% url 'tickets:upvote_ticket' object.id %}">
-	      <button type="button" class="btn btn-outline-secondary btn-sm" id="vote-button" {% if user.id is None or has_voted%}disabled{% endif %}>
-                  Vote
-                  <i class="fa fa-thumbs-up" aria-label="Vote for this ticket."></i>
-              </button>
+	    <a href="{% url 'tickets:upvote_ticket' object.id %}"
+               class="btn btn-outline-secondary btn-sm" id="vote-button" {% if user.id is None or has_voted%}disabled{% endif %}>
+	        Vote
+                 <i class="fa fa-thumbs-up" aria-label="Vote for this ticket."></i>
+
         </a>
         </td>
       </tr>
@@ -84,34 +84,42 @@
 	{%  if object.is_closed %}
 	<button type="button" class="btn btn-info btn-sm" disabled="disabled">Edit Details</button>
     	{% if user.is_staff %}
-    	<a href="{% url 'tickets:reopen_ticket' object.id %}">
-    	  <button type="button" class="btn btn-info btn-sm">Re-Open</button></a>
+    	    <a class="btn btn-info btn-sm" href="{% url 'tickets:reopen_ticket' object.id %}">
+Re-Open</a>
     	{% endif %}
   	{% else %}
     	{% if user.is_staff or user == object.submitted_by %}
-	<a href="{% url 'tickets:update_ticket' object.id %}">
-	  <button type="button" class="btn btn-info btn-sm">Edit Details</button></a>
+	    <a class="btn btn-info btn-sm" href="{% url 'tickets:update_ticket' object.id %}" >
+                Edit Details
+            </a>
 	{% endif %}
 	{% endif %}
-	<a href="{% url 'tickets:comment_ticket' object.id %}">
-	    <button type="button" class="btn btn-info btn-sm">Comment</button></a>
+	<a class="btn btn-info btn-sm" href="{% url 'tickets:comment_ticket' object.id %}">
+            Comment
+        </a>
 	{%  if object.is_closed == False and user.is_staff %}
         {% if object.status == 'new' %}
-	<a href="{% url 'tickets:accept_ticket' object.id %}">
-	    <button type="button" class="btn btn-success btn-sm">Accept</button></a>
-	<a href="{% url 'tickets:assign_ticket' object.id %}">
-	    <button type="button" class="btn btn-success btn-sm">Accept and Assign</button></a>
+	    <a class="btn btn-success btn-sm" href="{% url 'tickets:accept_ticket' object.id %}">
+                Accept
+        </a>
+	<a href="{% url 'tickets:assign_ticket' object.id %}" class="btn btn-success btn-sm">
+            Accept and Assign
+        </a>
         {% elif object.status == 'accepted' %}
-	<a href="{% url 'tickets:assign_ticket' object.id %}">
-	    <button type="button" class="btn btn-success btn-sm">Assign</button></a>
+	    <a href="{% url 'tickets:assign_ticket' object.id %}" class="btn btn-success btn-sm">
+                Assign
+            </a>
         {% elif object.status == 'assigned' %}
-	<a href="{% url 'tickets:assign_ticket' object.id %}">
-	    <button type="button" class="btn btn-success btn-sm">Re-assign</button></a>
+	    <a href="{% url 'tickets:assign_ticket' object.id %}" class="btn btn-success btn-sm">
+                Re-assign
+            </a>
         {% endif %}
-	<a href="{% url 'tickets:split_ticket' object.id %}">
-	  <button type="button" class="btn btn-warning btn-sm">Split</button></a>
-	<a href="{% url 'tickets:close_ticket' object.id %}">
-	  <button type="button" class="btn btn-danger btn-sm">Close</button></a>
+	<a href="{% url 'tickets:split_ticket' object.id %}" class="btn btn-warning btn-sm">
+            Split
+        </a>
+	<a href="{% url 'tickets:close_ticket' object.id %}" class="btn btn-danger btn-sm">
+            Close
+        </a>
 	{% endif %}
       </div>
     </div>
@@ -190,7 +198,7 @@
     <div class="card my-3">
         <div class="card-header">
             {% if comment.private %}
-	    <button class="btn btn-warning btn-xs" type="submit">private</button>
+	    <span class="badge bg-warning btn-xs">private</span>
 	    {% endif %}
 	    On {{ comment.created_on }} {{ comment.submitted_by }} wrote:
         </div>

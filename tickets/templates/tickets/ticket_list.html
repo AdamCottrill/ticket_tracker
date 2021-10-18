@@ -47,31 +47,53 @@
                         {% else %}
                             <h3 class="my-3">Tickets (n=<span id="ticket-count">{{ object_list|length }}</span>)</h3>
                         {% endif %}
-                        {% if object_list %}
-                            <table cellspacing="0" class="tablesorter">
-                                <thead>
-                                    <tr>
-                                        <th>Ticket</th>
-                                        <th style="text-align:center" >Status</th>
-                                        <th>Description</th>
-                                        <th>Application</th>
-                                        <th>Submitted By</th>
-                                        <th>Submitted On</th>
-                                        <th>Ticket Type</th>
-                                        <th>Priority</th>
-                                        <th>Votes</th>
-                                        <th>Assigned to</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="ticket-list" >
-                                    {% for object in object_list %}
-                                        <tr class="ticket"
-                                            data-category="status-{{ object.status|classify }} type-{{ object.get_ticket_type_display|classify }} priority-{{ object.get_priority_display|classify }} application-{{ object.application|classify }} submitted-by-{{ object.submitted_by|classify }} assigned-to-{{object.assigned_to|classify}}" >
-                                            <td><a href="{{ object.get_absolute_url }}">{{object.id}}</a></td>
-                                            <td style="text-align:center">
-                                                <a href="?{% query_transform status=object.status %}">{{object.status | status_btn }}</a>
-                                            </td>
-                                            <td><a href="{{ object.get_absolute_url }}">{{  object.title }}</a></td>
+                    {% else %}
+                        <h3 class="my-3">Tickets (n=<span id="ticket-count">{{ object_list|length }}</span>)</h3>
+                    {% endif %}
+                    {% if object_list %}
+                        <table cellspacing="0" class="tablesorter">
+                            <thead>
+                                <tr>
+                                    <th>Ticket</th>
+                                    <th style="text-align:center" >Status</th>
+                                    <th>Description</th>
+                                    <th>Application</th>
+                                    <th>Submitted By</th>
+                                    <th>Submitted On</th>
+                                    <th>Ticket Type</th>
+                                    <th>Priority</th>
+                                    <th>Votes</th>
+                                    <th>Assigned to</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ticket-list" >
+                                {% for object in object_list %}
+                                    <tr class="ticket"
+                                        data-category="status-{{ object.status|classify }} type-{{ object.get_ticket_type_display|classify }} priority-{{ object.get_priority_display|classify }} application-{{ object.application|classify }} submitted-by-{{ object.submitted_by|classify }} assigned-to-{{object.assigned_to|classify}}" >
+                                        <td><a href="{{ object.get_absolute_url }}">{{object.id}}</a></td>
+                                        <td style="text-align:center">
+                                            <a href="?{% query_transform status=object.status %}">{{object.status | status_badge }}</a>
+                                        </td>
+                                        <td><a href="{{ object.get_absolute_url }}">{{  object.title }}</a></td>
+                                        <td>
+                                            <a href="?{% query_transform application=object.application.slug %}">{{object.application}}</a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'tickets:submitted_by' object.submitted_by.username %}">{{object.submitted_by}}</a>
+                                        </td>
+                                        <td tabindex="0">
+                                            {{object.created_on |date:"M d, Y" }}
+                                        </td>
+                                        <td>
+                                            <a href="?{% query_transform ticket_type=object.ticket_type %}">{{object.ticket_type | ticket_type_badge }}</a>
+                                        </td>
+                                        <td>
+                                            <a href="?{% query_transform priority=object.priority %}">{{object.priority | priority_badge }}
+                                            </a></td>
+                                        <td  tabindex="0">
+                                            {{object.votes}}
+                                        </td>
+                                        {% if object.assigned_to %}
                                             <td>
                                                 <a href="?{% query_transform application=object.application.slug %}">{{object.application}}</a>
                                             </td>
