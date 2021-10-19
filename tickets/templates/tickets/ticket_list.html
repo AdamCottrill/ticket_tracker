@@ -25,29 +25,32 @@
                                     {% endfor %}
                                 </ul>
                             </div>
+
                         </div>
                     {% endif %}
                 </div>
-                <div id="ticket-table-column" class="col-10" >
-                    {% if tag %}
-                        <h3 class="my-3">Tickets Tagged with '{{ tag }}' (n=<span id="ticket-count">{{ object_list|length }}</span>):</h3>
-                    {% elif status %}
-                        <h3 class="my-3">{{ status }} Tickets (n=<span id="ticket-count">{{ object_list|length }}</span>)</h3>
-                    {% elif type %}
-                        <h3 class="my-3">{{ type  }}s</h3>
-                    {% elif query %}
-                        <h3 class="my-3">Tickets that contain '{{ query }}' (n=<span id="ticket-count">{{ object_list|length }}</span>):</h3>
-                    {% elif username %}
-                        {% if what %}
-                            <h3 class="my-3">Tickets {{ what }} {{ username }} (n=<span id="ticket-count">{{ object_list|length }}</span>):</h3>
+
+                <div id="ticket-table-column" class="col-10">
+                    <div id="main-content">
+                        {% if tag %}
+                            <h3 class="my-3">Tickets Tagged with '{{ tag }}' (n=<span id="ticket-count">{{ object_list|length }}</span>):</h3>
+                        {% elif status %}
+                            <h3 class="my-3">{{ status }} Tickets (n=<span id="ticket-count">{{ object_list|length }}</span>)</h3>
+                        {% elif type %}
+                            <h3 class="my-3">{{ type  }}s</h3>
+                        {% elif query %}
+                            <h3 class="my-3">Tickets that contain '{{ query }}' (n=<span id="ticket-count">{{ object_list|length }}</span>):</h3>
+                        {% elif username %}
+                            {% if what %}
+                                <h3 class="my-3">Tickets {{ what }} {{ username }} (n=<span id="ticket-count">{{ object_list|length }}</span>):</h3>
+                            {% else %}
+                                <h3 class="my-3">Tickets associated with {{ username }} (n=<span id="ticket-count">{{ object_list|length }}</span>):</h3>
+                            {% endif %}
                         {% else %}
-                            <h3 class="my-3">Tickets associated with {{ username }} (n=<span id="ticket-count">{{ object_list|length }}</span>):</h3>
+                            <h3 class="my-3">Tickets (n=<span id="ticket-count">{{ object_list|length }}</span>)</h3>
                         {% endif %}
-                    {% else %}
-                        <h3 class="my-3">Tickets (n=<span id="ticket-count">{{ object_list|length }}</span>)</h3>
-                    {% endif %}
-                    {% if object_list %}
-                        <table cellspacing="0" class="tablesorter">
+                        {% if object_list %}
+                            <table cellspacing="0" class="tablesorter">
                             <thead>
                                 <tr>
                                     <th>Ticket</th>
@@ -89,19 +92,24 @@
                                         <td  tabindex="0">
                                             {{object.votes}}
                                         </td>
+
                                         {% if object.assigned_to %}
                                             <td>
                                                 <a href="{% url 'tickets:assigned_to' object.assigned_to.username %}">{{object.assigned_to}}</a>
                                             </td>
-                                        {% else %} <td  tabindex="0">Nobody (yet)</td> {% endif %}
+                                        {% else %}
+                                            <td  tabindex="0">Nobody (yet)</td>
+                                        {% endif %}
                                     </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
-                    {% else %}
+                                        {% else %}
                         <h4>No Tickets Found.</h4>
+                    </div>
+                                        {% endif %}
                 </div>
-                    {% endif %}
+
             </div>
         </div>
     </div>
