@@ -54,13 +54,17 @@
                     </div>
                 {% endif %}
 
+                    <div class="row text-end">
+                        <p>Required fields are identified by an <span style="color:red">*</span></p>
+                    </div>
+
+
                 <div class="mb-3">
                     <label class="form-label {% if form.comment.field.required %} required {% endif %}"
-                           for="id_{{ form.comment.name }}"
-                           aria-describedby="{{form.comment.name}}help">{{ form.comment.label }}:</label>
+                           for="id_{{ form.comment.name }}">{{ form.comment.label }}:</label>
                     {{ form.comment }}
                     {% if form.comment.help_text %}
-                        <div id="{{form.comment.help}}help" class="form-text">{{form.comment.help_text}}</div>
+                        <div id="{{form.comment.help}}-help" class="form-text">{{form.comment.help_text}}</div>
                     {% endif %}
                     {% if form.comment.errors %}
                         <div id="validation{{form.comment.name}}" class="invalid-feedback">
@@ -72,8 +76,9 @@
                 {% if form.assigned_to %}
                     <div class="mb-3">
                         <label class="form-label {% if form.assigned_to.field.required %} required {% endif %}"
-                               for="id_{{ form.assigned_to.name }}"
-                               aria-describedby="{{form.assigned_to.name}}help">{{ form.assigned_to.label }}:</label>
+                               for="id_{{ form.assigned_to.name }}">
+                            {{ form.assigned_to.label }}:
+                        </label>
                         {{ form.assigned_to }}
                         {% if form.assigned_to.help_text %}
                             <div id="{{form.assigned_to.help}}help" class="form-text">{{form.assigned_to.help_text}}</div>
@@ -86,12 +91,10 @@
                     </div>
                 {% endif %}
 
-
                 {% if form.private %}
                     <div class="mb-3">
                         <label class="form-label {% if form.private.field.required %} required {% endif %}"
-                               for="id_{{ form.private.name }}"
-                               aria-describedby="{{form.private.name}}help">{{ form.private.label }}</label>
+                               for="id_{{ form.private.name }}">{{ form.private.label }}</label>
                         {{ form.private }}
                         {% if form.private.help_text %}
                             <div id="{{form.private.help}}help" class="form-text">{{form.private.help_text}}</div>

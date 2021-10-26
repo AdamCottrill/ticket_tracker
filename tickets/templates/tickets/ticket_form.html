@@ -55,10 +55,13 @@
                         <div class="alert alert-danger">{{ msg }}</div>
                     {% endif %}
 
+                    <div class="row text-end">
+                        <p>Required fields are identified by an <span style="color:red">*</span></p>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label {% if form.title.field.required %} required {% endif %}"
-                               for="id_{{ form.title.name }}"
-                               aria-describedby="{{form.title.name}}help">{{ form.title.label }}:</label>
+                               for="id_{{ form.title.name }}">{{ form.title.label }}:</label>
                         {{ form.title }}
                         {% if form.title.help_text %}
                             <div id="{{form.title.help}}help" class="form-text">{{form.title.help_text}}</div>
@@ -72,8 +75,7 @@
 
                     <div class="mb-3">
                         <label class="form-label {% if form.ticket_type.field.required %} required {% endif %}"
-                               for="id_{{ form.ticket_type.name }}"
-                               aria-describedby="{{form.ticket_type.name}}help">{{ form.ticket_type.label }}:</label>
+                               for="id_{{ form.ticket_type.name }}">{{ form.ticket_type.label }}:</label>
                         {{ form.ticket_type }}
                         {% if form.ticket_type.help_text %}
                             <div id="{{form.ticket_type.help}}help" class="form-text">{{form.ticket_type.help_text}}</div>
@@ -87,8 +89,7 @@
 
                     <div class="mb-3">
                         <label class="form-label {% if form.priority.field.required %} required {% endif %}"
-                               for="id_{{ form.priority.name }}"
-                               aria-describedby="{{form.priority.name}}help">{{ form.priority.label }}:</label>
+                               for="id_{{ form.priority.name }}">{{ form.priority.label }}:</label>
                         {{ form.priority }}
                         {% if form.priority.help_text %}
                             <div id="{{form.priority.help}}help" class="form-text">{{form.priority.help_text}}</div>
@@ -102,8 +103,7 @@
 
                     <div class="mb-3">
                         <label class="form-label {% if form.application.field.required %} required {% endif %}"
-                               for="id_{{ form.application.name }}"
-                               aria-describedby="{{form.application.name}}help">{{ form.application.label }}:</label>
+                               for="id_{{ form.application.name }}">{{ form.application.label }}:</label>
                         {{ form.application }}
                         {% if form.application.help_text %}
                             <div id="{{form.application.help}}help" class="form-text">{{form.application.help_text}}</div>
@@ -117,8 +117,9 @@
 
                     <div class="mb-3">
                         <label class="form-label {% if form.description.field.required %} required {% endif %}"
-                               for="id_{{ form.description.name }}"
-                               aria-describedby="{{form.description.name}}help">{{ form.description.label }}:</label>
+                               for="id_{{ form.description.name }}">
+                            {{ form.description.label }}:
+                        </label>
                         {{ form.description }}
                         {% if form.description.help_text %}
                             <div id="{{form.description.help}}help" class="form-text">{{form.description.help_text}}</div>
@@ -132,8 +133,9 @@
 
                     <div class="mb-3">
                         <label class="form-label {% if form.tags.field.required %} required {% endif %}"
-                               for="id_{{ form.tags.name }}"
-                               aria-describedby="{{form.tags.name}}help">{{ form.tags.label }}:</label>
+                               for="id_{{ form.tags.name }}">
+                            {{ form.tags.label }}:
+                        </label>
                         {{ form.tags }}
                         {% if form.tags.help_text %}
                             <div id="{{form.tags.help}}help" class="form-text">{{form.tags.help_text}}</div>
