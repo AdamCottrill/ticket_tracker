@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=base.txt base.in
 #
-django==2.2.24
+django==2.2.27
     # via
     #   -r base.in
     #   django-filter
