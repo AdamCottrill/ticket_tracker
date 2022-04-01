@@ -52,6 +52,7 @@ class Application(models.Model):
 
     """
 
+    id = models.AutoField(primary_key=True)
     application = models.CharField(max_length=20)
     slug = models.SlugField(unique=True, editable=False)
 
@@ -107,6 +108,8 @@ class Ticket(models.Model):
         (4, "Low"),
         (5, "Very Low"),
     ]
+
+    id = models.AutoField(primary_key=True)
 
     assigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -250,6 +253,7 @@ class TicketDuplicate(models.Model):
 
     """
 
+    id = models.AutoField(primary_key=True)
     ticket = models.ForeignKey(
         Ticket, related_name="duplicate", on_delete=models.CASCADE
     )
@@ -273,6 +277,7 @@ class UserVoteLog(models.Model):
 
     """
 
+    id = models.AutoField(primary_key=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
 
@@ -294,6 +299,7 @@ class FollowUp(models.Model):
         ("split", "Split"),
     ]
 
+    id = models.AutoField(primary_key=True)
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
     parent = models.ForeignKey("self", blank=True, null=True, on_delete=models.CASCADE)
 

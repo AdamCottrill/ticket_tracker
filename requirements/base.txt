@@ -4,14 +4,16 @@
 #
 #    pip-compile --output-file=base.txt base.in
 #
-django==2.2.24
+asgiref==3.5.0
+    # via django
+django==3.2.12
     # via
     #   -r base.in
     #   django-filter
     #   django-taggit
-django-filter==2.4.0
+django-filter==21.1
     # via -r base.in
-django-taggit==1.5.1
+django-taggit==2.1.0
     # via -r base.in
 markdown2==2.4.0
     # via -r base.in
