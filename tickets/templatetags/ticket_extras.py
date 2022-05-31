@@ -25,7 +25,10 @@ def priority_widget(priority, size="xs", type="button"):
         html = '<button type="button" class="btn btn-{0} btn-{1}">{2}</button>'
         html = html.format(attr[0], size, attr[1])
     else:
-        html = '<span class="badge bg-{}">{}</span>'
+        if priority == "2" or priority == "4":
+            html = '<span class="badge bg-{} text-dark">{}</span>'
+        else:
+            html = '<span class="badge bg-{}">{}</span>'
         html = html.format(attr[0], attr[1])
     return html
 
