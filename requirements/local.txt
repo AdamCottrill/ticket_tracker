@@ -168,7 +168,7 @@ tornado==6.1
     # via livereload
 urllib3==1.25.11
     # via requests
-waitress==2.1.1
+waitress==2.1.2
     # via
     #   -r local.in
     #   webtest
