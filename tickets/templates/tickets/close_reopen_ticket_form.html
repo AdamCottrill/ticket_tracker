@@ -4,22 +4,9 @@
 
 {% block title %} {{ action | format_action }} Ticket #{{ ticket.id }} {% endblock %}
 
-
-{% block extra_head %}
-
-    <style>
-     .required:after{
-         content:" *\00a0";
-         color:#b60000;
-     }
-    </style>
-
-{% endblock %}
-
-
 {% block content %}
 
-    <div class="container">
+    <div class="container" id="main-content">
 
         <div class="col-md-8">
 

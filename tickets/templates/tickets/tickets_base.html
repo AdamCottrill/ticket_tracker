@@ -35,6 +35,12 @@
 
          }
 
+         .required:after{
+            content:" *\00a0";
+            color:#b60000;
+         }
+
+
         </style>
 
         {% block extra_head %}
@@ -43,8 +49,15 @@
 
     </head>
     <body>
-
-        <a href="#main-content" class="visually-hidden-focusable"><button class="bg-danger big-badge">Skip To Main Content</button></a>
+        <script>
+            window.onload = function(){
+                if (document.getElementById("ticket-filter-accordion")){
+                    document.body.insertAdjacentHTML('afterbegin','<a href="#filter-menu" class="visually-hidden-focusable"><button class="bg-danger big-badge">Skip To Filter Menu</button></a>')
+                } else {
+                    document.body.insertAdjacentHTML('afterbegin','<a href="#main-content" class="visually-hidden-focusable"><button class="bg-danger big-badge">Skip To Main Content</button></a>')
+                }
+            }
+        </script>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
                 <a class="navbar-brand" href="{% url 'tickets:ticket_list' %}">Ticket Tracker</a>

@@ -2,22 +2,9 @@
 
 {% block title %} Split Ticket #{{ticket.id}} {% endblock %}
 
-
-{% block extra_head %}
-
-    <style>
-     .required:after{
-         content:" *\00a0";
-         color:#b60000;
-     }
-
-    </style>
-
-{% endblock %}
-
 {% block content %}
 
-    <div class="container">
+    <div class="container" id="main-content">
 
         <h1 class="my-1">Split Ticket # {{ticket.id}}:</h1>
         <h3 class="my-2">{{ticket.title}}</h3>
