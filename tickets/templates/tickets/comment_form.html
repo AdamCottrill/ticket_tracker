@@ -4,22 +4,9 @@
 
 {% block title %} {{ action | format_action }} Ticket #{{ ticket.id }}{% endblock %}
 
-{% block extra_head %}
-
-    <style>
-     .required:after{
-         content:"*\00a0";
-         color:red;
-     }
-
-    </style>
-
-{% endblock %}
-
-
 {% block content %}
 
-    <div class="container">
+    <div class="container" id="main-content">
 
         <div class="col-md-8">
 
@@ -55,7 +42,7 @@
                 {% endif %}
 
                     <div class="row text-end">
-                        <p>Required fields are identified by an <span style="color:red">*</span></p>
+                        <p>Required fields are identified by an <span style="color:#b60000">*</span></p>
                     </div>
 
 

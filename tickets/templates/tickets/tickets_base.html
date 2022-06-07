@@ -35,6 +35,12 @@
 
          }
 
+         .required:after{
+            content:" *\00a0";
+            color:#b60000;
+         }
+
+
         </style>
 
         {% block extra_head %}
@@ -43,8 +49,15 @@
 
     </head>
     <body>
-
-        <a href="#main-content" class="visually-hidden-focusable"><button class="bg-danger big-badge">Skip To Main Content</button></a>
+        <script>
+            window.onload = function(){
+                if (document.getElementById("ticket-filter-accordion")){
+                    document.body.insertAdjacentHTML('afterbegin','<a href="#filter-menu" class="visually-hidden-focusable"><button class="bg-danger big-badge">Skip To Filter Menu</button></a>')
+                } else {
+                    document.body.insertAdjacentHTML('afterbegin','<a href="#main-content" class="visually-hidden-focusable"><button class="bg-danger big-badge">Skip To Main Content</button></a>')
+                }
+            }
+        </script>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
                 <a class="navbar-brand" href="{% url 'tickets:ticket_list' %}">Ticket Tracker</a>
@@ -90,7 +103,7 @@
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'tickets:ticket_list' %} ">
+                                        <a class="dropdown-item" href="{% url 'password_change' %} ">
                                             Change Password</a>
                                     </li>
 
@@ -130,7 +143,7 @@
 
                     <form class="d-flex" role="search" action={% url 'tickets:ticket_list' %}>
                         <input class="form-control me-2" required name="q" type="search" placeholder="Search Tickets" aria-label="Search">
-                        <button class="btn btn-outline-success" type="submit">Search</button>
+                        <button class="btn btn-outline-success" type="submit" style="font-weight:bold; background-color: white;">Search</button>
                     </form>
 
                 </div>
