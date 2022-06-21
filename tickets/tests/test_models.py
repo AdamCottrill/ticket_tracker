@@ -8,7 +8,7 @@ import pytest
 
 class TestTicket(TestCase):
     """verify that the get_url, and voting methods work as
-       expected"""
+    expected"""
 
     def setUp(self):
 
@@ -189,8 +189,7 @@ class TestTicketIsClose(TestCase):
 
 
 class TestTicketDuplicates(TestCase):
-    """Verify that we can create and retrieve duplicate tickets
-    """
+    """Verify that we can create and retrieve duplicate tickets"""
 
     def setUp(self):
         """We'll need three tickets - ticket 2 will be a duplicate of
@@ -254,7 +253,7 @@ class TestTicketDuplicates(TestCase):
 
 class TestTicketManager(TestCase):
     """verify that the custom ticket manager is returning the records
-       we expecte
+    we expecte
 
     """
 
@@ -290,7 +289,7 @@ class TestTicketManager(TestCase):
 
 class TestCommentManager(TestCase):
     """verify that the custom comment manager is returning the records
-       we expect
+    we expect
     """
 
     def setUp(self):
@@ -363,7 +362,7 @@ def test_comment_link():
 @pytest.mark.django_db
 def test_application_str():
     """verify that the str method of the application model returns the
-    name of the application, not 'ApplicationObject' """
+    name of the application, not 'ApplicationObject'"""
 
     myapp = ApplicationFactory.create(application="MyApp")
 

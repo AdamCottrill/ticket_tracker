@@ -1,11 +1,8 @@
 import pytest
-from datetime import datetime
-from django.test import TestCase
-
 from django.contrib.auth.models import Group
-
+from django.test import TestCase
+from tickets.forms import CloseTicketForm, SplitTicketForm, TicketForm
 from tickets.models import *
-from tickets.forms import TicketForm, CloseTicketForm, SplitTicketForm
 from tickets.tests.factories import *
 
 
@@ -237,8 +234,7 @@ class TestCloseTicketForm(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_duplicate_bad_ticket(self):
-        """form is not valid if ticket number is for a ticket that doesn't exist
-        """
+        """form is not valid if ticket number is for a ticket that doesn't exist"""
 
         initial = {
             "comment": "This is a valid comment",
@@ -255,8 +251,7 @@ class TestCloseTicketForm(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_duplicate_non_numeric_ticket(self):
-        """form is not valid if ticket number is not an integer
-        """
+        """form is not valid if ticket number is not an integer"""
 
         initial = {
             "comment": "This is a valid comment",
@@ -429,8 +424,7 @@ class TestSplitForm(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_assigned_to_option(self):
-        """form is valid without assigned_to
-        """
+        """form is valid without assigned_to"""
 
         initial = {
             "status1": "new",
