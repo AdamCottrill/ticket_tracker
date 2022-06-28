@@ -388,13 +388,13 @@ def TicketCommentView(request, pk, action="comment"):
     if not is_admin(request.user) and action != "comment":
         return redirect(ticket.get_absolute_url())
 
-    if action in ("closed", "reopened"):
+    if action in ("closed", "re-opened"):
         template = "tickets/close_reopen_ticket_form.html"
     else:
         template = "tickets/comment_form.html"
 
     if request.POST:
-        if action in ("closed", "reopened"):
+        if action in ("closed", "re-opened"):
             form = CloseTicketForm(
                 request.POST, ticket=ticket, user=request.user, action=action
             )
@@ -414,7 +414,7 @@ def TicketCommentView(request, pk, action="comment"):
                 request, template, {"form": form, "ticket": ticket, "action": action}
             )
     else:
-        if action in ("closed", "reopened"):
+        if action in ("closed", "re-opened"):
             form = CloseTicketForm(ticket=ticket, user=request.user, action=action)
         elif action == "comment":
             form = CommentTicketForm(ticket=ticket, user=request.user)

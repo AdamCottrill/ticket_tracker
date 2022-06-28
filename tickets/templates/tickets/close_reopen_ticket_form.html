@@ -31,13 +31,13 @@
                 {% csrf_token %}
                 {% if form.errors %}
                     <div class="alert alert-danger" role="alert">
-                        Please fix the errors in the form below.
+                        <p>Please fix the errors in the form below:</p>
                         {% for error in form.non_field_errors %}
                             <p class="error">{{ error }}</p>
                         {% endfor %}
-                        {% for error in form.errors %}
+                        <!-- {% for error in form.errors %}
                             <p class="error">{{ error }}</p>
-                        {% endfor %}
+                        {% endfor %} -->
                     </div>
                 {% endif %}
                 {% if msg %}
@@ -46,8 +46,7 @@
 
 
                 <div class="mb-3">
-                    <label class="form-label {% if form.comment.field.required %} required {% endif %}"
-                           for="id_{{ form.comment.name }}">{{ form.comment.label }}:</label>
+                    {{ form.comment | required_field_asterisk }}
                     {{ form.comment }}
                     {% if form.comment.help_text %}
                         <div id="{{form.comment.help}}help" class="form-text">{{form.comment.help_text}}</div>
@@ -64,8 +63,7 @@
                         <div class="col-md-3">
 
                             <div class="mb-3">
-                                <label class="form-label {% if form.duplicate.field.required %} required {% endif %}"
-                                       for="id_{{ form.duplicate.name }}">{{ form.duplicate.label }}:</label>
+                                {{ form.duplicate | required_field_asterisk }}
                                 {{ form.duplicate }}
                                 {% if form.duplicate.help_text %}
                                     <div id="{{form.duplicate.help}}help" class="form-text">{{form.duplicate.help_text}}</div>
@@ -80,8 +78,7 @@
                         <div class="col-md-9">
 
                             <div class="mb-3">
-                                <label class="form-label {% if form.same_as_ticket.field.required %} required {% endif %}"
-                                       for="id_{{ form.same_as_ticket.name }}">{{ form.same_as_ticket.label }}:</label>
+                                {{ form.same_as_ticket | required_field_asterisk }}
                                 {{ form.same_as_ticket }}
                                 {% if form.same_as_ticket.help_text %}
                                     <div id="{{form.same_as_ticket.help}}help" class="form-text">{{form.same_as_ticket.help_text}}</div>

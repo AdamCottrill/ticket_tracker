@@ -29,7 +29,7 @@
 
                 {% if form.errors %}
                     <div class="alert alert-danger" role="alert">
-                        Please fix the errors in the form below.
+                        <p>Please fix the errors in the form below:</p>
                         {% for error in form.non_field_errors %}
                             <p class="error">{{ error }}</p>
                         {% endfor %}
@@ -47,8 +47,7 @@
 
 
                 <div class="mb-3">
-                    <label class="form-label {% if form.comment.field.required %} required {% endif %}"
-                           for="id_{{ form.comment.name }}">{{ form.comment.label }}:</label>
+                    {{ form.comment | required_field_asterisk }}
                     {{ form.comment }}
                     {% if form.comment.help_text %}
                         <div id="{{form.comment.help}}-help" class="form-text">{{form.comment.help_text}}</div>
@@ -62,10 +61,7 @@
 
                 {% if form.assigned_to %}
                     <div class="mb-3">
-                        <label class="form-label {% if form.assigned_to.field.required %} required {% endif %}"
-                               for="id_{{ form.assigned_to.name }}">
-                            {{ form.assigned_to.label }}:
-                        </label>
+                        {{ form.assigned_to | required_field_asterisk }}
                         {{ form.assigned_to }}
                         {% if form.assigned_to.help_text %}
                             <div id="{{form.assigned_to.help}}help" class="form-text">{{form.assigned_to.help_text}}</div>
@@ -80,8 +76,7 @@
 
                 {% if form.private %}
                     <div class="mb-3">
-                        <label class="form-label {% if form.private.field.required %} required {% endif %}"
-                               for="id_{{ form.private.name }}">{{ form.private.label }}</label>
+                        {{ form.private | required_field_asterisk }}
                         {{ form.private }}
                         {% if form.private.help_text %}
                             <div id="{{form.private.help}}help" class="form-text">{{form.private.help_text}}</div>

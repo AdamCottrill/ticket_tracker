@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.utils.safestring import mark_safe
 from django.forms import (
     BooleanField,
     CharField,
@@ -244,15 +245,15 @@ class CloseTicketForm(ModelForm):
                 required=False, label="Same as Ticket"
             )
 
-    def clean_same_as_ticket(self):
-        """make sure that we're not duplicating ourselves"""
+    # def clean_same_as_ticket(self):
+    #     """make sure that we're not duplicating ourselves"""
 
-        same_as_ticket = self.cleaned_data.get("same_as_ticket")
-        if same_as_ticket == self.ticket.id:
-            errmsg = "Invalid ticket number. A ticket cannot duplicate itself."
-            raise ValidationError(errmsg)
-        else:
-            return same_as_ticket
+    #     same_as_ticket = self.cleaned_data.get("same_as_ticket")
+    #     if same_as_ticket == self.ticket.id:
+    #         errmsg = "Invalid ticket number. A ticket cannot duplicate itself."
+    #         raise ValidationError(errmsg)
+    #     else:
+    #         return same_as_ticket
 
     def clean(self):
         """
@@ -267,14 +268,18 @@ class CloseTicketForm(ModelForm):
         if self.cleaned_data.get("same_as_ticket") and not self.cleaned_data.get(
             "duplicate"
         ):
-            msg = "Duplicate is false and a ticket number was provided."
-            raise ValidationError(msg)
+            msg = "Duplicate is false but a ticket number was provided. <a href={0} class={1}>Please check the Duplicate</a> box if you would like to create a duplicate ticket. Otherwise, <a href={2} class={1}>leave the Ticket Number blank.</a>".format("#id_duplicate","alert-link","#id_same_as_ticket")
+            raise ValidationError(mark_safe(msg))
 
         elif self.cleaned_data.get("duplicate") and not self.cleaned_data.get(
             "same_as_ticket"
         ):
-            msg = "Duplicate is true but no ticket number is provided."
-            raise ValidationError(msg)
+            msg = "Duplicate is true but no ticket number is provided. <a href={0} class={1}>Please enter a Ticket Number</a> if you would like to create a duplicate ticket. Otherwise, <a href={2} class={1}>uncheck the Duplicate box.</a>".format("#id_same_as_ticket", "alert-link", "#id_duplicate")
+            raise ValidationError(mark_safe(msg))
+        elif self.cleaned_data.get("duplicate") and self.cleaned_data.get(
+            "same_as_ticket") == self.ticket.id:
+            errmsg = "Invalid ticket number. A ticket cannot duplicate itself. <a href={0} class={1}>Please enter a valid ticket number.</a>".format("#id_same_as_ticket", "alert-link")
+            raise ValidationError(mark_safe(errmsg))
         else:
             original_pk = self.cleaned_data.get("same_as_ticket")
 
@@ -284,7 +289,7 @@ class CloseTicketForm(ModelForm):
             except Ticket.DoesNotExist:
                 original = None
             if not original:
-                raise ValidationError("Invalid ticket number.")
+                raise ValidationError(mark_safe("Invalid ticket number. <a href={0} class={1}>Please enter a valid ticket number.</a>".format("#id_same_as_ticket", "alert-link")))
         return self.cleaned_data
 
     def save(self, *args, **kwargs):
@@ -297,7 +302,7 @@ class CloseTicketForm(ModelForm):
 
         ticket = Ticket.objects.get(id=self.ticket.id)
 
-        if self.action == "closed" or self.action == "reopened":
+        if self.action == "closed" or self.action == "re-opened":
             ticket.status = self.action
             followUp.action = self.action
 
@@ -341,6 +346,12 @@ class CommentTicketForm(ModelForm):
                 label="Private (only visible to logged in users).",
                 widget=CheckboxInput(attrs={"class": "form-check-input"}),
             )
+    
+    def clean(self):
+        if not self.cleaned_data.get("comment"):
+            msg = "Comment field is blank. <a href={0} class={1}>Please enter a comment.</a>".format("#id_comment","alert-link")
+            raise ValidationError(mark_safe(msg))
+        return self.cleaned_data
 
     def save(self, *args, **kwargs):
         followUp = FollowUp(

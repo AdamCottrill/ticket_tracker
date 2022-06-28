@@ -894,7 +894,7 @@ class CloseTicketTestCase(WebTest):
         self.assertContains(response, msg)
 
         ticket = Ticket.objects.get(id=self.ticket.id)
-        self.assertEqual(ticket.status, "reopened")
+        self.assertEqual(ticket.status, "re-opened")
 
     def test_reopen_ticket_non_admin(self):
         """if you're an not administator, you should NOT be able to reopen a
