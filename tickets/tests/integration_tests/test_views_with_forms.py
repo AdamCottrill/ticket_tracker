@@ -1050,7 +1050,8 @@ class CloseTicketTestCase(WebTest):
         response = form.submit()
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tickets/close_reopen_ticket_form.html")
-        errmsg = "Duplicate is false and a ticket number was provided."
+        errmsg = "Duplicate is false but a ticket number was provided."
+
         self.assertContains(response, msg)
         self.assertContains(response, errmsg)
 
