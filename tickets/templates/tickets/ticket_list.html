@@ -71,7 +71,7 @@
                                         data-category="status-{{ object.status|classify }} type-{{ object.get_ticket_type_display|classify }} priority-{{ object.get_priority_display|classify }} application-{{ object.application|classify }} submitted-by-{{ object.submitted_by|classify }} assigned-to-{{object.assigned_to|classify}}" >
                                         <td><a href="{{ object.get_absolute_url }}">{{object.id}}</a></td>
                                         <td style="text-align:center">
-                                            <a href="?{% query_transform status=object.status %}">{{object.status | status_badge }}</a>
+                                            <a href="?{% query_transform status=object.status %}" title="Filter by {{ object.get_status_display }}" aria-label="Filter by {{ object.get_status_display }}">{{object.status | status_badge }}</a>
                                         </td>
                                         <td><a href="{{ object.get_absolute_url }}">{{  object.title }}</a></td>
                                         <td>
@@ -84,10 +84,10 @@
                                             {{object.created_on |date:"M d, Y" }}
                                         </td>
                                         <td>
-                                            <a href="?{% query_transform ticket_type=object.ticket_type %}">{{object.ticket_type | ticket_type_badge }}</a>
+                                            <a href="?{% query_transform ticket_type=object.ticket_type %}" title="Filter by {{ object.get_ticket_type_display }}" aria-label="Filter by {{ object.get_ticket_type_display }}">{{object.ticket_type | ticket_type_badge }}</a>
                                         </td>
                                         <td>
-                                            <a href="?{% query_transform priority=object.priority %}">{{object.priority | priority_badge }}
+                                            <a href="?{% query_transform priority=object.priority %}" title="Filter by {{ object.get_priority_display }}" aria-label="Filter by {{ object.get_priority_display }}">{{object.priority | priority_badge }}
                                             </a></td>
                                         <td  tabindex="0">
                                             {{object.votes}}

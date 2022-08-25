@@ -1,5 +1,7 @@
 {% extends "tickets/tickets_base.html" %}
 
+{% load ticket_extras %}
+
 {% block title %} Split Ticket #{{ticket.id}} {% endblock %}
 
 {% block content %}
@@ -54,8 +56,7 @@
                         <div class="card-body">
 
                             <div class="mb-3">
-                                <label class="form-label {% if form.title1.field.required %} required {% endif %}"
-                                       for="id_{{ form.title1.name }}">{{ form.title1.label }}:</label>
+                                {{ form.title1 | required_field_asterisk }}
                                 {{ form.title1 }}
                                 {% if form.title1.help_text %}
                                     <div id="{{form.title1.help}}help" class="form-text">{{form.title1.help_text}}</div>
@@ -68,8 +69,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label {% if form.status1.field.required %} required {% endif %}"
-                                       for="id_{{ form.status1.name }}">{{ form.status1.label }}:</label>
+                                {{ form.status1 | required_field_asterisk }}
                                 {{ form.status1 }}
                                 {% if form.status1.help_text %}
                                     <div id="{{form.status1.help}}help" class="form-text">{{form.status1.help_text}}</div>
@@ -82,8 +82,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label {% if form.ticket_type1.field.required %} required {% endif %}"
-                                       for="id_{{ form.ticket_type1.name }}">{{ form.ticket_type1.label }}:</label>
+                                {{ form.ticket_type1 | required_field_asterisk }}
                                 {{ form.ticket_type1 }}
                                 {% if form.ticket_type1.help_text %}
                                     <div id="{{form.ticket_type1.help}}help" class="form-text">{{form.ticket_type1.help_text}}</div>
@@ -96,10 +95,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label {% if form.priority1.field.required %} required {% endif %}"
-                                       for="id_{{ form.priority1.name }}">
-                                    {{ form.priority1.label }}:
-                                </label>
+                                {{ form.priority1 | required_field_asterisk }}
                                 {{ form.priority1 }}
                                 {% if form.priority1.help_text %}
                                     <div id="{{form.priority1.help}}help" class="form-text">{{form.priority1.help_text}}</div>
@@ -112,8 +108,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label {% if form.application1.field.required %} required {% endif %}"
-                                       for="id_{{ form.application1.name }}">{{ form.application1.label }}:</label>
+                                {{ form.application1 | required_field_asterisk }}
                                 {{ form.application1 }}
                                 {% if form.application1.help_text %}
                                     <div id="{{form.application1.help}}help" class="form-text">{{form.application1.help_text}}</div>
@@ -126,9 +121,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label {% if form.assigned_to1.field.required %} required {% endif %}"
-                                       for="id_{{ form.assigned_to1.name }}">
-                                    {{ form.assigned_to1.label }}:</label>
+                                {{ form.assigned_to1 | required_field_asterisk }}
                                 {{ form.assigned_to1 }}
                                 {% if form.assigned_to1.help_text %}
                                     <div id="{{form.assigned_to1.help}}help" class="form-text">{{form.assigned_to1.help_text}}</div>
@@ -141,8 +134,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label {% if form.description1.field.required %} required {% endif %}"
-                                       for="id_{{ form.description1.name }}">{{ form.description1.label }}:</label>
+                                {{ form.description1 | required_field_asterisk }}
                                 {{ form.description1 }}
                                 {% if form.description1.help_text %}
                                     <div id="{{form.description1.help}}help" class="form-text">{{form.description1.help_text}}</div>
@@ -166,10 +158,7 @@
                         <div class="card-body">
 
                             <div class="mb-3">
-                                <label class="form-label {% if form.title2.field.required %} required {% endif %}"
-                                       for="id_{{ form.title2.name }}">
-                                    {{ form.title2.label }}:
-                                </label>
+                                {{ form.title2 | required_field_asterisk }}
                                 {{ form.title2 }}
                                 {% if form.title2.help_text %}
                                     <div id="{{form.title2.help}}help" class="form-text">{{form.title2.help_text}}</div>
@@ -182,10 +171,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label {% if form.status2.field.required %} required {% endif %}"
-                                       for="id_{{ form.status2.name }}">
-                                    {{ form.status2.label }}:
-                                </label>
+                                {{ form.status2 | required_field_asterisk }}
                                 {{ form.status2 }}
                                 {% if form.status2.help_text %}
                                     <div id="{{form.status2.help}}help" class="form-text">{{form.status2.help_text}}</div>
@@ -198,10 +184,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label {% if form.ticket_type2.field.required %} required {% endif %}"
-                                       for="id_{{ form.ticket_type2.name }}">
-                                    {{ form.ticket_type2.label }}:
-                                </label>
+                                {{ form.ticket_type2 | required_field_asterisk }}
                                 {{ form.ticket_type2 }}
                                 {% if form.ticket_type2.help_text %}
                                     <div id="{{form.ticket_type2.help}}help" class="form-text">{{form.ticket_type2.help_text}}</div>
@@ -214,10 +197,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label {% if form.priority2.field.required %} required {% endif %}"
-                                       for="id_{{ form.priority2.name }}">
-                                    {{ form.priority2.label }}:
-                                </label>
+                                {{ form.priority2 | required_field_asterisk }}
                                 {{ form.priority2 }}
                                 {% if form.priority2.help_text %}
                                     <div id="{{form.priority2.help}}help" class="form-text">{{form.priority2.help_text}}</div>
@@ -230,10 +210,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label {% if form.application2.field.required %} required {% endif %}"
-                                       for="id_{{ form.application2.name }}">
-                                    {{ form.application2.label }}:
-                                </label>
+                                {{ form.application2 | required_field_asterisk }}
                                 {{ form.application2 }}
                                 {% if form.application2.help_text %}
                                     <div id="{{form.application2.help}}help" class="form-text">{{form.application2.help_text}}</div>
@@ -246,10 +223,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label {% if form.assigned_to2.field.required %} required {% endif %}"
-                                       for="id_{{ form.assigned_to2.name }}">
-                                    {{ form.assigned_to2.label }}:
-                                </label>
+                                {{ form.assigned_to2 | required_field_asterisk }}
                                 {{ form.assigned_to2 }}
                                 {% if form.assigned_to2.help_text %}
                                     <div id="{{form.assigned_to2.help}}help" class="form-text">{{form.assigned_to2.help_text}}</div>
@@ -262,10 +236,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label {% if form.description2.field.required %} required {% endif %}"
-                                       for="id_{{ form.description2.name }}">
-                                    {{ form.description2.label }}:
-                                </label>
+                                {{ form.description2 | required_field_asterisk }}
                                 {{ form.description2 }}
                                 {% if form.description2.help_text %}
                                     <div id="{{form.description2.help}}help" class="form-text">{{form.description2.help_text}}</div>
@@ -281,10 +252,7 @@
                 </div>
                 <div class="col">
                     <div class="mb-3">
-                        <label class="form-label {% if form.comment.field.required %} required {% endif %}"
-                               for="id_{{ form.comment.name }}">
-                            {{ form.comment.label }}:
-                        </label>
+                        {{ form.comment | required_field_asterisk }}
                         {{ form.comment }}
                         {% if form.comment.help_text %}
                             <div id="{{form.comment.help}}help" class="form-text">{{form.comment.help_text}}</div>

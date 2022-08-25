@@ -25,7 +25,7 @@ def priority_widget(priority, size="xs", type="button"):
         html = '<button type="button" class="btn btn-{0} btn-{1}">{2}</button>'
         html = html.format(attr[0], size, attr[1])
     else:
-        if priority == "2" or priority == "4":
+        if priority in ["2", "4"]:
             html = '<span class="badge bg-{} text-dark">{}</span>'
         else:
             html = '<span class="badge bg-{}">{}</span>'
@@ -82,7 +82,10 @@ def status_widget(status, size="xs", type="button"):
         html = '<button type="button" class="btn btn-{0} btn-{1}">{2}</button>'
         html = html.format(attr[0], size, attr[1])
     else:
-        html = '<span class="badge bg-{}">{}</span>'
+        if status in ["accepted", "re-opened"]:
+            html = '<span class="badge bg-{} text-dark">{}</span>'
+        else:
+            html = '<span class="badge bg-{}">{}</span>'
         html = html.format(attr[0], attr[1])
 
     return html
@@ -230,3 +233,19 @@ def query_transform(context, include_page=False, **kwargs):
     if query.get("page") and not include_page:
         query.pop("page")
     return query.urlencode()
+
+@register.filter
+def required_field_asterisk(field):
+    """
+
+    Receives a form field and checks if it is a required field. If it is required,
+    adds a red asterisk after the field label and returns it.
+    Otherwise, returns the field label without a red asterisk.
+
+    """
+    if field.field.required:
+         html = '<label class="form-label" for="id_{0}">{1}: <span style="color:#b60000;">*</span></label>'
+    else:
+         html = '<label class="form-label" for="id_{0}">{1}:</label>'
+    html = html.format(field.name, field.label)
+    return mark_safe(html)

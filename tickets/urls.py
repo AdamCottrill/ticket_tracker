@@ -19,7 +19,7 @@ urlpatterns = [
     path(
         "reopen/<int:pk>/",
         view=TicketCommentView,
-        kwargs={"action": "reopened"},
+        kwargs={"action": "re-opened"},
         name="reopen_ticket",
     ),
     path(

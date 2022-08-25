@@ -292,7 +292,7 @@ class TicketListTestCase(TestCase):
         )
 
         desc = "This ticket is reopened. findme."
-        self.ticket4 = TicketFactory(status="reopened", title=desc, description=desc)
+        self.ticket4 = TicketFactory(status="re-opened", title=desc, description=desc)
 
         desc = "This ticket is closed. findme"
         self.ticket5 = TicketFactory(status="closed", title=desc, description=desc)
