@@ -34,7 +34,7 @@ coverage[toml]==6.3.2
     #   pytest-cov
 dill==0.3.4
     # via pylint
-django==3.2.13
+django==3.2.17
     # via
     #   django-debug-toolbar
     #   django-extensions
@@ -160,9 +160,7 @@ toml==0.10.2
     # via pep517
 tomli==2.0.1
     # via
-    #   black
     #   coverage
-    #   pylint
     #   pytest
 tornado==6.1
     # via livereload
